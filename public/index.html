@@ -20,7 +20,7 @@
   .btn:hover { background: #FFB81F; }
   .btn-ghost { background: transparent; color: #6B7A99; border: none; padding: 4px; font-size: 15px; font-weight: 600; font-family: 'Barlow', sans-serif; cursor: pointer; text-decoration: underline; }
   .field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px; color: #16357F; }
-  .field input, .field select { border: 1.5px solid #D6DFEF; border-radius: 8px; padding: 12px 14px; font-size: 16px; font-family: 'Barlow', sans-serif; width: 100%; background: #FFFFFF; }
+  .field input, .field select { border: 1.5px solid #D6DFEF; border-radius: 8px; padding: 10px 12px; font-size: 16px; font-family: 'Barlow', sans-serif; width: 100%; background: #FFFFFF; }
   .chip { border: 1.5px solid #D6DFEF; background: #FFFFFF; color: #33415E; border-radius: 999px; padding: 9px 18px; font-weight: 600; font-size: 15px; font-family: 'Barlow', sans-serif; cursor: pointer; }
   .chip.on { border-color: #16357F; background: #16357F; color: #FFFFFF; }
   .sq { border: 1.5px solid #D6DFEF; background: #FFFFFF; color: #33415E; border-radius: 8px; padding: 9px 14px; min-width: 44px; font-weight: 600; font-size: 15px; font-family: 'Barlow', sans-serif; cursor: pointer; }
@@ -158,20 +158,18 @@
 
 <!-- Modal de inscrição -->
 <div id="modal" style="display: none; position: fixed; inset: 0; z-index: 100; background: rgba(10,22,52,0.6); align-items: center; justify-content: center; padding: 20px;">
-  <div style="background: #FFFFFF; border-radius: 16px; width: 100%; max-width: 520px; max-height: 90vh; overflow: auto; padding: 32px; position: relative; display: flex; flex-direction: column; gap: 20px;">
+  <div style="background: #FFFFFF; border-radius: 16px; width: 100%; max-width: 720px; max-height: 92vh; overflow: auto; padding: 28px 32px; position: relative; display: flex; flex-direction: column; gap: 20px;">
     <button onclick="fecharForm()" aria-label="Fechar" style="position: absolute; top: 14px; right: 14px; background: #F6F8FC; border: none; border-radius: 8px; width: 32px; height: 32px; font-size: 16px; color: #33415E; cursor: pointer;">✕</button>
 
-    <div id="passo1" style="display: flex; flex-direction: column; gap: 16px;">
+    <div id="passo1" style="display: flex; flex-direction: column; gap: 12px;">
       <span class="kicker" style="font-size: 15px;">Passo 1 de 3 · Inscrição gratuita</span>
       <h3 style="font-size: 30px;">Seus dados</h3>
-      <label class="field">Nome completo<input id="f-nome" placeholder="Seu nome"></label>
-      <label class="field">E-mail<input id="f-email" type="email" placeholder="voce@email.com"></label>
-      <label class="field">CPF<input id="f-cpf" placeholder="000.000.000-00"></label>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div class="grid2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <label class="field">Nome completo<input id="f-nome" placeholder="Seu nome"></label>
+        <label class="field">E-mail<input id="f-email" type="email" placeholder="voce@email.com"></label>
+        <label class="field">CPF<input id="f-cpf" placeholder="000.000.000-00"></label>
         <label class="field">WhatsApp<input id="f-fone" placeholder="(54) 9 9999-9999"></label>
         <label class="field">Nascimento<input id="f-nascimento" type="date"></label>
-      </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
         <label class="field">Sexo
           <select id="f-sexo">
             <option value="">Selecione…</option>
@@ -182,9 +180,9 @@
           </select>
         </label>
         <label class="field">Cidade<input id="f-cidade" placeholder="Bento Gonçalves"></label>
+        <label class="field">Equipe (opcional)<input id="f-equipe" placeholder="Nome da equipe ou assessoria"></label>
       </div>
       <label class="field">Contato de emergência (nome e telefone)<input id="f-emergencia" placeholder="Maria — (54) 9 9999-9999"></label>
-      <label class="field">Equipe (opcional)<input id="f-equipe" placeholder="Nome da equipe ou assessoria"></label>
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <span style="font-weight: 600; font-size: 14px; color: #16357F;">Modalidade</span>
         <div id="chips-modalidade" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
@@ -193,7 +191,7 @@
         <input id="f-termo" type="checkbox" style="margin-top: 3px; width: 16px; height: 16px; accent-color: #16357F;">
         <span>Li e aceito o <strong style="color: #16357F;">termo de responsabilidade e declaração de saúde</strong>. Recomenda-se avaliação médica prévia para participantes com condições de risco.</span>
       </label>
-      <div style="background: #FFF6E3; border-radius: 10px; padding: 12px 14px; font-size: 14px;">Participação solidária: leve <strong style="color: #16357F;">1 kg de alimento não perecível</strong> no dia do evento para retirar sua pulseira de identificação.</div>
+      <div style="background: #FFF6E3; border-radius: 10px; padding: 10px 14px; font-size: 13px;">Participação solidária: leve <strong style="color: #16357F;">1 kg de alimento não perecível</strong> no dia do evento para retirar sua pulseira de identificação.</div>
       <span id="erro1" style="display: none; color: #C22B2B; font-size: 14px; font-weight: 600;"></span>
       <button class="btn" onclick="submitDados()">Continuar</button>
     </div>
