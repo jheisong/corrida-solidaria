@@ -1,577 +1,437 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Corrida Solidária de Prevenção à Saúde — Lions Clube Bento Gonçalves</title>
-<meta name="description" content="Inscrições abertas para a Corrida Solidária de Prevenção à Saúde do Lions Clube Bento Gonçalves Cidade do Vinho. 08 de novembro de 2026, pista atlética municipal.">
-<meta name="theme-color" content="#1F3864">
-<link rel="icon" href="/img/logo.jpeg">
+<title>Corrida Solidária de Prevenção à Diabetes — Lions Clube BG Cidade do Vinho</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <style>
-  :root{
-    --azul:#1F3864;
-    --azul-2:#2A4A82;
-    --dourado:#B8860B;
-    --dourado-2:#D4A017;
-    --fundo:#F6F8FC;
-    --texto:#1D2A44;
-    --muted:#5B6A87;
-    --borda:#D6DFEF;
-    --erro:#C22B2B;
-    --sucesso:#1E8A46;
-    --branco:#FFFFFF;
-    --sombra:0 8px 24px rgba(31,56,100,.10);
-    --sombra-lg:0 20px 40px rgba(31,56,100,.18);
-    --radius:14px;
-  }
-  *,*::before,*::after{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    font-family:'Barlow',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-    color:var(--texto);
-    background:var(--fundo);
-    line-height:1.55;
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3{font-family:'Barlow Condensed','Barlow',sans-serif;font-weight:800;letter-spacing:.5px;line-height:1.1;margin:0 0 .5em}
-  h1{font-size:clamp(2rem,6vw,3.6rem)}
-  h2{font-size:clamp(1.6rem,4vw,2.4rem);color:var(--azul)}
-  h3{font-size:1.2rem;color:var(--azul)}
-  p{margin:0 0 1em}
-  a{color:var(--azul);text-decoration:none}
-  a:hover{text-decoration:underline}
-  img{max-width:100%;display:block}
-  .container{width:min(1100px,100% - 2rem);margin-inline:auto}
-
-  /* ---------- Header ---------- */
-  header{
-    position:sticky;top:0;z-index:20;
-    background:var(--branco);
-    border-bottom:1px solid var(--borda);
-  }
-  .nav{display:flex;align-items:center;gap:1rem;padding:.75rem 0}
-  .brand{display:flex;align-items:center;gap:.75rem;font-weight:700;color:var(--azul)}
-  .brand img{width:44px;height:44px;object-fit:contain;border-radius:8px}
-  .brand span{font-family:'Barlow Condensed',sans-serif;font-size:1.15rem;line-height:1.1}
-  .brand small{display:block;font-size:.75rem;color:var(--muted);font-weight:500}
-  .cta-top{margin-left:auto}
-
-  /* ---------- Botões ---------- */
-  .btn{
-    display:inline-block;
-    background:var(--azul);color:#fff;
-    padding:.85rem 1.4rem;border-radius:999px;
-    font-weight:700;font-size:1rem;
-    border:none;cursor:pointer;
-    transition:transform .15s ease,background .15s ease,box-shadow .15s ease;
-    text-align:center;
-  }
-  .btn:hover{background:var(--azul-2);transform:translateY(-1px);text-decoration:none;color:#fff}
-  .btn:active{transform:translateY(0)}
-  .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
-  .btn-ouro{background:var(--dourado)}
-  .btn-ouro:hover{background:var(--dourado-2)}
-  .btn-ghost{background:transparent;color:var(--azul);border:2px solid var(--azul);padding:.7rem 1.2rem}
-  .btn-ghost:hover{background:var(--azul);color:#fff}
-
-  /* ---------- Hero ---------- */
-  .hero{
-    background:linear-gradient(135deg,var(--azul) 0%,#152547 100%);
-    color:#fff;
-    padding:3.5rem 0 3rem;
-    position:relative;overflow:hidden;
-  }
-  .hero::after{
-    content:"";position:absolute;inset:auto -20% -60% auto;
-    width:70%;height:180%;
-    background:radial-gradient(circle,rgba(184,134,11,.25) 0%,transparent 60%);
-    pointer-events:none;
-  }
-  .hero-grid{display:grid;grid-template-columns:1fr;gap:1.5rem;align-items:center;position:relative;z-index:1}
-  .hero h1{color:#fff}
-  .hero h1 em{font-style:normal;color:var(--dourado-2)}
-  .hero .lead{font-size:1.15rem;opacity:.95;max-width:38ch}
-  .hero-info{display:flex;flex-wrap:wrap;gap:1rem;margin:1.25rem 0 1.75rem}
-  .hero-info span{
-    background:rgba(255,255,255,.12);
-    padding:.5rem 1rem;border-radius:999px;
-    font-size:.95rem;font-weight:600;
-    backdrop-filter:blur(4px);
-  }
-  .selo{
-    display:inline-block;background:var(--dourado);color:#231a00;
-    padding:.35rem .85rem;border-radius:6px;font-weight:700;
-    font-size:.85rem;text-transform:uppercase;letter-spacing:1px;
-    margin-bottom:1rem;
-  }
-
-  /* ---------- Seções ---------- */
-  section{padding:3rem 0}
-  .cards{display:grid;grid-template-columns:1fr;gap:1rem}
-  .card{
-    background:#fff;border:1px solid var(--borda);
-    border-radius:var(--radius);padding:1.5rem;
-    box-shadow:var(--sombra);
-  }
-  .card h3{margin-top:0}
-  .card .icon{
-    width:48px;height:48px;border-radius:12px;
-    background:linear-gradient(135deg,var(--azul),var(--azul-2));
-    color:#fff;display:flex;align-items:center;justify-content:center;
-    font-size:1.5rem;margin-bottom:.75rem;font-weight:800;
-  }
-  .card.destaque{border-top:4px solid var(--dourado)}
-
-  .info-evento{
-    background:#fff;border:1px solid var(--borda);border-radius:var(--radius);
-    padding:1.5rem;box-shadow:var(--sombra);
-    display:grid;grid-template-columns:1fr;gap:1rem;
-  }
-  .info-evento dt{font-weight:700;color:var(--azul);font-size:.85rem;text-transform:uppercase;letter-spacing:.5px}
-  .info-evento dd{margin:.25rem 0 0;font-size:1.05rem}
-
-  .termo-box{
-    background:#fff;border-left:4px solid var(--dourado);
-    padding:1rem 1.25rem;border-radius:8px;margin:1rem 0;
-    font-size:.95rem;color:var(--muted);
-  }
-
-  /* ---------- Formulário ---------- */
-  #inscricao{background:linear-gradient(180deg,var(--fundo) 0%,#EAF0FA 100%)}
-  form{
-    background:#fff;border-radius:var(--radius);
-    padding:1.5rem;box-shadow:var(--sombra-lg);
-    display:grid;gap:1rem;
-  }
-  .row{display:grid;grid-template-columns:1fr;gap:1rem}
-  fieldset{border:1px solid var(--borda);border-radius:10px;padding:1rem 1.25rem;margin:0}
-  fieldset legend{padding:0 .5rem;color:var(--azul);font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:1.15rem}
-  label{display:block;font-weight:600;font-size:.95rem;color:var(--texto);margin-bottom:.35rem}
-  label .obr{color:var(--erro);margin-left:2px}
-  .hint{font-size:.85rem;color:var(--muted);margin-top:.25rem}
-  input[type=text],input[type=email],input[type=tel],input[type=date],input[type=number],select,textarea{
-    width:100%;font:inherit;color:var(--texto);
-    padding:.75rem .9rem;border:1.5px solid var(--borda);border-radius:10px;
-    background:#fff;transition:border-color .15s ease,box-shadow .15s ease;
-  }
-  input:focus,select:focus,textarea:focus{
-    outline:none;border-color:var(--azul);
-    box-shadow:0 0 0 3px rgba(31,56,100,.15);
-  }
-  textarea{min-height:80px;resize:vertical}
-  .radios{display:grid;grid-template-columns:1fr;gap:.5rem}
-  .radio-card{
-    display:flex;align-items:flex-start;gap:.75rem;
-    border:1.5px solid var(--borda);border-radius:10px;
-    padding:.85rem 1rem;cursor:pointer;
-    transition:border-color .15s ease,background .15s ease;
-  }
-  .radio-card:hover{border-color:var(--azul)}
-  .radio-card input{margin-top:.2rem;accent-color:var(--azul)}
-  .radio-card:has(input:checked){border-color:var(--azul);background:#EAF0FA}
-  .radio-card strong{display:block;color:var(--azul)}
-  .radio-card small{color:var(--muted)}
-
-  .check-linha{display:flex;align-items:flex-start;gap:.6rem;font-size:.95rem}
-  .check-linha input[type=checkbox]{
-    width:20px;height:20px;margin-top:.15rem;
-    accent-color:var(--azul);cursor:pointer;flex-shrink:0;
-  }
-  .check-linha label{margin:0;font-weight:500;cursor:pointer}
-
-  .msg{padding:1rem 1.25rem;border-radius:10px;font-weight:600;display:none}
-  .msg.show{display:block}
-  .msg.ok{background:#E7F6EC;color:var(--sucesso);border:1px solid #B7E4C7}
-  .msg.err{background:#FDECEC;color:var(--erro);border:1px solid #F5C6C6}
-
-  .submit-linha{display:flex;flex-direction:column;gap:.75rem;align-items:stretch}
-  .submit-linha .btn{width:100%}
-
-  .campo-erro input,.campo-erro select,.campo-erro textarea{border-color:var(--erro)}
-  .erro-txt{color:var(--erro);font-size:.85rem;margin-top:.25rem;display:none}
-  .campo-erro .erro-txt{display:block}
-
-  /* ---------- Footer ---------- */
-  footer{background:var(--azul);color:#fff;padding:2rem 0;margin-top:2rem}
-  footer .container{display:grid;grid-template-columns:1fr;gap:1rem}
-  footer h4{font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;margin:0 0 .5rem;color:var(--dourado-2)}
-  footer small{color:rgba(255,255,255,.7)}
-
-  /* ---------- Placeholders de conteúdo pendente ---------- */
-  .placeholder-info{
-    background:#FFF6E3;border:1px dashed var(--dourado);border-radius:8px;
-    padding:.75rem 1rem;font-size:.9rem;color:#6b5300;
-  }
-
-  /* ---------- Responsivo ---------- */
-  @media (min-width:640px){
-    .row-2{grid-template-columns:1fr 1fr}
-    .row-3{grid-template-columns:1fr 1fr 1fr}
-    .submit-linha{flex-direction:row;justify-content:flex-end}
-    .submit-linha .btn{width:auto}
-    .radios{grid-template-columns:1fr 1fr}
-  }
-  @media (min-width:900px){
-    .hero-grid{grid-template-columns:1.4fr 1fr}
-    .cards{grid-template-columns:1fr 1fr 1fr}
-    .info-evento{grid-template-columns:1fr 1fr}
-    footer .container{grid-template-columns:2fr 1fr 1fr}
-    .radios.mod{grid-template-columns:1fr 1fr 1fr}
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: 'Barlow', sans-serif; color: #33415E; background: #F6F8FC; }
+  a { color: #16357F; text-decoration: none; }
+  a:hover { color: #F5A800; }
+  input:focus, select:focus { outline: 2px solid #3FA9F5; outline-offset: 1px; }
+  h1, h2, h3 { font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; color: #16357F; margin: 0; }
+  .kicker { color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 17px; text-transform: uppercase; letter-spacing: 0.14em; }
+  .btn { background: #F5A800; color: #16357F; border: none; border-radius: 10px; padding: 14px 28px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; }
+  .btn:hover { background: #FFB81F; }
+  .btn-ghost { background: transparent; color: #6B7A99; border: none; padding: 4px; font-size: 15px; font-weight: 600; font-family: 'Barlow', sans-serif; cursor: pointer; text-decoration: underline; }
+  .field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px; color: #16357F; }
+  .field input, .field select { border: 1.5px solid #D6DFEF; border-radius: 8px; padding: 12px 14px; font-size: 16px; font-family: 'Barlow', sans-serif; width: 100%; background: #FFFFFF; }
+  .chip { border: 1.5px solid #D6DFEF; background: #FFFFFF; color: #33415E; border-radius: 999px; padding: 9px 18px; font-weight: 600; font-size: 15px; font-family: 'Barlow', sans-serif; cursor: pointer; }
+  .chip.on { border-color: #16357F; background: #16357F; color: #FFFFFF; }
+  .sq { border: 1.5px solid #D6DFEF; background: #FFFFFF; color: #33415E; border-radius: 8px; padding: 9px 14px; min-width: 44px; font-weight: 600; font-size: 15px; font-family: 'Barlow', sans-serif; cursor: pointer; }
+  .sq.on { border-color: #16357F; background: #16357F; color: #FFFFFF; }
+  .card { background: #F6F8FC; border-radius: 12px; padding: 20px; }
+  .placeholder { display: flex; align-items: center; justify-content: center; color: #6B7A99; font-size: 14px; font-weight: 600; background: repeating-linear-gradient(45deg, #EDF1F9, #EDF1F9 12px, #F6F8FC 12px, #F6F8FC 24px); border-radius: 12px; height: 100%; text-align: center; padding: 12px; }
+  section { padding: 72px 24px; }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  @media (max-width: 900px) {
+    .grid2 { grid-template-columns: 1fr !important; }
+    #nav-links a { display: none; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="container nav">
-    <a href="#" class="brand" aria-label="Lions Clube Bento Gonçalves Cidade do Vinho">
-      <img src="/img/logo.jpeg" alt="">
-      <span>Lions Clube<br><small>Bento Gonçalves Cidade do Vinho</small></span>
-    </a>
-    <a href="#inscricao" class="btn cta-top">Inscreva-se</a>
+<nav style="position: sticky; top: 0; z-index: 50; background: #FFFFFF; border-bottom: 1px solid #E3E9F4; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 24px;">
+  <a href="#topo" style="display: flex; align-items: center; gap: 10px;">
+    <img src="img/logo.jpeg" alt="Corrida Solidária" style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px;">
+    <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; color: #16357F; text-transform: uppercase;">Corrida Solidária</span>
+  </a>
+  <div id="nav-links" style="display: flex; align-items: center; gap: 20px; font-weight: 600; font-size: 15px;">
+    <a href="#percurso" style="color: #33415E;">Percurso</a>
+    <a href="#cronograma" style="color: #33415E;">Cronograma</a>
+    <a href="#regulamento" style="color: #33415E;">Regulamento</a>
+    <a href="#patrocinadores" style="color: #33415E;">Patrocinadores</a>
+    <button class="btn" style="padding: 10px 20px; font-size: 17px;" onclick="abrirForm()">Inscreva-se</button>
+  </div>
+</nav>
+
+<header id="topo" style="background: #16357F; color: #FFFFFF; padding: 72px 24px 80px;">
+  <div class="wrap grid2" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 48px; align-items: center;">
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <span class="kicker" style="color: #F5A800; font-size: 18px;">Lions Clube BG Cidade do Vinho · Prefeitura de Bento Gonçalves</span>
+      <h1 style="color: #FFFFFF; font-weight: 800; font-size: clamp(40px, 8vw, 64px); line-height: 1.0;">Corrida Solidária<br><span style="color: #3FA9F5;">de Prevenção à Diabetes</span></h1>
+      <p style="margin: 0; font-size: 20px; color: #C9D6F0; max-width: 46ch;">Cada passo faz a diferença. Evento comunitário e sem caráter competitivo, com medalha de participação, testes gratuitos de glicemia e ações de saúde para toda a comunidade.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px;">Corrida 5 km</span>
+        <span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px;">Caminhada 5 km</span>
+        <span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px;">Corrida Kids · 250 m</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap;">
+        <button class="btn" style="font-size: 22px; padding: 16px 32px;" onclick="abrirForm()">Inscrição gratuita</button>
+        <span style="color: #C9D6F0; font-size: 15px;"><strong style="color: #FFFFFF;">8 de novembro de 2026 (domingo)</strong> · Pista atlética municipal · Bento Gonçalves/RS</span>
+      </div>
+    </div>
+    <div style="background: #FFFFFF; border-radius: 16px; padding: 20px; justify-self: center;">
+      <img src="img/logo.jpeg" alt="Cartaz Corrida Solidária de Prevenção à Diabetes" style="display: block; width: 100%; max-width: 340px; border-radius: 8px;">
+    </div>
   </div>
 </header>
 
-<section class="hero">
-  <div class="container hero-grid">
-    <div>
-      <div class="selo">Evento Solidário</div>
-      <h1>Corrida Solidária<br><em>de Prevenção à Saúde</em></h1>
-      <p class="lead">Uma manhã para cuidar de você e da comunidade. Venha correr, caminhar ou trazer as crianças — juntos pela saúde de Bento Gonçalves.</p>
-      <div class="hero-info">
-        <span>📅 08 de novembro de 2026</span>
-        <span>📍 Pista atlética municipal — Bento Gonçalves/RS</span>
-      </div>
-      <a href="#inscricao" class="btn btn-ouro">Quero me inscrever</a>
+<section id="percurso" style="background: #FFFFFF;">
+  <div class="wrap" style="display: flex; flex-direction: column; gap: 32px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span class="kicker">Percurso</span>
+      <h2 style="font-size: 40px;">Por onde vamos correr</h2>
     </div>
-    <div style="display:flex;justify-content:center">
-      <img src="/img/logo.jpeg" alt="Lions Clube Bento Gonçalves Cidade do Vinho" style="max-width:260px;border-radius:16px;box-shadow:var(--sombra-lg);background:#fff;padding:1rem">
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="container">
-    <h2>Escolha sua modalidade</h2>
-    <p style="color:var(--muted);max-width:60ch">Um evento comunitário e acolhedor — não é uma competição. Cada passo conta para a prevenção à saúde.</p>
-    <div class="cards">
-      <div class="card destaque">
-        <div class="icon">🏃</div>
-        <h3>Corrida 5 km</h3>
-        <p>Para quem já tem o hábito de correr ou quer se desafiar em um percurso plano e seguro.</p>
-      </div>
-      <div class="card">
-        <div class="icon">🚶</div>
-        <h3>Caminhada 5 km</h3>
-        <p>Vem com a família ou os amigos. Ritmo livre, sem pressão, com muita gente boa junto.</p>
-      </div>
-      <div class="card">
-        <div class="icon">👧</div>
-        <h3>Kids 250 m</h3>
-        <p>Uma volta especial para os pequenos aprenderem cedo que se movimentar é cuidar de si.</p>
+    <div class="grid2" style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; align-items: start;">
+      <div style="height: 360px;"><div class="placeholder">Mapa do percurso — em breve</div></div>
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="card" style="display: flex; flex-direction: column; gap: 4px;">
+          <strong style="color: #16357F; font-size: 17px;">Largada e chegada</strong>
+          <span>Pista atlética municipal de Bento Gonçalves — ponto central de apoio, concentração e ações de saúde.</span>
+        </div>
+        <div class="card" style="display: flex; flex-direction: column; gap: 4px;">
+          <strong style="color: #16357F; font-size: 17px;">Corrida e Caminhada 5 km</strong>
+          <span>Percurso urbano de 5,09 km nas vias próximas à pista, sinalizado e com apoio operacional. Hidratação junto ao Fundaparque e água na chegada.</span>
+        </div>
+        <div class="card" style="display: flex; flex-direction: column; gap: 4px;">
+          <strong style="color: #16357F; font-size: 17px;">Corrida Kids · 250 m</strong>
+          <span>Circuito interno na pista atlética, sem uso de vias públicas, voltado ao público infantil.</span>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section style="background:#fff;border-top:1px solid var(--borda);border-bottom:1px solid var(--borda)">
-  <div class="container">
-    <h2>Informações do evento</h2>
-    <dl class="info-evento">
-      <div><dt>Data</dt><dd>08 de novembro de 2026 (domingo)</dd></div>
-      <div><dt>Local</dt><dd>Pista atlética municipal — Bento Gonçalves / RS</dd></div>
-      <div><dt>Modalidades</dt><dd>Corrida 5 km · Caminhada 5 km · Kids 250 m</dd></div>
-      <div><dt>Realização</dt><dd>Lions Clube Bento Gonçalves Cidade do Vinho</dd></div>
-    </dl>
-    <div class="placeholder-info" style="margin-top:1rem">
-      <strong>A confirmar:</strong> horário de largada, valor da inscrição, entrega de kits, entidade beneficiária, patrocinadores e regulamento completo.
+<section id="cronograma" style="background: #F6F8FC;">
+  <div style="max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span class="kicker">Cronograma</span>
+      <h2 style="font-size: 40px;">Programação do dia</h2>
+      <span style="font-size: 15px; color: #6B7A99;">Domingo, 8 de novembro de 2026 · Em caso de mau tempo, data reserva em 15/11 com o mesmo cronograma.</span>
     </div>
+    <div id="lista-cronograma"></div>
   </div>
 </section>
 
-<section id="inscricao">
-  <div class="container">
-    <h2>Ficha de inscrição</h2>
-    <p style="color:var(--muted)">Preencha os dados abaixo. Campos com <span style="color:var(--erro)">*</span> são obrigatórios.</p>
+<section id="regulamento" style="background: #FFFFFF;">
+  <div class="wrap" style="display: flex; flex-direction: column; gap: 32px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span class="kicker">Regulamento</span>
+      <h2 style="font-size: 40px;">Pontos principais</h2>
+    </div>
+    <div id="lista-regras" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;"></div>
+    <div style="background: #FFF6E3; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 6px;">
+      <strong style="color: #16357F; font-size: 17px;">Ações de saúde gratuitas no dia</strong>
+      <span style="font-size: 15px;">A partir das 07h30: testes de glicemia capilar, aferição de pressão arterial, cálculo de IMC e orientação nutricional, em parceria com a Secretaria Municipal da Saúde e o ônibus da saúde.</span>
+    </div>
+    <span style="font-size: 15px; color: #6B7A99;">O regulamento completo em PDF será publicado nesta página.</span>
+  </div>
+</section>
 
-    <form id="form-inscricao" novalidate>
+<section id="patrocinadores" style="background: #F6F8FC;">
+  <div class="wrap" style="display: flex; flex-direction: column; gap: 32px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span class="kicker">Apoio</span>
+      <h2 style="font-size: 40px;">Patrocinadores</h2>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+      <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
+      <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
+      <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
+      <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
+      <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
+      <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
+    </div>
+    <span style="font-size: 15px; color: #6B7A99;">Quer apoiar a Corrida Solidária? Fale com o Lions Clube Bento Gonçalves Cidade do Vinho.</span>
+  </div>
+</section>
 
-      <fieldset>
-        <legend>Seus dados</legend>
-        <div class="row row-2">
-          <div>
-            <label for="nome">Nome completo <span class="obr">*</span></label>
-            <input type="text" id="nome" name="nome" autocomplete="name" required maxlength="120">
-            <div class="erro-txt"></div>
-          </div>
-          <div>
-            <label for="email">E-mail <span class="obr">*</span></label>
-            <input type="email" id="email" name="email" autocomplete="email" required maxlength="200">
-            <div class="erro-txt"></div>
-          </div>
-        </div>
-        <div class="row row-2">
-          <div>
-            <label for="telefone">Telefone / WhatsApp <span class="obr">*</span></label>
-            <input type="tel" id="telefone" name="telefone" autocomplete="tel" required maxlength="40" placeholder="(54) 9 9999-9999">
-            <div class="erro-txt"></div>
-          </div>
-          <div>
-            <label for="cpf">CPF <span style="color:var(--muted);font-weight:normal">(opcional)</span></label>
-            <input type="text" id="cpf" name="cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00">
-            <div class="erro-txt"></div>
-          </div>
-        </div>
-        <div class="row row-3">
-          <div>
-            <label for="data_nascimento">Data de nascimento <span class="obr">*</span></label>
-            <input type="date" id="data_nascimento" name="data_nascimento" autocomplete="bday" required>
-            <div class="erro-txt"></div>
-          </div>
-          <div>
-            <label for="sexo">Sexo <span class="obr">*</span></label>
-            <select id="sexo" name="sexo" required>
-              <option value="">Selecione…</option>
-              <option value="F">Feminino</option>
-              <option value="M">Masculino</option>
-              <option value="OUTRO">Outro</option>
-              <option value="PREFIRO_NAO_INFORMAR">Prefiro não informar</option>
-            </select>
-            <div class="erro-txt"></div>
-          </div>
-          <div>
-            <label for="cidade">Cidade <span class="obr">*</span></label>
-            <input type="text" id="cidade" name="cidade" autocomplete="address-level2" required maxlength="120" value="Bento Gonçalves">
-            <div class="erro-txt"></div>
-          </div>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Modalidade</legend>
-        <div class="radios mod" role="radiogroup" aria-labelledby="mod-legend">
-          <label class="radio-card">
-            <input type="radio" name="modalidade" value="corrida-5km" required>
-            <span><strong>Corrida 5 km</strong><br><small>Para quem já corre</small></span>
-          </label>
-          <label class="radio-card">
-            <input type="radio" name="modalidade" value="caminhada-5km">
-            <span><strong>Caminhada 5 km</strong><br><small>Ritmo livre</small></span>
-          </label>
-          <label class="radio-card">
-            <input type="radio" name="modalidade" value="kids-250m">
-            <span><strong>Kids 250 m</strong><br><small>Para as crianças</small></span>
-          </label>
-        </div>
-        <div class="erro-txt" data-erro="modalidade"></div>
-        <div style="margin-top:1rem">
-          <label for="equipe">Equipe / grupo <span style="color:var(--muted);font-weight:normal">(opcional)</span></label>
-          <input type="text" id="equipe" name="equipe" maxlength="120" placeholder="Ex.: Corredores do Vinho">
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Camiseta oficial</legend>
-        <div class="check-linha">
-          <input type="checkbox" id="quer_camiseta" name="quer_camiseta">
-          <label for="quer_camiseta">Quero adquirir a camiseta oficial do evento</label>
-        </div>
-        <div id="camiseta-box" style="display:none;margin-top:.75rem">
-          <label for="tamanho_camiseta">Tamanho <span class="obr">*</span></label>
-          <select id="tamanho_camiseta" name="tamanho_camiseta">
-            <option value="">Selecione…</option>
-            <option value="PP">PP</option>
-            <option value="P">P</option>
-            <option value="M">M</option>
-            <option value="G">G</option>
-            <option value="GG">GG</option>
-            <option value="XG">XG</option>
-            <option value="INFANTIL">Infantil</option>
-          </select>
-          <div class="erro-txt"></div>
-          <p class="placeholder-info" style="margin-top:.75rem"><strong>A confirmar:</strong> valor da camiseta e forma de pagamento.</p>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Segurança</legend>
-        <label for="contato_emergencia">Contato de emergência <span class="obr">*</span></label>
-        <input type="text" id="contato_emergencia" name="contato_emergencia" required maxlength="200" placeholder="Nome e telefone">
-        <div class="hint">Alguém que possamos avisar em caso de necessidade no dia do evento.</div>
-        <div class="erro-txt"></div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Contribuição solidária <span style="font-weight:400;color:var(--muted);font-size:.9rem">(opcional)</span></legend>
-        <label for="doacao_valor">Valor da doação (R$)</label>
-        <input type="number" id="doacao_valor" name="doacao_valor" min="0" step="0.01" placeholder="Ex.: 20,00">
-        <div class="hint">Toda contribuição fortalece as ações de prevenção à saúde do Lions Clube.</div>
-        <p class="placeholder-info" style="margin-top:.75rem"><strong>A confirmar:</strong> chave Pix e entidade beneficiária.</p>
-      </fieldset>
-
-      <fieldset>
-        <legend>Observações</legend>
-        <label for="observacoes">Alguma informação adicional? <span style="color:var(--muted);font-weight:normal">(opcional)</span></label>
-        <textarea id="observacoes" name="observacoes" maxlength="1000" placeholder="Alergia, condição de saúde relevante, etc."></textarea>
-      </fieldset>
-
-      <fieldset>
-        <legend>Termo de responsabilidade</legend>
-        <div class="termo-box">
-          Declaro que estou em condições de saúde adequadas para participar da
-          modalidade escolhida da Corrida Solidária de Prevenção à Saúde e que
-          assumo total responsabilidade pela minha participação, isentando o
-          Lions Clube Bento Gonçalves Cidade do Vinho, a organização do evento
-          e seus patrocinadores de qualquer responsabilidade sobre eventuais
-          intercorrências decorrentes de condição de saúde não previamente
-          diagnosticada. Autorizo o uso da minha imagem em materiais de
-          divulgação do evento sem finalidade comercial.
-        </div>
-        <div class="check-linha">
-          <input type="checkbox" id="aceite_termo" name="aceite_termo" required>
-          <label for="aceite_termo">Li e concordo com o termo de responsabilidade e a declaração de saúde acima. <span class="obr">*</span></label>
-        </div>
-        <div class="erro-txt" data-erro="aceite_termo"></div>
-      </fieldset>
-
-      <div id="msg" class="msg" role="status" aria-live="polite"></div>
-
-      <div class="submit-linha">
-        <button type="submit" class="btn btn-ouro" id="btn-enviar">Confirmar inscrição</button>
+<footer style="background: #16357F; color: #C9D6F0; padding: 40px 24px;">
+  <div class="wrap" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <img src="img/logo.jpeg" alt="" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;">
+      <div style="display: flex; flex-direction: column;">
+        <strong style="color: #FFFFFF; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase;">Corrida Solidária de Prevenção à Diabetes</strong>
+        <span style="font-size: 14px;">Lions Clube Bento Gonçalves Cidade do Vinho · Prefeitura Municipal de Bento Gonçalves · AL 2026/2027</span>
       </div>
-    </form>
-  </div>
-</section>
-
-<footer>
-  <div class="container">
-    <div>
-      <h4>Corrida Solidária</h4>
-      <p style="margin:0">De Prevenção à Saúde<br>08 de novembro de 2026 — Bento Gonçalves/RS</p>
     </div>
-    <div>
-      <h4>Realização</h4>
-      <p style="margin:0">Lions Clube Bento Gonçalves<br>Cidade do Vinho</p>
-    </div>
-    <div>
-      <h4>Contato</h4>
-      <p style="margin:0"><small>Informações complementares em breve.</small></p>
-    </div>
-  </div>
-  <div class="container" style="margin-top:1.5rem;border-top:1px solid rgba(255,255,255,.15);padding-top:1rem">
-    <small>© 2026 Lions Clube Bento Gonçalves Cidade do Vinho.</small>
+    <button class="btn" style="background: transparent; color: #F5A800; border: 1.5px solid #F5A800; padding: 10px 22px; font-size: 17px;" onclick="abrirForm()">Inscreva-se</button>
   </div>
 </footer>
 
+<!-- Modal de inscrição -->
+<div id="modal" style="display: none; position: fixed; inset: 0; z-index: 100; background: rgba(10,22,52,0.6); align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: #FFFFFF; border-radius: 16px; width: 100%; max-width: 520px; max-height: 90vh; overflow: auto; padding: 32px; position: relative; display: flex; flex-direction: column; gap: 20px;">
+    <button onclick="fecharForm()" aria-label="Fechar" style="position: absolute; top: 14px; right: 14px; background: #F6F8FC; border: none; border-radius: 8px; width: 32px; height: 32px; font-size: 16px; color: #33415E; cursor: pointer;">✕</button>
+
+    <div id="passo1" style="display: flex; flex-direction: column; gap: 16px;">
+      <span class="kicker" style="font-size: 15px;">Passo 1 de 3 · Inscrição gratuita</span>
+      <h3 style="font-size: 30px;">Seus dados</h3>
+      <label class="field">Nome completo<input id="f-nome" placeholder="Seu nome"></label>
+      <label class="field">E-mail<input id="f-email" type="email" placeholder="voce@email.com"></label>
+      <label class="field">CPF<input id="f-cpf" placeholder="000.000.000-00"></label>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <label class="field">WhatsApp<input id="f-fone" placeholder="(54) 9 9999-9999"></label>
+        <label class="field">Nascimento<input id="f-nascimento" type="date"></label>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <label class="field">Sexo
+          <select id="f-sexo">
+            <option value="">Selecione…</option>
+            <option value="F">Feminino</option>
+            <option value="M">Masculino</option>
+            <option value="OUTRO">Outro</option>
+            <option value="PREFIRO_NAO_INFORMAR">Prefiro não informar</option>
+          </select>
+        </label>
+        <label class="field">Cidade<input id="f-cidade" placeholder="Bento Gonçalves"></label>
+      </div>
+      <label class="field">Contato de emergência (nome e telefone)<input id="f-emergencia" placeholder="Maria — (54) 9 9999-9999"></label>
+      <label class="field">Equipe (opcional)<input id="f-equipe" placeholder="Nome da equipe ou assessoria"></label>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-weight: 600; font-size: 14px; color: #16357F;">Modalidade</span>
+        <div id="chips-modalidade" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+      </div>
+      <label style="display: flex; gap: 10px; align-items: flex-start; font-size: 14px; cursor: pointer;">
+        <input id="f-termo" type="checkbox" style="margin-top: 3px; width: 16px; height: 16px; accent-color: #16357F;">
+        <span>Li e aceito o <strong style="color: #16357F;">termo de responsabilidade e declaração de saúde</strong>. Recomenda-se avaliação médica prévia para participantes com condições de risco.</span>
+      </label>
+      <div style="background: #FFF6E3; border-radius: 10px; padding: 12px 14px; font-size: 14px;">Participação solidária: leve <strong style="color: #16357F;">1 kg de alimento não perecível</strong> no dia do evento para retirar sua pulseira de identificação.</div>
+      <span id="erro1" style="display: none; color: #C22B2B; font-size: 14px; font-weight: 600;"></span>
+      <button class="btn" onclick="submitDados()">Continuar</button>
+    </div>
+
+    <div id="passo2" style="display: none; flex-direction: column; gap: 16px;">
+      <span class="kicker" style="font-size: 15px;">Passo 2 de 3 · Opcional</span>
+      <h3 style="font-size: 30px;">Leve a camisa oficial</h3>
+      <p style="margin: 0; font-size: 16px;">Garanta a camisa oficial do evento por <strong style="color: #16357F;">R$ 50,00</strong>. Todo o valor é revertido para a causa: ações de prevenção e conscientização sobre o diabetes na comunidade.</p>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="height: 180px;"><div class="placeholder">Foto da camisa (frente)</div></div>
+          <span style="font-size: 13px; font-weight: 600; color: #6B7A99; text-align: center;">Frente</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="height: 180px;"><div class="placeholder">Foto da camisa (verso)</div></div>
+          <span style="font-size: 13px; font-weight: 600; color: #6B7A99; text-align: center;">Verso</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-weight: 600; font-size: 14px; color: #16357F;">Tamanho</span>
+        <div id="chips-tamanho" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+      </div>
+      <button class="btn" onclick="camisa(true)">Quero a camisa · R$ 50,00</button>
+      <button class="btn-ghost" onclick="camisa(false)">Seguir sem a camisa</button>
+    </div>
+
+    <div id="passo3" style="display: none; flex-direction: column; gap: 16px;">
+      <span class="kicker" style="font-size: 15px;">Passo 3 de 3 · Opcional</span>
+      <h3 style="font-size: 30px;">Depósito solidário</h3>
+      <p style="margin: 0; font-size: 16px;">Além do 1 kg de alimento entregue no dia, você pode fazer um depósito voluntário. Todo o valor doado é revertido para a causa, por meio da entidade assistencial indicada pela organização. O comprovante pode ser anexado à inscrição.</p>
+      <div id="chips-doacao" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;"></div>
+      <label class="field">Outro valor (R$)<input id="f-outro" type="number" min="1" placeholder="Ex.: 35"></label>
+      <span id="erro3" style="display: none; color: #C22B2B; font-size: 14px; font-weight: 600;"></span>
+      <button class="btn" id="btn-concluir" onclick="concluir(false)">Concluir inscrição</button>
+      <button class="btn-ghost" onclick="concluir(true)">Pular depósito</button>
+    </div>
+
+    <div id="passo4" style="display: none; flex-direction: column; gap: 16px; text-align: center; align-items: center;">
+      <span style="width: 64px; height: 64px; border-radius: 50%; background: #E7F6EC; color: #1E8A46; font-size: 30px; display: flex; align-items: center; justify-content: center;">✓</span>
+      <h3 style="font-size: 30px;">Inscrição confirmada!</h3>
+      <p style="margin: 0; font-size: 16px;">Nos vemos na largada, <strong style="color: #16357F;" id="r-nome"></strong>. Retire sua pulseira a partir das <strong style="color: #16357F;">07h00</strong> do dia 8/11, levando <strong style="color: #16357F;">1 kg de alimento não perecível</strong> — ela garante sua medalha de participação.</p>
+      <div style="width: 100%; background: #F6F8FC; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 15px;">
+        <div style="display: flex; justify-content: space-between;"><span>Nº de inscrição</span><strong style="color: #16357F;" id="r-num"></strong></div>
+        <div style="display: flex; justify-content: space-between;"><span>Modalidade</span><strong style="color: #16357F;" id="r-modalidade"></strong></div>
+        <div style="display: flex; justify-content: space-between;"><span>Inscrição</span><strong style="color: #1E8A46;">Gratuita + 1 kg de alimento</strong></div>
+        <div style="display: flex; justify-content: space-between;"><span>Camisa oficial</span><strong style="color: #16357F;" id="r-camisa"></strong></div>
+        <div style="display: flex; justify-content: space-between;"><span>Depósito solidário</span><strong style="color: #16357F;" id="r-doacao"></strong></div>
+        <div style="display: flex; justify-content: space-between; border-top: 1px solid #E3E9F4; padding-top: 8px; margin-top: 4px;"><span style="font-weight: 700; color: #16357F;">Total a pagar</span><strong style="color: #16357F;" id="r-total"></strong></div>
+      </div>
+      <div id="bloco-pix" style="display: none; width: 100%; background: #F6F8FC; border-radius: 12px; padding: 20px; flex-direction: column; align-items: center; gap: 12px;">
+        <strong style="color: #16357F; font-family: 'Barlow Condensed', sans-serif; font-size: 20px; text-transform: uppercase;">Pague com Pix</strong>
+        <span style="font-size: 14px; text-align: center;">Escaneie o QR Code com o app do seu banco e pague <strong style="color: #16357F;" id="r-total-pix"></strong>. O código expira em 30 minutos.</span>
+        <div style="width: 200px; height: 200px; background: #FFFFFF; border-radius: 12px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+          <img id="qr-img" alt="QR Code Pix" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        <span style="font-size: 13px; color: #6B7A99; text-align: center;">Guarde o comprovante para a retirada da pulseira.</span>
+      </div>
+      <button class="btn" style="background: #16357F; color: #FFFFFF;" onclick="fecharForm()">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <script>
-(() => {
-  const form = document.getElementById('form-inscricao');
-  const msg = document.getElementById('msg');
-  const btn = document.getElementById('btn-enviar');
-  const camisaChk = document.getElementById('quer_camiseta');
-  const camisaBox = document.getElementById('camiseta-box');
-  const camisaSel = document.getElementById('tamanho_camiseta');
+const CHAVE_PIX = "00000000000100"; // TODO: substituir pelo CNPJ/chave Pix da organização
+const PRECO_CAMISA = 50;
+const MODALIDADES = [
+  { rotulo: "Corrida 5 km", api: "corrida-5km" },
+  { rotulo: "Caminhada 5 km", api: "caminhada-5km" },
+  { rotulo: "Corrida Kids · 250 m", api: "kids-250m" }
+];
+const TAMANHOS = ["PP", "P", "M", "G", "GG", "XG", "INFANTIL"];
+const DOACOES = [5, 10, 20, 50];
 
-  camisaChk.addEventListener('change', () => {
-    camisaBox.style.display = camisaChk.checked ? 'block' : 'none';
-    if (!camisaChk.checked) { camisaSel.value = ''; limparErro(camisaSel); }
+const CRONOGRAMA = [
+  ["07h00", "Retirada de pulseiras", "Abertura da retirada das pulseiras de identificação e recepção dos participantes, mediante entrega de 1 kg de alimento não perecível."],
+  ["07h30", "Ações de saúde", "Testes de glicemia, aferição de pressão arterial e cálculo de IMC."],
+  ["07h45", "Abertura oficial", "Fala institucional do Lions Clube e da Prefeitura Municipal."],
+  ["07h50", "Aquecimento coletivo", "Aquecimento orientado por profissional de Educação Física."],
+  ["08h00", "Largada — Corrida Kids", "Circuito de 250 m, interno à pista atlética."],
+  ["08h30", "Largada — Corrida e Caminhada 5 km", "Largada conjunta em dois pelotões: 1º corredores, 2º caminhantes."],
+  ["09h30", "Chegada e medalhas", "Chegada dos participantes e entrega das medalhas de participação."],
+  ["10h00", "Pós-evento", "Ações de saúde, integração com parceiros e convivência."],
+  ["10h45", "Sorteio de brindes", "Sorteio entre os participantes presentes."],
+  ["11h00", "Encerramento", "Agradecimentos e encerramento oficial."]
+];
+const REGRAS = [
+  ["01", "Inscrição gratuita e solidária", "Sem taxa de inscrição. No lugar dela: doação de 1 kg de alimento não perecível no dia do evento e depósito voluntário a uma entidade assistencial."],
+  ["02", "Sem caráter competitivo", "Evento participativo e comunitário, sem premiação competitiva. Todos os concluintes previamente inscritos recebem medalha de participação."],
+  ["03", "Pulseira de identificação", "Não há kits. A pulseira é retirada no dia, a partir das 07h00, e dá direito à medalha ao final do evento."],
+  ["04", "Termo de responsabilidade", "Aceite obrigatório de termo de responsabilidade e declaração de saúde no ato da inscrição, com seguro de acidentes pessoais para todos os inscritos."],
+  ["05", "Camiseta opcional", "A camiseta oficial é opcional, independente da inscrição, e apoia a sustentabilidade do evento."],
+  ["06", "Inscrições no local", "Poderão ocorrer conforme disponibilidade, porém sem garantia de medalha — inscritos antecipados têm prioridade."]
+];
+
+document.getElementById("lista-cronograma").innerHTML = CRONOGRAMA.map(([h, t, d]) => `
+  <div style="display:flex;gap:20px;align-items:baseline;padding:16px 0;border-bottom:1px solid #E3E9F4;">
+    <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;color:#F5A800;min-width:76px;">${h}</span>
+    <div style="display:flex;flex-direction:column;gap:2px;">
+      <strong style="color:#16357F;font-size:17px;">${t}</strong>
+      <span style="font-size:15px;">${d}</span>
+    </div>
+  </div>`).join("");
+
+document.getElementById("lista-regras").innerHTML = REGRAS.map(([n, t, d]) => `
+  <div class="card" style="display:flex;flex-direction:column;gap:10px;">
+    <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:#3FA9F5;">${n}</span>
+    <strong style="color:#16357F;font-size:17px;">${t}</strong>
+    <span style="font-size:15px;">${d}</span>
+  </div>`).join("");
+
+const estado = { modalidade: MODALIDADES[0], tamanho: "M", camisa: false, doacao: null };
+
+function renderChips() {
+  document.getElementById("chips-modalidade").innerHTML = MODALIDADES.map((m, i) =>
+    `<button class="chip ${estado.modalidade.api === m.api ? "on" : ""}" onclick="pickModalidade(${i})">${m.rotulo}</button>`).join("");
+  document.getElementById("chips-tamanho").innerHTML = TAMANHOS.map(t =>
+    `<button class="sq ${estado.tamanho === t ? "on" : ""}" onclick="pickTamanho('${t}')">${t}</button>`).join("");
+  document.getElementById("chips-doacao").innerHTML = DOACOES.map(v =>
+    `<button class="sq ${estado.doacao === v ? "on" : ""}" style="padding:12px 6px;font-weight:700;font-size:16px;" onclick="pickDoacao(${v})">R$ ${v}</button>`).join("");
+}
+function pickModalidade(i) { estado.modalidade = MODALIDADES[i]; renderChips(); }
+function pickTamanho(t) { estado.tamanho = t; renderChips(); }
+function pickDoacao(v) { estado.doacao = v; document.getElementById("f-outro").value = ""; renderChips(); }
+renderChips();
+
+function irPara(n) {
+  ["passo1", "passo2", "passo3", "passo4"].forEach((id, i) => {
+    document.getElementById(id).style.display = i === n - 1 ? "flex" : "none";
   });
+}
+function abrirForm() { document.getElementById("modal").style.display = "flex"; irPara(1); }
+function fecharForm() { document.getElementById("modal").style.display = "none"; }
 
-  function limparErro(el){
-    const grp = el.closest('div,fieldset');
-    if (grp) grp.classList.remove('campo-erro');
-    const et = grp && grp.querySelector('.erro-txt');
-    if (et) et.textContent = '';
-  }
-  function marcarErro(campo, texto){
-    const el = form.elements[campo];
-    if (!el) return;
-    const alvo = el.length ? el[0] : el;
-    const grp = alvo.closest('div,fieldset');
-    if (grp){
-      grp.classList.add('campo-erro');
-      const et = grp.querySelector('.erro-txt');
-      if (et) et.textContent = texto;
-    }
-  }
-  function limparTodosErros(){
-    form.querySelectorAll('.campo-erro').forEach(g => g.classList.remove('campo-erro'));
-    form.querySelectorAll('.erro-txt').forEach(e => e.textContent = '');
-  }
-  function mostrarMsg(txt, tipo){
-    msg.textContent = txt;
-    msg.className = 'msg show ' + (tipo === 'ok' ? 'ok' : 'err');
-    msg.scrollIntoView({ behavior:'smooth', block:'center' });
-  }
-  function esconderMsg(){ msg.className = 'msg'; msg.textContent = ''; }
+function val(id) { return document.getElementById(id).value.trim(); }
+function mostraErro(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = msg ? "block" : "none";
+}
 
-  form.addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    limparTodosErros();
-    esconderMsg();
+function submitDados() {
+  const cpf = val("f-cpf").replace(/\D/g, "");
+  if (!val("f-nome") || !val("f-email")) return mostraErro("erro1", "Preencha nome e e-mail para continuar.");
+  if (cpf.length !== 11) return mostraErro("erro1", "Informe um CPF válido (11 dígitos).");
+  if (!val("f-fone")) return mostraErro("erro1", "Informe seu WhatsApp.");
+  if (!val("f-nascimento")) return mostraErro("erro1", "Informe sua data de nascimento.");
+  if (!val("f-sexo")) return mostraErro("erro1", "Selecione o sexo.");
+  if (!val("f-cidade")) return mostraErro("erro1", "Informe sua cidade.");
+  if (!val("f-emergencia")) return mostraErro("erro1", "Informe um contato de emergência.");
+  if (!document.getElementById("f-termo").checked) return mostraErro("erro1", "É preciso aceitar o termo de responsabilidade para continuar.");
+  mostraErro("erro1", "");
+  irPara(2);
+}
 
-    const fd = new FormData(form);
-    const payload = {
-      nome: fd.get('nome'),
-      email: fd.get('email'),
-      telefone: fd.get('telefone'),
-      cpf: fd.get('cpf') || null,
-      data_nascimento: fd.get('data_nascimento'),
-      sexo: fd.get('sexo'),
-      cidade: fd.get('cidade'),
-      modalidade: fd.get('modalidade'),
-      equipe: fd.get('equipe') || null,
-      quer_camiseta: camisaChk.checked,
-      tamanho_camiseta: fd.get('tamanho_camiseta') || null,
-      contato_emergencia: fd.get('contato_emergencia'),
-      observacoes: fd.get('observacoes') || null,
-      doacao_valor: fd.get('doacao_valor') ? Number(fd.get('doacao_valor')) : null,
-      aceite_termo: document.getElementById('aceite_termo').checked,
-    };
+function camisa(quer) { estado.camisa = quer; irPara(3); }
 
-    // validação rápida no cliente
-    const falta = [];
-    ['nome','email','telefone','data_nascimento','sexo','cidade','modalidade','contato_emergencia'].forEach(k => {
-      if (!payload[k]) falta.push([k, 'Campo obrigatório.']);
+function fmt(v) { return "R$ " + v.toFixed(2).replace(".", ","); }
+
+async function concluir(pular) {
+  if (pular) { estado.doacao = null; document.getElementById("f-outro").value = ""; }
+  const outro = parseFloat(document.getElementById("f-outro").value);
+  const doacao = !pular && Number.isFinite(outro) && outro > 0 ? outro : (!pular ? estado.doacao : null);
+  const total = (estado.camisa ? PRECO_CAMISA : 0) + (doacao || 0);
+
+  const payload = {
+    nome: val("f-nome"),
+    email: val("f-email"),
+    telefone: val("f-fone"),
+    data_nascimento: val("f-nascimento"),
+    sexo: val("f-sexo"),
+    cidade: val("f-cidade"),
+    modalidade: estado.modalidade.api,
+    contato_emergencia: val("f-emergencia"),
+    aceite_termo: true,
+    equipe: val("f-equipe") || undefined,
+    quer_camiseta: estado.camisa,
+    tamanho_camiseta: estado.camisa ? estado.tamanho : undefined,
+    cpf: val("f-cpf"),
+    doacao_valor: doacao || undefined
+  };
+
+  const btn = document.getElementById("btn-concluir");
+  btn.disabled = true; btn.textContent = "Enviando…";
+  let numInscricao;
+  try {
+    const resp = await fetch("/api/inscricao", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
     });
-    if (!payload.aceite_termo) falta.push(['aceite_termo','É obrigatório aceitar o termo.']);
-    if (payload.quer_camiseta && !payload.tamanho_camiseta) falta.push(['tamanho_camiseta','Escolha o tamanho.']);
-    if (falta.length){
-      falta.forEach(([c,t]) => marcarErro(c,t));
-      mostrarMsg('Confira os campos destacados.', 'err');
+    const data = await resp.json();
+    if (!data.ok) {
+      mostraErro("erro3", data.mensagem || "Não foi possível registrar a inscrição.");
+      btn.disabled = false; btn.textContent = "Concluir inscrição";
       return;
     }
+    numInscricao = String(data.id);
+  } catch (e) {
+    mostraErro("erro3", "Falha de conexão. Verifique sua internet e tente novamente.");
+    btn.disabled = false; btn.textContent = "Concluir inscrição";
+    return;
+  }
+  btn.disabled = false; btn.textContent = "Concluir inscrição";
+  mostraErro("erro3", "");
 
-    btn.disabled = true;
-    const textoOriginal = btn.textContent;
-    btn.textContent = 'Enviando…';
+  document.getElementById("r-nome").textContent = val("f-nome").split(" ")[0];
+  document.getElementById("r-num").textContent = "#" + numInscricao;
+  document.getElementById("r-modalidade").textContent = estado.modalidade.rotulo;
+  document.getElementById("r-camisa").textContent = estado.camisa ? "Tamanho " + estado.tamanho + " · " + fmt(PRECO_CAMISA) : "Não";
+  document.getElementById("r-doacao").textContent = doacao ? fmt(doacao) : "Não";
+  document.getElementById("r-total").textContent = total > 0 ? fmt(total) : "R$ 0,00 · inscrição gratuita";
 
-    try {
-      const r = await fetch('/api/inscricao', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await r.json().catch(() => ({}));
-      if (r.ok && data.ok){
-        mostrarMsg(data.mensagem || 'Inscrição registrada com sucesso!', 'ok');
-        form.reset();
-        camisaBox.style.display = 'none';
-      } else {
-        if (Array.isArray(data.erros)) data.erros.forEach(e => marcarErro(e.campo, e.msg));
-        mostrarMsg(data.mensagem || 'Não foi possível concluir sua inscrição.', 'err');
-      }
-    } catch (e) {
-      mostrarMsg('Falha de conexão. Verifique sua internet e tente novamente.', 'err');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = textoOriginal;
-    }
-  });
-})();
+  const blocoPix = document.getElementById("bloco-pix");
+  if (total > 0 && window.qrcode) {
+    const infoAdicionais = [
+      { nome: "Inscricao", valor: numInscricao },
+      { nome: "Categoria", valor: estado.modalidade.rotulo }
+    ];
+    if (estado.camisa) infoAdicionais.push({ nome: "Camiseta", valor: estado.tamanho });
+    if (doacao) infoAdicionais.push({ nome: "DepositoSolidario", valor: doacao.toFixed(2) });
+    const cobranca = {
+      calendario: { expiracao: 1800 },
+      devedor: { cpf: val("f-cpf").replace(/\D/g, ""), nome: val("f-nome") },
+      valor: { original: total.toFixed(2), modalidadeAlteracao: 0 },
+      chave: CHAVE_PIX,
+      solicitacaoPagador: "Inscrição " + estado.modalidade.rotulo + " - Corrida Solidária de Prevenção à Diabetes",
+      infoAdicionais
+    };
+    const qr = window.qrcode(0, "M");
+    qr.addData(unescape(encodeURIComponent(JSON.stringify(cobranca))), "Byte");
+    qr.make();
+    document.getElementById("qr-img").src = qr.createDataURL(6, 8);
+    document.getElementById("r-total-pix").textContent = fmt(total);
+    blocoPix.style.display = "flex";
+  } else {
+    blocoPix.style.display = "none";
+  }
+  irPara(4);
+}
 </script>
 </body>
 </html>

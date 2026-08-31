@@ -14,7 +14,7 @@ not_found_handling = "single-page-application"
 [[d1_databases]]
 binding = "DB"
 database_name = "corrida-solidaria"
-database_id = "REPLACE_ME_APOS_CRIAR_D1"
+database_id = "eb4a816e-4717-416f-ad7c-48c121f32ae5"
 migrations_dir = "migrations"
 
 # Secret (NÃO commitar). Definir com:
