@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corrida Solidária de Prevenção à Diabetes — Em breve</title>
+<meta name="description" content="Inscrições da Corrida Solidária de Prevenção à Diabetes do Lions Clube Bento Gonçalves Cidade do Vinho abrem em 15 de setembro de 2026.">
+<meta name="theme-color" content="#16357F">
+<link rel="icon" href="/img/logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: linear-gradient(135deg, #16357F 0%, #0E2255 100%);
+    color: #FFFFFF;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+    text-align: center;
+    -webkit-font-smoothing: antialiased;
+  }
+  .box {
+    max-width: 620px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  .logo {
+    background: #FFFFFF;
+    padding: 16px;
+    border-radius: 20px;
+    display: inline-flex;
+  }
+  .logo img { width: 120px; height: 120px; object-fit: contain; display: block; border-radius: 8px; }
+  .kicker {
+    color: #F5A800;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 15px;
+  }
+  h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: clamp(36px, 7vw, 56px);
+    line-height: 1.05;
+    margin: 0;
+  }
+  h1 span { color: #3FA9F5; display: block; }
+  .destaque {
+    background: #F5A800;
+    color: #16357F;
+    padding: 18px 28px;
+    border-radius: 14px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: clamp(22px, 4vw, 30px);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .contagem {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .cel {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 12px;
+    padding: 14px 18px;
+    min-width: 78px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .cel strong {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 34px;
+    line-height: 1;
+    color: #FFFFFF;
+  }
+  .cel span {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #C9D6F0;
+  }
+  p { margin: 0; font-size: 17px; color: #C9D6F0; line-height: 1.55; max-width: 46ch; }
+  .info {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    color: #FFFFFF;
+    font-size: 15px;
+  }
+  .info span {
+    border: 1.5px solid #3FA9F5;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-weight: 600;
+  }
+  footer {
+    margin-top: 32px;
+    color: #8FA0C4;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="logo"><img src="/img/logo.jpeg" alt="Lions Clube Bento Gonçalves Cidade do Vinho"></div>
+    <span class="kicker">Lions Clube BG Cidade do Vinho · Prefeitura de Bento Gonçalves</span>
+    <h1>Corrida Solidária<span>de Prevenção à Diabetes</span></h1>
+    <p>Estamos preparando cada detalhe para receber você. O site de inscrições abre em breve — fique de olho!</p>
+    <div class="destaque">Inscrições abrem em 15 de setembro de 2026</div>
+    <div class="contagem" id="contagem" aria-live="polite"></div>
+    <div class="info">
+      <span>8 de novembro de 2026</span>
+      <span>Pista atlética municipal · Bento Gonçalves/RS</span>
+    </div>
+    <footer>Lions Clube Bento Gonçalves Cidade do Vinho · AL 2026/2027</footer>
+  </div>
+
+<script>
+  const alvo = new Date("2026-09-15T00:00:00-03:00").getTime();
+  const el = document.getElementById("contagem");
+  function tick() {
+    const agora = Date.now();
+    const dif = alvo - agora;
+    if (dif <= 0) { el.innerHTML = ""; return; }
+    const d = Math.floor(dif / 86400000);
+    const h = Math.floor((dif % 86400000) / 3600000);
+    const m = Math.floor((dif % 3600000) / 60000);
+    const s = Math.floor((dif % 60000) / 1000);
+    el.innerHTML = [
+      ["Dias", d],
+      ["Horas", h],
+      ["Minutos", m],
+      ["Segundos", s]
+    ].map(([r, v]) => `<div class="cel"><strong>${String(v).padStart(2,"0")}</strong><span>${r}</span></div>`).join("");
+  }
+  tick();
+  setInterval(tick, 1000);
+</script>
+</body>
+</html>

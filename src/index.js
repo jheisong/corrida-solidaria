@@ -167,6 +167,16 @@ export default {
       return json({ ok: true, evento: "Corrida Solidária", data: "2026-11-08" });
     }
 
+    // Domínio oficial mostra apenas o "em breve" até 15/09/2026 nos caminhos de página.
+    // Assets (img/, css, js) e API continuam funcionando normalmente.
+    const oficial = url.hostname.endsWith("lccidadedovinho.com.br");
+    const ehPagina = url.pathname === "/" || url.pathname === "/index.html";
+    if (oficial && ehPagina && env.ASSETS) {
+      const emBreveUrl = new URL(url);
+      emBreveUrl.pathname = "/em-breve.html";
+      return env.ASSETS.fetch(new Request(emBreveUrl.toString(), request));
+    }
+
     // fallback: assets estáticos
     if (env.ASSETS) return env.ASSETS.fetch(request);
     return new Response("Not found", { status: 404 });
