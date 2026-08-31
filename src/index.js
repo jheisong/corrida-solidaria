@@ -192,7 +192,16 @@ export default {
     if (oficial && ehPagina && env.ASSETS) {
       const emBreveUrl = new URL(url);
       emBreveUrl.pathname = "/em-breve.html";
-      return env.ASSETS.fetch(new Request(emBreveUrl.toString(), request));
+      const r = await env.ASSETS.fetch(new Request(emBreveUrl.toString(), { method: "GET" }));
+      if (r.status === 307 || r.status === 308) {
+        const loc = r.headers.get("location");
+        if (loc) {
+          const alvo = new URL(loc, url);
+          const r2 = await env.ASSETS.fetch(new Request(alvo.toString(), { method: "GET" }));
+          return new Response(r2.body, { status: r2.status, headers: r2.headers });
+        }
+      }
+      return new Response(r.body, { status: r.status, headers: r.headers });
     }
 
     // fallback: assets estáticos
