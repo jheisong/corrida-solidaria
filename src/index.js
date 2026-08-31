@@ -167,6 +167,13 @@ export default {
       return json({ ok: true, evento: "Corrida Solidária", data: "2026-11-08" });
     }
 
+    // /painel → serve painel.html (autenticação é feita no cliente via Bearer)
+    if ((url.pathname === "/painel" || url.pathname === "/painel/") && env.ASSETS) {
+      const painelUrl = new URL(url);
+      painelUrl.pathname = "/painel.html";
+      return env.ASSETS.fetch(new Request(painelUrl.toString(), request));
+    }
+
     // Domínio oficial mostra apenas o "em breve" até 15/09/2026 nos caminhos de página.
     // Assets (img/, css, js) e API continuam funcionando normalmente.
     const oficial = url.hostname.endsWith("lccidadedovinho.com.br");

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel — Corrida Solidária</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/img/logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Barlow', sans-serif; background: #F6F8FC; color: #1D2A44; }
+  h1, h2 { font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; margin: 0; color: #16357F; }
+  a { color: #16357F; }
+  .header { background: #16357F; color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .header .brand { display: flex; align-items: center; gap: 12px; }
+  .header img { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; }
+  .header strong { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; text-transform: uppercase; }
+  .header small { color: #C9D6F0; font-size: 13px; display: block; }
+  .header button { background: #F5A800; color: #16357F; border: none; padding: 8px 16px; font-weight: 700; border-radius: 8px; cursor: pointer; font-size: 14px; }
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 24px; }
+  .login { max-width: 420px; margin: 80px auto; background: #fff; border-radius: 14px; padding: 32px; box-shadow: 0 20px 40px rgba(31,56,100,.15); display: flex; flex-direction: column; gap: 16px; }
+  .login h2 { font-size: 26px; margin-bottom: 4px; }
+  .login p { margin: 0 0 8px; color: #5B6A87; font-size: 14px; }
+  .login label { font-weight: 600; font-size: 14px; color: #16357F; display: flex; flex-direction: column; gap: 6px; }
+  .login input { padding: 12px 14px; border: 1.5px solid #D6DFEF; border-radius: 8px; font-size: 16px; font-family: inherit; }
+  .login button { background: #16357F; color: #fff; padding: 14px; border: none; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; letter-spacing: 0.04em; }
+  .login .err { color: #C22B2B; font-size: 14px; font-weight: 600; display: none; }
+  .login .err.show { display: block; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .card { background: #fff; border-radius: 12px; padding: 16px; border-left: 4px solid #16357F; }
+  .card .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #5B6A87; font-weight: 600; }
+  .card .val { font-family: 'Barlow Condensed', sans-serif; font-size: 34px; color: #16357F; line-height: 1; margin-top: 4px; }
+  .card.ouro { border-left-color: #F5A800; }
+  .card.ouro .val { color: #B8860B; }
+  .card ul { margin: 6px 0 0; padding-left: 0; list-style: none; font-size: 13px; color: #5B6A87; }
+  .card ul li { display: flex; justify-content: space-between; padding: 2px 0; }
+  .card ul li strong { color: #16357F; }
+  .tools { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .tools input, .tools select { padding: 10px 12px; border: 1.5px solid #D6DFEF; border-radius: 8px; font-size: 14px; font-family: inherit; }
+  .tools input { min-width: 220px; }
+  .tools .grow { flex: 1; }
+  .tools button { background: #F5A800; color: #16357F; border: none; padding: 10px 18px; font-weight: 700; border-radius: 8px; cursor: pointer; font-size: 14px; }
+  .tools button.sec { background: #E3E9F4; color: #16357F; }
+  .tabela-box { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(31,56,100,.06); }
+  .tabela-scroll { overflow-x: auto; max-height: 70vh; overflow-y: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  thead { background: #16357F; color: #fff; position: sticky; top: 0; z-index: 2; }
+  th { text-align: left; padding: 12px 10px; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; cursor: pointer; user-select: none; }
+  th:hover { background: #1E44A0; }
+  th .arrow { color: #F5A800; margin-left: 4px; }
+  td { padding: 10px; border-bottom: 1px solid #E3E9F4; vertical-align: top; }
+  tr:hover td { background: #F6F8FC; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .b-corrida { background: #E7EFFB; color: #16357F; }
+  .b-caminhada { background: #FFF6E3; color: #B8860B; }
+  .b-kids { background: #E7F6EC; color: #1E8A46; }
+  .b-sim { background: #E7F6EC; color: #1E8A46; }
+  .b-nao { background: #FDECEC; color: #C22B2B; }
+  .vazio { padding: 40px; text-align: center; color: #5B6A87; }
+  .footer-info { padding: 16px; background: #F6F8FC; border-top: 1px solid #E3E9F4; font-size: 13px; color: #5B6A87; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .msg-erro { background: #FDECEC; color: #C22B2B; padding: 12px 16px; border-radius: 8px; margin: 12px 0; font-weight: 600; font-size: 14px; display: none; }
+  .msg-erro.show { display: block; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px; }
+    .card .val { font-size: 26px; }
+    th, td { padding: 8px 6px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login-view" class="login" style="display: none;">
+  <img src="/img/logo.jpeg" alt="" style="width: 64px; height: 64px; object-fit: cover; border-radius: 12px; align-self: center;">
+  <h2>Painel · Corrida Solidária</h2>
+  <p>Acesso restrito à organização.</p>
+  <label>Senha do painel
+    <input id="f-senha" type="password" autocomplete="current-password" placeholder="Digite a senha">
+  </label>
+  <span class="err" id="err-login">Senha incorreta.</span>
+  <button id="btn-login">Entrar</button>
+</div>
+
+<div id="app-view" style="display: none;">
+  <div class="header">
+    <div class="brand">
+      <img src="/img/logo.jpeg" alt="">
+      <div>
+        <strong>Painel · Corrida Solidária</strong>
+        <small>Lions Clube BG Cidade do Vinho</small>
+      </div>
+    </div>
+    <button id="btn-logout">Sair</button>
+  </div>
+
+  <div class="wrap">
+    <div id="msg-erro" class="msg-erro"></div>
+
+    <div class="cards" id="cards"></div>
+
+    <div class="tools">
+      <input id="f-busca" placeholder="Buscar por nome, e-mail, telefone, cidade...">
+      <select id="f-mod">
+        <option value="">Todas modalidades</option>
+        <option value="corrida-5km">Corrida 5 km</option>
+        <option value="caminhada-5km">Caminhada 5 km</option>
+        <option value="kids-250m">Kids 250 m</option>
+      </select>
+      <select id="f-camisa">
+        <option value="">Todas camisetas</option>
+        <option value="sim">Com camiseta</option>
+        <option value="nao">Sem camiseta</option>
+      </select>
+      <div class="grow"></div>
+      <button class="sec" id="btn-reload">↻ Atualizar</button>
+      <button id="btn-csv">↓ Baixar CSV</button>
+    </div>
+
+    <div class="tabela-box">
+      <div class="tabela-scroll">
+        <table id="tabela">
+          <thead>
+            <tr>
+              <th data-k="id">#</th>
+              <th data-k="created_at">Inscrição em</th>
+              <th data-k="nome">Nome</th>
+              <th data-k="email">E-mail</th>
+              <th data-k="telefone">Telefone</th>
+              <th data-k="cpf">CPF</th>
+              <th data-k="data_nascimento">Nascimento</th>
+              <th data-k="sexo">Sexo</th>
+              <th data-k="cidade">Cidade</th>
+              <th data-k="modalidade">Modalidade</th>
+              <th data-k="equipe">Equipe</th>
+              <th data-k="quer_camiseta">Camisa</th>
+              <th data-k="tamanho_camiseta">Tam.</th>
+              <th data-k="contato_emergencia">Emergência</th>
+              <th data-k="doacao_valor">Doação</th>
+              <th data-k="observacoes">Obs.</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="footer-info">
+        <span id="info-linhas">0 inscrições</span>
+        <span id="info-att">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY = "cs_painel_token";
+let dados = [];
+let ord = { k: "id", asc: false };
+
+function el(id) { return document.getElementById(id); }
+function fmtData(s) {
+  if (!s) return "";
+  const d = new Date(s.includes("T") ? s : s.replace(" ", "T") + "Z");
+  if (isNaN(d)) return s;
+  return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+function fmtNasc(s) {
+  if (!s) return "";
+  const [y, m, d] = s.split("-");
+  return `${d}/${m}/${y}`;
+}
+function fmtBRL(v) {
+  if (v === null || v === undefined || v === "") return "";
+  return "R$ " + Number(v).toFixed(2).replace(".", ",");
+}
+function esc(v) {
+  if (v === null || v === undefined) return "";
+  return String(v).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+
+function badge(mod) {
+  const map = {
+    "corrida-5km": ["b-corrida", "Corrida 5km"],
+    "caminhada-5km": ["b-caminhada", "Caminhada 5km"],
+    "kids-250m": ["b-kids", "Kids 250m"],
+  };
+  const [c, t] = map[mod] || ["", mod];
+  return `<span class="badge ${c}">${esc(t)}</span>`;
+}
+
+async function carregar() {
+  const token = localStorage.getItem(KEY);
+  if (!token) return mostrarLogin();
+  el("msg-erro").classList.remove("show");
+  try {
+    const r = await fetch("/api/inscricoes", { headers: { Authorization: "Bearer " + token } });
+    if (r.status === 401) { localStorage.removeItem(KEY); return mostrarLogin(); }
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.mensagem || "Erro");
+    dados = j.inscricoes || [];
+    mostrarApp();
+    render();
+    el("info-att").textContent = "Atualizado às " + new Date().toLocaleTimeString("pt-BR");
+  } catch (e) {
+    mostrarApp();
+    el("msg-erro").textContent = "Falha ao carregar: " + e.message;
+    el("msg-erro").classList.add("show");
+  }
+}
+
+function mostrarLogin() {
+  el("login-view").style.display = "flex";
+  el("app-view").style.display = "none";
+  setTimeout(() => el("f-senha").focus(), 50);
+}
+function mostrarApp() {
+  el("login-view").style.display = "none";
+  el("app-view").style.display = "block";
+}
+
+el("btn-login").addEventListener("click", entrar);
+el("f-senha").addEventListener("keydown", (e) => { if (e.key === "Enter") entrar(); });
+
+async function entrar() {
+  const senha = el("f-senha").value;
+  if (!senha) return;
+  el("err-login").classList.remove("show");
+  el("btn-login").disabled = true;
+  el("btn-login").textContent = "Verificando...";
+  try {
+    const r = await fetch("/api/inscricoes", { headers: { Authorization: "Bearer " + senha } });
+    if (r.status === 401) {
+      el("err-login").classList.add("show");
+      return;
+    }
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    localStorage.setItem(KEY, senha);
+    await carregar();
+  } catch (e) {
+    el("err-login").textContent = "Erro: " + e.message;
+    el("err-login").classList.add("show");
+  } finally {
+    el("btn-login").disabled = false;
+    el("btn-login").textContent = "Entrar";
+    el("f-senha").value = "";
+  }
+}
+
+el("btn-logout").addEventListener("click", () => {
+  localStorage.removeItem(KEY);
+  location.reload();
+});
+el("btn-reload").addEventListener("click", carregar);
+el("f-busca").addEventListener("input", render);
+el("f-mod").addEventListener("change", render);
+el("f-camisa").addEventListener("change", render);
+
+document.querySelectorAll("th[data-k]").forEach(th => {
+  th.addEventListener("click", () => {
+    const k = th.dataset.k;
+    if (ord.k === k) ord.asc = !ord.asc;
+    else { ord.k = k; ord.asc = true; }
+    render();
+  });
+});
+
+function filtrado() {
+  const q = el("f-busca").value.toLowerCase().trim();
+  const mod = el("f-mod").value;
+  const cam = el("f-camisa").value;
+  return dados.filter(d => {
+    if (mod && d.modalidade !== mod) return false;
+    if (cam === "sim" && !d.quer_camiseta) return false;
+    if (cam === "nao" && d.quer_camiseta) return false;
+    if (q) {
+      const blob = [d.nome, d.email, d.telefone, d.cidade, d.cpf, d.equipe].filter(Boolean).join(" ").toLowerCase();
+      if (!blob.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function ordenado(lista) {
+  const { k, asc } = ord;
+  return [...lista].sort((a, b) => {
+    let va = a[k], vb = b[k];
+    if (va === null || va === undefined) va = "";
+    if (vb === null || vb === undefined) vb = "";
+    if (typeof va === "number" && typeof vb === "number") return asc ? va - vb : vb - va;
+    return asc ? String(va).localeCompare(String(vb), "pt-BR") : String(vb).localeCompare(String(va), "pt-BR");
+  });
+}
+
+function render() {
+  document.querySelectorAll("th[data-k]").forEach(th => {
+    const arrow = th.querySelector(".arrow");
+    if (arrow) arrow.remove();
+    if (th.dataset.k === ord.k) {
+      const s = document.createElement("span");
+      s.className = "arrow";
+      s.textContent = ord.asc ? "▲" : "▼";
+      th.appendChild(s);
+    }
+  });
+
+  renderCards();
+
+  const lista = ordenado(filtrado());
+  const tb = el("tbody");
+  if (!lista.length) {
+    tb.innerHTML = '<tr><td colspan="16" class="vazio">Nenhuma inscrição encontrada com os filtros atuais.</td></tr>';
+  } else {
+    tb.innerHTML = lista.map(d => `
+      <tr>
+        <td>${d.id}</td>
+        <td>${esc(fmtData(d.created_at))}</td>
+        <td><strong>${esc(d.nome)}</strong></td>
+        <td>${esc(d.email)}</td>
+        <td>${esc(d.telefone)}</td>
+        <td>${esc(d.cpf || "")}</td>
+        <td>${esc(fmtNasc(d.data_nascimento))}</td>
+        <td>${esc(d.sexo)}</td>
+        <td>${esc(d.cidade)}</td>
+        <td>${badge(d.modalidade)}</td>
+        <td>${esc(d.equipe || "")}</td>
+        <td>${d.quer_camiseta ? '<span class="badge b-sim">Sim</span>' : '<span class="badge b-nao">Não</span>'}</td>
+        <td>${esc(d.tamanho_camiseta || "")}</td>
+        <td>${esc(d.contato_emergencia)}</td>
+        <td>${esc(fmtBRL(d.doacao_valor))}</td>
+        <td>${esc(d.observacoes || "")}</td>
+      </tr>
+    `).join("");
+  }
+  el("info-linhas").textContent = lista.length + " de " + dados.length + " inscrições";
+}
+
+function renderCards() {
+  const total = dados.length;
+  const porMod = { "corrida-5km": 0, "caminhada-5km": 0, "kids-250m": 0 };
+  const porTam = {};
+  let comCamisa = 0, comDoacao = 0, arrecadado = 0;
+  dados.forEach(d => {
+    if (d.modalidade in porMod) porMod[d.modalidade]++;
+    if (d.quer_camiseta) {
+      comCamisa++;
+      const t = d.tamanho_camiseta || "?";
+      porTam[t] = (porTam[t] || 0) + 1;
+    }
+    if (d.doacao_valor) { comDoacao++; arrecadado += Number(d.doacao_valor); }
+  });
+  el("cards").innerHTML = `
+    <div class="card">
+      <div class="lbl">Total inscritos</div>
+      <div class="val">${total}</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Por modalidade</div>
+      <ul>
+        <li>Corrida 5km <strong>${porMod["corrida-5km"]}</strong></li>
+        <li>Caminhada 5km <strong>${porMod["caminhada-5km"]}</strong></li>
+        <li>Kids 250m <strong>${porMod["kids-250m"]}</strong></li>
+      </ul>
+    </div>
+    <div class="card ouro">
+      <div class="lbl">Camisetas</div>
+      <div class="val">${comCamisa}</div>
+      <ul>${Object.keys(porTam).sort().map(t => `<li>${esc(t)} <strong>${porTam[t]}</strong></li>`).join("")}</ul>
+    </div>
+    <div class="card ouro">
+      <div class="lbl">Doações</div>
+      <div class="val">${comDoacao}</div>
+      <ul><li>Arrecadado <strong>${fmtBRL(arrecadado)}</strong></li></ul>
+    </div>
+  `;
+}
+
+el("btn-csv").addEventListener("click", () => {
+  const lista = ordenado(filtrado());
+  const cols = ["id","created_at","nome","email","telefone","cpf","data_nascimento","sexo","cidade","modalidade","equipe","quer_camiseta","tamanho_camiseta","contato_emergencia","doacao_valor","observacoes"];
+  const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const linhas = [cols.join(",")].concat(
+    lista.map(d => cols.map(c => q(c === "quer_camiseta" ? (d[c] ? "sim" : "não") : d[c])).join(","))
+  );
+  const blob = new Blob(["﻿" + linhas.join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const ts = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `inscricoes-corrida-solidaria-${ts}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+carregar();
+</script>
+</body>
+</html>
