@@ -1,0 +1,25 @@
+name = "corrida-solidaria"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+# Servir arquivos estáticos de ./public
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+# D1 database. Rodar antes:
+#   wrangler d1 create corrida-solidaria
+# e copiar o database_id retornado pra cá.
+[[d1_databases]]
+binding = "DB"
+database_name = "corrida-solidaria"
+database_id = "REPLACE_ME_APOS_CRIAR_D1"
+migrations_dir = "migrations"
+
+# Secret (NÃO commitar). Definir com:
+#   wrangler secret put PAINEL_SENHA
+# Local: criar .dev.vars com PAINEL_SENHA="..."
+
+[observability]
+enabled = true
