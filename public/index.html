@@ -139,16 +139,31 @@
 <section id="patrocinadores" style="background: #F6F8FC;">
   <div class="wrap" style="display: flex; flex-direction: column; gap: 32px;">
     <div style="display: flex; flex-direction: column; gap: 8px;">
-      <span class="kicker">Apoio</span>
+      <span class="kicker">Quem apoia</span>
       <h2 style="font-size: 40px;">Patrocinadores</h2>
     </div>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/fundaparque_logo.png" alt="Fundaparque" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
       <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
       <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
       <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
       <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
       <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
-      <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
+    </div>
+    <div class="grid2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 8px;">
+      <div style="display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center;">
+        <span class="kicker">Realização</span>
+        <div style="height: 190px; display: flex; align-items: center; justify-content: center; gap: 18px; background: #FFFFFF; border-radius: 12px; padding: 18px; width: 100%; max-width: 500px;">
+          <img src="img/logo_lions.png" alt="Lions Clube Bento Gonçalves Cidade do Vinho" style="flex: 2.6; min-width: 0; max-height: 100%; object-fit: contain;">
+          <img src="img/lions_internacional_logo.svg" alt="Lions Clubs International" style="flex: 1; min-width: 0; max-height: 70%; object-fit: contain;">
+        </div>
+        <span style="font-size: 14px; color: #33415E; font-weight: 600;">Lions Clube Bento Gonçalves Cidade do Vinho</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center;">
+        <span class="kicker">Apoio</span>
+        <div style="height: 190px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 18px; width: 100%; max-width: 500px;"><img src="img/logo_bento.png" alt="Prefeitura de Bento Gonçalves" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
+        <span style="font-size: 14px; color: #33415E; font-weight: 600;">Prefeitura Municipal de Bento Gonçalves</span>
+      </div>
     </div>
     <span style="font-size: 15px; color: #6B7A99;">Quer apoiar a Corrida Solidária? Fale com o Lions Clube Bento Gonçalves Cidade do Vinho: <a href="mailto:lionsclubebgcidadedovinho@gmail.com" style="color: #16357F; font-weight: 700;">lionsclubebgcidadedovinho@gmail.com</a><button type="button" class="btn-copiar-email" onclick="copiarEmail(this)" title="Copiar e-mail" aria-label="Copiar e-mail">📋</button>.</span>
   </div>
@@ -204,7 +219,7 @@
       </div>
       <label style="display: flex; gap: 10px; align-items: flex-start; font-size: 14px; cursor: pointer;">
         <input id="f-termo" type="checkbox" style="margin-top: 3px; width: 16px; height: 16px; accent-color: #16357F;">
-        <span>Li e aceito o <strong style="color: #16357F;">termo de responsabilidade e declaração de saúde</strong>. Recomenda-se avaliação médica prévia para participantes com condições de risco.</span>
+        <span>Li e aceito o <a href="termo/Termo_Responsabilidade_Treino_Solidario.pdf" target="_blank" rel="noopener" onclick="event.stopPropagation();" style="color: #16357F; font-weight: 700; text-decoration: underline;">termo de responsabilidade e declaração de saúde</a>. Recomenda-se avaliação médica prévia para participantes com condições de risco.</span>
       </label>
       <div style="background: #FFF6E3; border-radius: 10px; padding: 10px 14px; font-size: 13px;">Participação solidária: leve <strong style="color: #16357F;">1 kg de alimento não perecível</strong> no dia do evento para retirar sua pulseira de identificação.</div>
       <span id="erro1" style="display: none; color: #C22B2B; font-size: 14px; font-weight: 600;"></span>
@@ -288,6 +303,11 @@
           <img id="qr-img" alt="QR Code Pix" style="width: 100%; height: 100%; object-fit: contain;">
         </div>
         <span id="pix-status" style="font-size: 12px; color: #6B7A99; text-align: center;">Guarde o comprovante para a retirada da pulseira.</span>
+      </div>
+      <div id="pagamento-confirmado" style="display: none; flex-direction: column; align-items: center; gap: 12px; background: #EAF6EA; border-radius: 12px; padding: 20px; text-align: center;">
+        <span style="width: 56px; height: 56px; border-radius: 50%; background: #FFFFFF; color: #1E8A46; font-size: 28px; display: flex; align-items: center; justify-content: center;">✓</span>
+        <strong style="color: #1F6E1F; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; text-transform: uppercase;">Pagamento confirmado!</strong>
+        <span style="color: #1F6E1F; font-size: 15px;">Obrigado pelo apoio à causa. Nos vemos na largada!</span>
       </div>
       <button class="btn" style="background: #16357F; color: #FFFFFF;" onclick="fecharForm()">Fechar</button>
     </div>
@@ -692,11 +712,10 @@ function iniciarPollingPagamento(txid) {
       const d = await r.json();
       if (d.ok && d.pagamento && d.pagamento.status === "CONCLUIDA") {
         clearInterval(pollingTimer);
-        const aviso = document.getElementById("pix-status");
-        if (aviso) {
-          aviso.textContent = "Pagamento confirmado! Obrigado.";
-          aviso.style.color = "#0B8043";
-        }
+        const bloco = document.getElementById("bloco-pix");
+        if (bloco) bloco.style.display = "none";
+        const confirmado = document.getElementById("pagamento-confirmado");
+        if (confirmado) confirmado.style.display = "flex";
       }
     } catch {}
   }, 5000);
