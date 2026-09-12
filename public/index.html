@@ -20,13 +20,22 @@
   .btn:hover { background: #FFB81F; }
   .btn-ghost { background: transparent; color: #6B7A99; border: none; padding: 4px; font-size: 15px; font-weight: 600; font-family: 'Barlow', sans-serif; cursor: pointer; text-decoration: underline; }
   .field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px; color: #16357F; }
-  .field input, .field select { border: 1.5px solid #D6DFEF; border-radius: 8px; padding: 10px 12px; font-size: 16px; font-family: 'Barlow', sans-serif; width: 100%; background: #FFFFFF; }
+  .field input, .field select { border: 1.5px solid #D6DFEF; border-radius: 8px; padding: 10px 12px; font-size: 16px; font-family: 'Barlow', sans-serif; width: 100%; background: #FFFFFF; color: #33415E; }
+  .field select { -webkit-appearance: none; appearance: none; padding-right: 36px; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='none' stroke='%2316357F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M1 1l5 5 5-5'/></svg>"); background-repeat: no-repeat; background-position: right 14px center; cursor: pointer; }
+  .field select:hover { border-color: #16357F; }
+  .field input[type=date] { padding-right: 12px; }
+  .field input[type=date]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.7; filter: invert(15%) sepia(60%) saturate(1400%) hue-rotate(210deg); }
+  .field input[type=date]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
   .chip { border: 1.5px solid #D6DFEF; background: #FFFFFF; color: #33415E; border-radius: 999px; padding: 9px 18px; font-weight: 600; font-size: 15px; font-family: 'Barlow', sans-serif; cursor: pointer; }
   .chip.on { border-color: #16357F; background: #16357F; color: #FFFFFF; }
   .sq { border: 1.5px solid #D6DFEF; background: #FFFFFF; color: #33415E; border-radius: 8px; padding: 9px 14px; min-width: 44px; font-weight: 600; font-size: 15px; font-family: 'Barlow', sans-serif; cursor: pointer; }
   .sq.on { border-color: #16357F; background: #16357F; color: #FFFFFF; }
   .card { background: #F6F8FC; border-radius: 12px; padding: 20px; }
   .placeholder { display: flex; align-items: center; justify-content: center; color: #6B7A99; font-size: 14px; font-weight: 600; background: repeating-linear-gradient(45deg, #EDF1F9, #EDF1F9 12px, #F6F8FC 12px, #F6F8FC 24px); border-radius: 12px; height: 100%; text-align: center; padding: 12px; }
+  .req { color: #D93B3B; font-weight: 700; margin-left: 4px; }
+  .btn-copiar-email { display: inline-flex; align-items: center; justify-content: center; margin-left: 6px; width: 26px; height: 26px; padding: 0; border: 1px solid #D6DFEF; background: #FFFFFF; border-radius: 6px; font-size: 13px; line-height: 1; cursor: pointer; color: #16357F; vertical-align: middle; }
+  .btn-copiar-email:hover { border-color: #16357F; background: #F6F8FC; }
+  .opt { color: #6B7A99; font-weight: 400; margin-left: 4px; font-size: 13px; }
   section { padding: 72px 24px; }
   .wrap { max-width: 1080px; margin: 0 auto; }
   @media (max-width: 900px) {
@@ -80,7 +89,9 @@
       <h2 style="font-size: 40px;">Por onde vamos correr</h2>
     </div>
     <div class="grid2" style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; align-items: start;">
-      <div style="height: 360px;"><div class="placeholder">Mapa do percurso — em breve</div></div>
+      <a href="/img/percurso.png" target="_blank" rel="noopener" style="display: block;">
+        <img src="/img/percurso.png" alt="Mapa do percurso da corrida" style="width: 100%; height: auto; border-radius: 12px; display: block;">
+      </a>
       <div style="display: flex; flex-direction: column; gap: 16px;">
         <div class="card" style="display: flex; flex-direction: column; gap: 4px;">
           <strong style="color: #16357F; font-size: 17px;">Largada e chegada</strong>
@@ -139,7 +150,7 @@
       <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
       <div style="height: 110px;"><div class="placeholder">Logo do patrocinador</div></div>
     </div>
-    <span style="font-size: 15px; color: #6B7A99;">Quer apoiar a Corrida Solidária? Fale com o Lions Clube Bento Gonçalves Cidade do Vinho.</span>
+    <span style="font-size: 15px; color: #6B7A99;">Quer apoiar a Corrida Solidária? Fale com o Lions Clube Bento Gonçalves Cidade do Vinho: <a href="mailto:lionsclubebgcidadedovinho@gmail.com" style="color: #16357F; font-weight: 700;">lionsclubebgcidadedovinho@gmail.com</a><button type="button" class="btn-copiar-email" onclick="copiarEmail(this)" title="Copiar e-mail" aria-label="Copiar e-mail">📋</button>.</span>
   </div>
 </section>
 
@@ -165,12 +176,16 @@
       <span class="kicker" style="font-size: 15px;">Passo 1 de 3 · Inscrição gratuita</span>
       <h3 style="font-size: 30px;">Seus dados</h3>
       <div class="grid2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <label class="field">Nome completo<input id="f-nome" placeholder="Seu nome"></label>
-        <label class="field">E-mail<input id="f-email" type="email" placeholder="voce@email.com"></label>
-        <label class="field">CPF<input id="f-cpf" placeholder="000.000.000-00"></label>
-        <label class="field">WhatsApp<input id="f-fone" placeholder="(54) 9 9999-9999"></label>
-        <label class="field">Nascimento<input id="f-nascimento" type="date"></label>
-        <label class="field">Sexo
+        <label class="field"><span>Nome completo<span class="req" title="Campo obrigatório">*</span></span><input id="f-nome" placeholder="Seu nome" required></label>
+        <label class="field"><span>CPF<span class="req" title="Campo obrigatório">*</span></span><input id="f-cpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" required oninput="mascaraCpf(this)"></label>
+        <label class="field"><span>E-mail<span class="req" title="Campo obrigatório">*</span></span><input id="f-email" type="email" placeholder="voce@email.com" required></label>
+        <label class="field"><span>WhatsApp<span class="req" title="Campo obrigatório">*</span></span><input id="f-fone" placeholder="(54) 9 9999-9999" required></label>
+        <label class="field">
+          <span>Nascimento<span class="req" title="Campo obrigatório">*</span></span>
+          <input id="f-nascimento" type="date" required placeholder="dd/mm/aaaa">
+        </label>
+        <label class="field">
+          <span>Sexo<span class="opt">— opcional</span></span>
           <select id="f-sexo">
             <option value="">Selecione…</option>
             <option value="F">Feminino</option>
@@ -179,10 +194,10 @@
             <option value="PREFIRO_NAO_INFORMAR">Prefiro não informar</option>
           </select>
         </label>
-        <label class="field">Cidade<input id="f-cidade" placeholder="Bento Gonçalves"></label>
+        <label class="field">Cidade<input id="f-cidade" placeholder="Bento Gonçalves" value="Bento Gonçalves"></label>
         <label class="field">Equipe (opcional)<input id="f-equipe" placeholder="Nome da equipe ou assessoria"></label>
       </div>
-      <label class="field">Contato de emergência (nome e telefone)<input id="f-emergencia" placeholder="Maria — (54) 9 9999-9999"></label>
+      <label class="field"><span>Contato de emergência (nome e telefone)<span class="opt">— opcional</span></span><input id="f-emergencia" placeholder="Maria — (54) 9 9999-9999"></label>
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <span style="font-weight: 600; font-size: 14px; color: #16357F;">Modalidade</span>
         <div id="chips-modalidade" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
@@ -196,10 +211,30 @@
       <button class="btn" onclick="submitDados()">Continuar</button>
     </div>
 
+    <div id="passo-duplicado" style="display: none; flex-direction: column; gap: 16px;">
+      <span class="kicker" style="font-size: 15px; color: #F5A800;">CPF já cadastrado</span>
+      <h3 style="font-size: 30px;">Atleta já inscrito</h3>
+      <p style="font-size: 15px; color: #33415E;"><strong id="dup-nome" style="color: #16357F;"></strong> já está inscrito na Corrida Solidária. Se este é você e precisa alterar algum dado, entre em contato pelo e-mail <a href="mailto:lionsclubebgcidadedovinho@gmail.com" style="color: #16357F; font-weight: 700;">lionsclubebgcidadedovinho@gmail.com</a><button type="button" class="btn-copiar-email" onclick="copiarEmail(this)" title="Copiar e-mail" aria-label="Copiar e-mail">📋</button>.</p>
+      <div id="dup-com-camisa" style="display: none; background: #EAF6EA; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #1F6E1F;">Camisa <strong id="dup-tamanho"></strong> já registrada nesta inscrição. Você pode pedir camisas adicionais abaixo.</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="grid2">
+        <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1.5px solid #D6DFEF; border-radius: 12px;">
+          <span style="font-weight: 700; color: #16357F;">Nova doação</span>
+          <span style="font-size: 13px; color: #6B7A99;">Contribua com um Pix voluntário para a causa.</span>
+          <button class="btn" style="background: #3FA9F5; color: #FFFFFF;" onclick="irParaDoacaoExistente()">Fazer doação</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1.5px solid #D6DFEF; border-radius: 12px;">
+          <span id="dup-cta-camisa" style="font-weight: 700; color: #16357F;">Camisa oficial</span>
+          <span style="font-size: 13px; color: #6B7A99;">R$ 40,00 · Ajude a causa levando a camisa.</span>
+          <button id="dup-btn-camisa" class="btn" onclick="irParaCamisaExistente()">Comprar camisa</button>
+        </div>
+      </div>
+      <button class="btn" style="background: #16357F; color: #FFFFFF;" onclick="fecharForm()">Fechar</button>
+    </div>
+
     <div id="passo2" style="display: none; flex-direction: column; gap: 16px;">
       <span class="kicker" style="font-size: 15px;">Passo 2 de 3 · Opcional</span>
       <h3 style="font-size: 30px;">Leve a camisa oficial</h3>
-      <p style="margin: 0; font-size: 16px;">Garanta a camisa oficial do evento por <strong style="color: #16357F;">R$ 50,00</strong>. Todo o valor é revertido para a causa: ações de prevenção e conscientização sobre o diabetes na comunidade.</p>
+      <p style="margin: 0; font-size: 16px;">Garanta a camisa oficial do evento por <strong style="color: #16357F;">R$ 40,00</strong>. Todo o valor é revertido para a causa: ações de prevenção e conscientização sobre o diabetes na comunidade.</p>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
         <div style="display: flex; flex-direction: column; gap: 6px;">
           <div style="height: 180px;"><div class="placeholder">Foto da camisa (frente)</div></div>
@@ -214,7 +249,7 @@
         <span style="font-weight: 600; font-size: 14px; color: #16357F;">Tamanho</span>
         <div id="chips-tamanho" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
       </div>
-      <button class="btn" onclick="camisa(true)">Quero a camisa · R$ 50,00</button>
+      <button class="btn" onclick="camisa(true)">Quero a camisa · R$ 40,00</button>
       <button class="btn-ghost" onclick="camisa(false)">Seguir sem a camisa</button>
     </div>
 
@@ -241,18 +276,18 @@
         <div style="display: flex; justify-content: space-between;"><span>Depósito solidário</span><strong style="color: #16357F;" id="r-doacao"></strong></div>
         <div style="display: flex; justify-content: space-between; border-top: 1px solid #E3E9F4; padding-top: 8px; margin-top: 4px;"><span style="font-weight: 700; color: #16357F;">Total a pagar</span><strong style="color: #16357F;" id="r-total"></strong></div>
       </div>
-      <div id="bloco-pix" style="display: none; width: 100%; background: #F6F8FC; border-radius: 12px; padding: 20px; flex-direction: column; align-items: center; gap: 12px;">
-        <strong style="color: #16357F; font-family: 'Barlow Condensed', sans-serif; font-size: 20px; text-transform: uppercase;">Pague com Pix</strong>
-        <span style="font-size: 14px; text-align: center;">Escaneie o QR Code com o app do seu banco e pague <strong style="color: #16357F;" id="r-total-pix"></strong>. O código expira em 30 minutos.</span>
-        <div style="width: 200px; height: 200px; background: #FFFFFF; border-radius: 12px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+      <div id="bloco-pix" style="display: none; width: 100%; background: #F6F8FC; border-radius: 12px; padding: 14px; flex-direction: column; align-items: center; gap: 10px;">
+        <strong style="color: #16357F; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase;">Pague com Pix</strong>
+        <span style="font-size: 13px; text-align: center;">Copie o código ou escaneie o QR e pague <strong style="color: #16357F;" id="r-total-pix"></strong>. Expira em 30 min.</span>
+        <div style="width: 100%; display: flex; align-items: center; gap: 8px;">
+          <button id="btn-copiar" type="button" class="btn" style="background: #16357F; color: #FFFFFF; padding: 8px 14px; font-size: 14px; white-space: nowrap;" onclick="copiarPix()">Copiar código</button>
+          <code id="pix-preview" style="flex: 1; font-family: monospace; font-size: 12px; color: #6B7A99; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: #FFFFFF; border: 1px solid #D6DFEF; border-radius: 6px; padding: 6px 8px;"></code>
+        </div>
+        <input id="pix-copia-cola" type="hidden">
+        <div style="width: 160px; height: 160px; background: #FFFFFF; border-radius: 10px; padding: 6px; display: flex; align-items: center; justify-content: center;">
           <img id="qr-img" alt="QR Code Pix" style="width: 100%; height: 100%; object-fit: contain;">
         </div>
-        <div style="width: 100%; display: flex; flex-direction: column; gap: 6px;">
-          <label style="font-size: 13px; color: #6B7A99; font-weight: 600;">Pix copia e cola</label>
-          <textarea id="pix-copia-cola" readonly rows="3" style="width: 100%; border: 1.5px solid #D6DFEF; border-radius: 8px; padding: 8px; font-family: monospace; font-size: 12px; resize: none;"></textarea>
-          <button id="btn-copiar" type="button" class="btn" style="background: #16357F; color: #FFFFFF; padding: 8px 16px; font-size: 15px;" onclick="copiarPix()">Copiar código</button>
-        </div>
-        <span id="pix-status" style="font-size: 13px; color: #6B7A99; text-align: center;">Guarde o comprovante para a retirada da pulseira.</span>
+        <span id="pix-status" style="font-size: 12px; color: #6B7A99; text-align: center;">Guarde o comprovante para a retirada da pulseira.</span>
       </div>
       <button class="btn" style="background: #16357F; color: #FFFFFF;" onclick="fecharForm()">Fechar</button>
     </div>
@@ -260,7 +295,7 @@
 </div>
 
 <script>
-const PRECO_CAMISA = 50;
+const PRECO_CAMISA = 40;
 const MODALIDADES = [
   { rotulo: "Corrida 5 km", api: "corrida-5km" },
   { rotulo: "Caminhada 5 km", api: "caminhada-5km" },
@@ -310,50 +345,142 @@ const estado = { modalidade: MODALIDADES[0], tamanho: "M", camisa: false, doacao
 
 function renderChips() {
   document.getElementById("chips-modalidade").innerHTML = MODALIDADES.map((m, i) =>
-    `<button class="chip ${estado.modalidade.api === m.api ? "on" : ""}" onclick="pickModalidade(${i})">${m.rotulo}</button>`).join("");
+    `<button type="button" class="chip ${estado.modalidade.api === m.api ? "on" : ""}" onclick="pickModalidade(${i})">${m.rotulo}</button>`).join("");
   document.getElementById("chips-tamanho").innerHTML = TAMANHOS.map(t =>
-    `<button class="sq ${estado.tamanho === t ? "on" : ""}" onclick="pickTamanho('${t}')">${t}</button>`).join("");
+    `<button type="button" class="sq ${estado.tamanho === t ? "on" : ""}" onclick="pickTamanho('${t}')">${t}</button>`).join("");
   document.getElementById("chips-doacao").innerHTML = DOACOES.map(v =>
-    `<button class="sq ${estado.doacao === v ? "on" : ""}" style="padding:12px 6px;font-weight:700;font-size:16px;" onclick="pickDoacao(${v})">R$ ${v}</button>`).join("");
+    `<button type="button" class="sq ${estado.doacao === v ? "on" : ""}" style="padding:12px 6px;font-weight:700;font-size:16px;" onclick="pickDoacao(${v})">R$ ${v}</button>`).join("");
 }
 function pickModalidade(i) { estado.modalidade = MODALIDADES[i]; renderChips(); }
 function pickTamanho(t) { estado.tamanho = t; renderChips(); }
 function pickDoacao(v) { estado.doacao = v; document.getElementById("f-outro").value = ""; renderChips(); }
+
+(function initNascimentoMax() {
+  const hoje = new Date();
+  const min = new Date(hoje.getFullYear() - 100, hoje.getMonth(), hoje.getDate());
+  const max = new Date(hoje.getFullYear() - 5, hoje.getMonth(), hoje.getDate());
+  const el = document.getElementById("f-nascimento");
+  el.min = min.toISOString().slice(0, 10);
+  el.max = max.toISOString().slice(0, 10);
+})();
 renderChips();
 
 function irPara(n) {
   ["passo1", "passo2", "passo3", "passo4"].forEach((id, i) => {
     document.getElementById(id).style.display = i === n - 1 ? "flex" : "none";
   });
+  document.getElementById("passo-duplicado").style.display = "none";
 }
-function abrirForm() { document.getElementById("modal").style.display = "flex"; irPara(1); }
+function mostrarDuplicado(insc) {
+  ["passo1", "passo2", "passo3", "passo4"].forEach((id) => {
+    document.getElementById(id).style.display = "none";
+  });
+  document.getElementById("dup-nome").textContent = (insc.nome || "").split(" ")[0] || "Este CPF";
+  const temCamisa = !!insc.tem_camiseta;
+  document.getElementById("dup-com-camisa").style.display = temCamisa ? "block" : "none";
+  document.getElementById("dup-tamanho").textContent = insc.tamanho_camiseta || "";
+  document.getElementById("dup-cta-camisa").textContent = temCamisa
+    ? "Quer pedir outra camisa? Escolha o tamanho e pague por Pix:"
+    : "Ainda não pediu a camisa oficial? Peça agora:";
+  document.getElementById("dup-btn-camisa").textContent = temCamisa ? "Comprar outra camisa" : "Comprar camisa";
+  document.getElementById("passo-duplicado").style.display = "flex";
+  estado.dupInscricaoId = insc.id;
+}
+async function irParaCamisaExistente() {
+  estado.somenteCamisa = true;
+  estado.somenteDoacao = false;
+  irPara(2);
+}
+async function irParaDoacaoExistente() {
+  estado.somenteDoacao = true;
+  estado.somenteCamisa = false;
+  irPara(3);
+}
+function abrirForm() {
+  estado.somenteCamisa = false;
+  estado.somenteDoacao = false;
+  estado.dupInscricaoId = null;
+  __verifyingCpf = null;
+  document.getElementById("modal").style.display = "flex";
+  irPara(1);
+}
 function fecharForm() { document.getElementById("modal").style.display = "none"; }
 
 function val(id) { return document.getElementById(id).value.trim(); }
+
+function copiarEmail(btn) {
+  const email = "lionsclubebgcidadedovinho@gmail.com";
+  navigator.clipboard.writeText(email).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = "✓";
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  });
+}
+
+function mascaraCpf(el) {
+  const d = el.value.replace(/\D/g, "").slice(0, 11);
+  let out = d;
+  if (d.length > 9) out = `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`;
+  else if (d.length > 6) out = `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6)}`;
+  else if (d.length > 3) out = `${d.slice(0,3)}.${d.slice(3)}`;
+  el.value = out;
+  if (d.length === 11) verificarCpfAuto(d);
+}
+
+let __verifyingCpf = null;
+async function verificarCpfAuto(cpf) {
+  if (__verifyingCpf === cpf) return;
+  __verifyingCpf = cpf;
+  try {
+    const r = await fetch("/api/inscricao/verificar-cpf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cpf }),
+    });
+    const d = await r.json();
+    if (d.ok && d.existe) mostrarDuplicado(d.inscricao || {});
+  } catch { /* silencioso */ }
+}
 function mostraErro(id, msg) {
   const el = document.getElementById(id);
   el.textContent = msg; el.style.display = msg ? "block" : "none";
 }
 
-function submitDados() {
+async function submitDados() {
   const cpf = val("f-cpf").replace(/\D/g, "");
   if (!val("f-nome") || !val("f-email")) return mostraErro("erro1", "Preencha nome e e-mail para continuar.");
   if (cpf.length !== 11) return mostraErro("erro1", "Informe um CPF válido (11 dígitos).");
   if (!val("f-fone")) return mostraErro("erro1", "Informe seu WhatsApp.");
   if (!val("f-nascimento")) return mostraErro("erro1", "Informe sua data de nascimento.");
-  if (!val("f-sexo")) return mostraErro("erro1", "Selecione o sexo.");
-  if (!val("f-cidade")) return mostraErro("erro1", "Informe sua cidade.");
-  if (!val("f-emergencia")) return mostraErro("erro1", "Informe um contato de emergência.");
   if (!document.getElementById("f-termo").checked) return mostraErro("erro1", "É preciso aceitar o termo de responsabilidade para continuar.");
   mostraErro("erro1", "");
+  try {
+    const r = await fetch("/api/inscricao/verificar-cpf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cpf }),
+    });
+    const d = await r.json();
+    if (d.ok && d.existe) { mostrarDuplicado(d.inscricao || {}); return; }
+  } catch { /* segue offline se falhar */ }
   irPara(2);
 }
 
-function camisa(quer) { estado.camisa = quer; irPara(3); }
+function camisa(quer) {
+  estado.camisa = quer;
+  if (estado.somenteCamisa) {
+    if (!quer) { fecharForm(); return; }
+    concluirSomenteCamisa();
+    return;
+  }
+  irPara(3);
+}
 
 function fmt(v) { return "R$ " + v.toFixed(2).replace(".", ","); }
 
 async function concluir(pular) {
+  if (estado.somenteCamisa) return concluirSomenteCamisa();
+  if (estado.somenteDoacao) return concluirSomenteDoacao(pular);
   if (pular) { estado.doacao = null; document.getElementById("f-outro").value = ""; }
   const outro = parseFloat(document.getElementById("f-outro").value);
   const doacao = !pular && Number.isFinite(outro) && outro > 0 ? outro : (!pular ? estado.doacao : null);
@@ -386,6 +513,12 @@ async function concluir(pular) {
       body: JSON.stringify(payload)
     });
     const data = await resp.json();
+    if (resp.status === 409 && data.cpf_duplicado) {
+      btn.disabled = false; btn.textContent = "Concluir inscrição";
+      mostraErro("erro3", "");
+      mostrarDuplicado(data.inscricao || {});
+      return;
+    }
     if (!data.ok) {
       mostraErro("erro3", data.mensagem || "Não foi possível registrar a inscrição.");
       btn.disabled = false; btn.textContent = "Concluir inscrição";
@@ -418,6 +551,8 @@ async function concluir(pular) {
     document.getElementById("r-total-pix").textContent = fmt(total);
     const cc = document.getElementById("pix-copia-cola");
     if (cc) cc.value = pag.pixCopiaECola;
+    const preview = document.getElementById("pix-preview");
+    if (preview) preview.textContent = pag.pixCopiaECola.slice(0, 24) + "…";
     blocoPix.style.display = "flex";
     iniciarPollingPagamento(pag.txid);
   } else {
@@ -426,10 +561,116 @@ async function concluir(pular) {
   irPara(4);
 }
 
+async function concluirSomenteDoacao(pular) {
+  if (pular) { fecharForm(); return; }
+  const outro = parseFloat(document.getElementById("f-outro").value);
+  const doacao = Number.isFinite(outro) && outro > 0 ? outro : estado.doacao;
+  if (!doacao || doacao <= 0) return mostraErro("erro3", "Escolha um valor ou informe outro.");
+  const btn = document.getElementById("btn-concluir");
+  btn.disabled = true; btn.textContent = "Enviando…";
+  mostraErro("erro3", "");
+  try {
+    const resp = await fetch(`/api/inscricao/${estado.dupInscricaoId}/doacao`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cpf: val("f-cpf"), valor: doacao }),
+    });
+    const data = await resp.json();
+    if (!data.ok) {
+      mostraErro("erro3", data.mensagem || "Não foi possível registrar a doação.");
+      btn.disabled = false; btn.textContent = "Concluir inscrição";
+      return;
+    }
+    window.__pagamento = data.pagamento || null;
+    btn.disabled = false; btn.textContent = "Concluir inscrição";
+    document.getElementById("r-nome").textContent = (val("f-nome") || "Você").split(" ")[0];
+    document.getElementById("r-num").textContent = "#" + estado.dupInscricaoId;
+    document.getElementById("r-modalidade").textContent = "Doação solidária";
+    document.getElementById("r-camisa").textContent = "Não";
+    document.getElementById("r-doacao").textContent = fmt(doacao);
+    document.getElementById("r-total").textContent = fmt(doacao);
+    montaBlocoPix(doacao);
+    irPara(4);
+  } catch {
+    mostraErro("erro3", "Falha de conexão. Tente novamente.");
+    btn.disabled = false; btn.textContent = "Concluir inscrição";
+  }
+}
+
+function montaBlocoPix(total) {
+  const blocoPix = document.getElementById("bloco-pix");
+  const pag = window.__pagamento;
+  if (pag && pag.pixCopiaECola && window.qrcode) {
+    const qr = window.qrcode(0, "M");
+    qr.addData(pag.pixCopiaECola, "Byte");
+    qr.make();
+    document.getElementById("qr-img").src = qr.createDataURL(6, 8);
+    document.getElementById("r-total-pix").textContent = fmt(total);
+    const cc = document.getElementById("pix-copia-cola");
+    if (cc) cc.value = pag.pixCopiaECola;
+    const preview = document.getElementById("pix-preview");
+    if (preview) preview.textContent = pag.pixCopiaECola.slice(0, 24) + "…";
+    blocoPix.style.display = "flex";
+    iniciarPollingPagamento(pag.txid);
+  } else {
+    blocoPix.style.display = "none";
+  }
+}
+
+async function concluirSomenteCamisa() {
+  const btn = document.getElementById("btn-concluir");
+  btn.disabled = true; btn.textContent = "Enviando…";
+  mostraErro("erro3", "");
+  const inscId = estado.dupInscricaoId;
+  try {
+    const resp = await fetch(`/api/inscricao/${inscId}/camisa`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cpf: val("f-cpf"), tamanho_camiseta: estado.tamanho }),
+    });
+    const data = await resp.json();
+    if (!data.ok) {
+      mostraErro("erro3", data.mensagem || "Não foi possível registrar a camiseta.");
+      btn.disabled = false; btn.textContent = "Concluir inscrição";
+      return;
+    }
+    window.__pagamento = data.pagamento || null;
+    btn.disabled = false; btn.textContent = "Concluir inscrição";
+
+    document.getElementById("r-nome").textContent = (val("f-nome") || "Você").split(" ")[0];
+    document.getElementById("r-num").textContent = "#" + inscId;
+    document.getElementById("r-modalidade").textContent = "Camiseta oficial";
+    document.getElementById("r-camisa").textContent = "Tamanho " + estado.tamanho + " · " + fmt(PRECO_CAMISA);
+    document.getElementById("r-doacao").textContent = "Não";
+    document.getElementById("r-total").textContent = fmt(PRECO_CAMISA);
+
+    const blocoPix = document.getElementById("bloco-pix");
+    const pag = window.__pagamento;
+    if (pag && pag.pixCopiaECola && window.qrcode) {
+      const qr = window.qrcode(0, "M");
+      qr.addData(pag.pixCopiaECola, "Byte");
+      qr.make();
+      document.getElementById("qr-img").src = qr.createDataURL(6, 8);
+      document.getElementById("r-total-pix").textContent = fmt(PRECO_CAMISA);
+      const cc = document.getElementById("pix-copia-cola");
+      if (cc) cc.value = pag.pixCopiaECola;
+      const preview = document.getElementById("pix-preview");
+      if (preview) preview.textContent = pag.pixCopiaECola.slice(0, 24) + "…";
+      blocoPix.style.display = "flex";
+      iniciarPollingPagamento(pag.txid);
+    } else {
+      blocoPix.style.display = "none";
+    }
+    irPara(4);
+  } catch {
+    mostraErro("erro3", "Falha de conexão. Tente novamente.");
+    btn.disabled = false; btn.textContent = "Concluir inscrição";
+  }
+}
+
 function copiarPix() {
   const cc = document.getElementById("pix-copia-cola");
-  if (!cc) return;
-  cc.select();
+  if (!cc || !cc.value) return;
   navigator.clipboard.writeText(cc.value).then(() => {
     const btn = document.getElementById("btn-copiar");
     if (!btn) return;

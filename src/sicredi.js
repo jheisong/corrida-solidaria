@@ -121,14 +121,17 @@ export function gerarTxid(prefixo = "LCCV") {
  */
 export async function criarCobranca(env, { txid, valor, chavePix, cpf, nome, solicitacao, expiracao = 3600, infoAdicionais }) {
   if (env.SICREDI_MOCK === "1") {
+    // pixCopiaECola fixo — resposta real do Sicredi (2026-09-12, R$ 0,01, chave 06304442000108).
+    // Serve para validar QR/UI sem bater na API. QR abre normal no app do banco.
+    // Demais campos ecoam o que foi pedido para manter consistência no fluxo local.
     return {
       txid,
       status: "ATIVA",
       calendario: { criacao: new Date().toISOString(), expiracao },
       valor: { original: Number(valor).toFixed(2), modalidadeAlteracao: 0 },
       chave: chavePix,
-      pixCopiaECola: `00020126360014BR.GOV.BCB.PIX0114${chavePix}5204000053039865802BR5913MOCK LCCV6009BENTO GONC62070503***6304MOCK-${txid.slice(0, 6)}`,
-      loc: { id: 9999999 },
+      pixCopiaECola: "00020126850014br.gov.bcb.pix2563pixqrcode.sicredi.com.br/qr/v2/f9b0c2d2494249138f97c40dbde6bba85204000053039865802BR5903PIX6006Cidade62070503***63043543",
+      loc: { id: 2444344789, location: "pixqrcode.sicredi.com.br/qr/v2/f9b0c2d2494249138f97c40dbde6bba8" },
       _mock: true,
     };
   }

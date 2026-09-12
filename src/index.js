@@ -40,6 +40,12 @@ function reqStr(v, campo, max = 500) {
   return s;
 }
 
+function normalizaCpf(v) {
+  if (v === undefined || v === null) return null;
+  const s = String(v).replace(/\D+/g, "");
+  return s ? s.slice(0, 14) : null;
+}
+
 function validaEmail(s) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 }
@@ -62,16 +68,16 @@ function parseInscricao(body) {
       email: reqStr(body.email, "email", 200).toLowerCase(),
       telefone: reqStr(body.telefone, "telefone", 40),
       data_nascimento: reqStr(body.data_nascimento, "data_nascimento", 10),
-      sexo: reqStr(body.sexo, "sexo", 30).toUpperCase(),
-      cidade: reqStr(body.cidade, "cidade", 120),
+      sexo: (strOrNull(body.sexo, 30) || "").toUpperCase() || null,
+      cidade: strOrNull(body.cidade, 120),
       modalidade: reqStr(body.modalidade, "modalidade", 30),
-      contato_emergencia: reqStr(body.contato_emergencia, "contato_emergencia", 200),
+      contato_emergencia: strOrNull(body.contato_emergencia, 200),
       aceite_termo: body.aceite_termo === true || body.aceite_termo === 1 || body.aceite_termo === "true",
       equipe: strOrNull(body.equipe, 120),
       quer_camiseta: body.quer_camiseta === true || body.quer_camiseta === 1 || body.quer_camiseta === "true",
       tamanho_camiseta: strOrNull(body.tamanho_camiseta, 20),
       observacoes: strOrNull(body.observacoes, 1000),
-      cpf: strOrNull(body.cpf, 20),
+      cpf: normalizaCpf(body.cpf),
       doacao_valor: body.doacao_valor === undefined || body.doacao_valor === null || body.doacao_valor === "" ? null : Number(body.doacao_valor),
     };
   } catch (e) {
@@ -82,12 +88,15 @@ function parseInscricao(body) {
   if (!validaEmail(dados.email)) push({ campo: "email", msg: "E-mail inválido." });
   if (!validaData(dados.data_nascimento)) push({ campo: "data_nascimento", msg: "Data de nascimento inválida (use AAAA-MM-DD)." });
   if (!MODALIDADES.has(dados.modalidade)) push({ campo: "modalidade", msg: "Modalidade inválida." });
-  if (!SEXOS.has(dados.sexo)) push({ campo: "sexo", msg: "Sexo inválido." });
+  if (dados.sexo && !SEXOS.has(dados.sexo)) push({ campo: "sexo", msg: "Sexo inválido." });
   if (!dados.aceite_termo) push({ campo: "aceite_termo", msg: "É obrigatório aceitar o termo de responsabilidade e a declaração de saúde." });
   if (dados.quer_camiseta && !dados.tamanho_camiseta) push({ campo: "tamanho_camiseta", msg: "Escolha o tamanho da camiseta." });
   if (dados.tamanho_camiseta && !TAMANHOS.has(dados.tamanho_camiseta)) push({ campo: "tamanho_camiseta", msg: "Tamanho inválido." });
   if (dados.doacao_valor !== null && (!Number.isFinite(dados.doacao_valor) || dados.doacao_valor < 0)) {
     push({ campo: "doacao_valor", msg: "Valor de doação inválido." });
+  }
+  if (!dados.cpf || dados.cpf.length !== 11) {
+    push({ campo: "cpf", msg: "Informe um CPF válido (11 dígitos)." });
   }
 
   return { erros, dados };
@@ -101,8 +110,8 @@ async function inserirInscricao(env, d) {
       aceite_termo, observacoes, doacao_valor
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
-    d.nome, d.email, d.telefone, d.cpf, d.data_nascimento, d.sexo, d.cidade, d.modalidade,
-    d.equipe, d.quer_camiseta ? 1 : 0, d.tamanho_camiseta, d.contato_emergencia,
+    d.nome, d.email, d.telefone, d.cpf, d.data_nascimento, d.sexo || "", d.cidade || "", d.modalidade,
+    d.equipe, d.quer_camiseta ? 1 : 0, d.tamanho_camiseta, d.contato_emergencia || "",
     1, d.observacoes, d.doacao_valor
   );
   const r = await stmt.run();
@@ -130,6 +139,23 @@ async function handleInscricao(request, env) {
     return json({ ok: false, mensagem: erros[0].msg, erros }, 400);
   }
 
+  const existente = await env.DB.prepare(
+    "SELECT id, nome, quer_camiseta, tamanho_camiseta FROM inscricoes WHERE cpf = ? LIMIT 1"
+  ).bind(dados.cpf).first();
+  if (existente) {
+    return json({
+      ok: false,
+      cpf_duplicado: true,
+      mensagem: "Atleta já cadastrado.",
+      inscricao: {
+        id: existente.id,
+        nome: existente.nome,
+        tem_camiseta: !!existente.quer_camiseta,
+        tamanho_camiseta: existente.tamanho_camiseta,
+      },
+    }, 409);
+  }
+
   let id;
   try {
     id = await inserirInscricao(env, dados);
@@ -139,7 +165,8 @@ async function handleInscricao(request, env) {
   }
 
   const valor = calcularValor(env, dados);
-  if (valor <= 0 || !env.SICREDI || !env.SICREDI_CHAVE_PIX) {
+  const podeCobrar = env.SICREDI_MOCK === "1" || !!env.SICREDI;
+  if (valor <= 0 || !podeCobrar || !env.SICREDI_CHAVE_PIX) {
     return json({
       ok: true, id, valor,
       mensagem: "Inscrição registrada com sucesso! Você receberá a confirmação por e-mail.",
@@ -147,7 +174,8 @@ async function handleInscricao(request, env) {
   }
 
   try {
-    const cob = await criarECadastrarCobranca(env, id, dados, valor);
+    const tipo = Number(dados.doacao_valor || 0) > 0 ? "MISTO" : "INSCRICAO";
+    const cob = await criarECadastrarCobranca(env, id, dados, valor, tipo);
     return json({
       ok: true, id, valor,
       pagamento: cob,
@@ -162,6 +190,103 @@ async function handleInscricao(request, env) {
   }
 }
 
+async function handleDoacaoAvulsa(request, env, inscricaoId) {
+  let body;
+  try { body = await request.json(); } catch {
+    return json({ ok: false, mensagem: "JSON inválido" }, 400);
+  }
+  const cpfDigitos = normalizaCpf(body.cpf);
+  const valor = Number(body.valor);
+  if (!cpfDigitos || cpfDigitos.length !== 11) return json({ ok: false, mensagem: "Informe seu CPF." }, 400);
+  if (!Number.isFinite(valor) || valor <= 0) return json({ ok: false, mensagem: "Valor inválido." }, 400);
+
+  const insc = await env.DB.prepare("SELECT id, nome, cpf FROM inscricoes WHERE id = ?").bind(inscricaoId).first();
+  if (!insc) return json({ ok: false, mensagem: "Inscrição não encontrada." }, 404);
+  if (insc.cpf !== cpfDigitos) return json({ ok: false, mensagem: "CPF não confere com a inscrição." }, 403);
+
+  const podeCobrar = env.SICREDI_MOCK === "1" || !!env.SICREDI;
+  if (!podeCobrar || !env.SICREDI_CHAVE_PIX) {
+    return json({ ok: false, mensagem: "Pix indisponível no momento." }, 503);
+  }
+
+  try {
+    const cob = await criarECadastrarCobranca(env, inscricaoId, { cpf: cpfDigitos, nome: insc.nome, modalidade: "doacao" }, Math.round(valor * 100) / 100, "DOACAO");
+    return json({ ok: true, id: inscricaoId, valor, pagamento: cob, mensagem: "Pague o Pix da doação." }, 201);
+  } catch (e) {
+    console.error("Erro cobrança doação:", e);
+    return json({ ok: false, mensagem: "Não conseguimos gerar o Pix agora." }, 502);
+  }
+}
+
+async function handleVerificarCpf(request, env) {
+  let body;
+  try { body = await request.json(); } catch {
+    return json({ ok: false, mensagem: "JSON inválido" }, 400);
+  }
+  const cpf = normalizaCpf(body.cpf);
+  if (!cpf || cpf.length !== 11) return json({ ok: false, mensagem: "CPF inválido." }, 400);
+
+  const existente = await env.DB.prepare(
+    "SELECT id, nome, quer_camiseta, tamanho_camiseta FROM inscricoes WHERE cpf = ? LIMIT 1"
+  ).bind(cpf).first();
+
+  if (!existente) return json({ ok: true, existe: false });
+
+  return json({
+    ok: true,
+    existe: true,
+    inscricao: {
+      id: existente.id,
+      nome: existente.nome,
+      tem_camiseta: !!existente.quer_camiseta,
+      tamanho_camiseta: existente.tamanho_camiseta,
+    },
+  });
+}
+
+async function handleComprarCamisa(request, env, inscricaoId) {
+  let body;
+  try { body = await request.json(); } catch {
+    return json({ ok: false, mensagem: "JSON inválido" }, 400);
+  }
+  const tamanho = strOrNull(body.tamanho_camiseta, 20);
+  if (!tamanho || !TAMANHOS.has(tamanho)) {
+    return json({ ok: false, mensagem: "Tamanho inválido." }, 400);
+  }
+  const cpfDigitos = normalizaCpf(body.cpf);
+  if (!cpfDigitos || cpfDigitos.length !== 11) {
+    return json({ ok: false, mensagem: "Informe seu CPF." }, 400);
+  }
+
+  const insc = await env.DB.prepare(
+    "SELECT id, nome, cpf, quer_camiseta FROM inscricoes WHERE id = ?"
+  ).bind(inscricaoId).first();
+  if (!insc) return json({ ok: false, mensagem: "Inscrição não encontrada." }, 404);
+  if (insc.cpf !== cpfDigitos) return json({ ok: false, mensagem: "CPF não confere com a inscrição." }, 403);
+
+  // Primeira camisa: grava tamanho. Compras adicionais: mantém tamanho original
+  // na inscrição (o pedido extra fica só na tabela pagamentos via txid).
+  if (!insc.quer_camiseta) {
+    await env.DB.prepare(
+      "UPDATE inscricoes SET quer_camiseta = 1, tamanho_camiseta = ? WHERE id = ?"
+    ).bind(tamanho, inscricaoId).run();
+  }
+
+  const valor = Number(env.CAMISA_VALOR || "40");
+  const podeCobrar = env.SICREDI_MOCK === "1" || !!env.SICREDI;
+  if (valor <= 0 || !podeCobrar || !env.SICREDI_CHAVE_PIX) {
+    return json({ ok: true, id: inscricaoId, valor, mensagem: "Camiseta registrada." }, 201);
+  }
+
+  try {
+    const cob = await criarECadastrarCobranca(env, inscricaoId, { cpf: cpfDigitos, nome: insc.nome, modalidade: "camisa" }, valor, "CAMISA");
+    return json({ ok: true, id: inscricaoId, valor, pagamento: cob, mensagem: "Pague o Pix da camiseta." }, 201);
+  } catch (e) {
+    console.error("Erro cobrança camisa:", e);
+    return json({ ok: true, id: inscricaoId, valor, mensagem: "Camiseta registrada. Pix indisponível agora." }, 201);
+  }
+}
+
 function calcularValor(env, dados) {
   const base = Number(env.SICREDI_VALOR_INSCRICAO || 0);
   const doacao = Number(dados.doacao_valor || 0);
@@ -169,19 +294,21 @@ function calcularValor(env, dados) {
   return Math.max(0, Math.round(total * 100) / 100);
 }
 
-async function criarECadastrarCobranca(env, inscricaoId, dados, valor) {
+async function criarECadastrarCobranca(env, inscricaoId, dados, valor, tipo = "INSCRICAO") {
   const txid = gerarTxid("LCCV");
+  const rotulo = tipo === "CAMISA" ? "Camisa" : tipo === "DOACAO" ? "Doação" : tipo === "MISTO" ? "Inscrição + doação" : "Inscrição";
   const cob = await criarCobranca(env, {
     txid,
     valor,
     chavePix: env.SICREDI_CHAVE_PIX,
     cpf: dados.cpf,
     nome: dados.nome,
-    solicitacao: `Inscrição Corrida Solidária - ${dados.modalidade}`,
+    solicitacao: `${rotulo} - Corrida Solidária`,
     expiracao: 3 * 60 * 60,
     infoAdicionais: [
       { nome: "Inscricao", valor: String(inscricaoId) },
-      { nome: "Modalidade", valor: dados.modalidade },
+      { nome: "Tipo", valor: tipo },
+      { nome: "Modalidade", valor: String(dados.modalidade || "") },
     ],
   });
 
@@ -189,11 +316,11 @@ async function criarECadastrarCobranca(env, inscricaoId, dados, valor) {
   const locationId = cob.loc?.id ? String(cob.loc.id) : null;
 
   await env.DB.prepare(`
-    INSERT INTO pagamentos (txid, inscricao_id, valor, status, chave_pix, pix_copia_cola, location_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).bind(txid, inscricaoId, valor, cob.status || "ATIVA", env.SICREDI_CHAVE_PIX, pixCopiaCola, locationId).run();
+    INSERT INTO pagamentos (txid, inscricao_id, valor, status, chave_pix, pix_copia_cola, location_id, tipo)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(txid, inscricaoId, valor, cob.status || "ATIVA", env.SICREDI_CHAVE_PIX, pixCopiaCola, locationId, tipo).run();
 
-  return { txid, valor, status: cob.status || "ATIVA", pixCopiaECola: pixCopiaCola };
+  return { txid, valor, status: cob.status || "ATIVA", pixCopiaECola: pixCopiaCola, tipo };
 }
 
 async function handleWebhookPix(request, env) {
@@ -248,7 +375,7 @@ async function handleWebhookPix(request, env) {
 
 async function handlePagamentoStatus(request, env, txid) {
   const row = await env.DB.prepare(
-    "SELECT txid, inscricao_id, valor, status, pix_copia_cola, pago_em, criado_em FROM pagamentos WHERE txid = ?"
+    "SELECT txid, inscricao_id, valor, status, tipo, pix_copia_cola, pago_em, criado_em FROM pagamentos WHERE txid = ?"
   ).bind(txid).first();
   if (!row) return json({ ok: false, mensagem: "Cobrança não encontrada" }, 404);
   return json({ ok: true, pagamento: row });
@@ -308,6 +435,9 @@ export default {
     if (url.pathname === "/api/inscricao" && request.method === "POST") {
       return handleInscricao(request, env);
     }
+    if (url.pathname === "/api/inscricao/verificar-cpf" && request.method === "POST") {
+      return handleVerificarCpf(request, env);
+    }
     if (url.pathname === "/api/inscricoes" && request.method === "GET") {
       return handleListar(request, env);
     }
@@ -326,6 +456,14 @@ export default {
     {
       const m = url.pathname.match(/^\/api\/pagamento\/([A-Za-z0-9]{26,35})$/);
       if (m && request.method === "GET") return handlePagamentoStatus(request, env, m[1]);
+    }
+    {
+      const m = url.pathname.match(/^\/api\/inscricao\/(\d+)\/camisa$/);
+      if (m && request.method === "POST") return handleComprarCamisa(request, env, Number(m[1]));
+    }
+    {
+      const m = url.pathname.match(/^\/api\/inscricao\/(\d+)\/doacao$/);
+      if (m && request.method === "POST") return handleDoacaoAvulsa(request, env, Number(m[1]));
     }
     if (env.SICREDI_MOCK === "1") {
       const m = url.pathname.match(/^\/api\/dev\/pagar\/([A-Za-z0-9]{26,35})$/);

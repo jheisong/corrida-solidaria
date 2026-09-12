@@ -1,0 +1,27 @@
+{
+  "name": "site-corrida",
+  "version": "1.0.0",
+  "description": "Site de inscrições da **Corrida Solidária de Prevenção à Saúde** do **Lions Clube Bento Gonçalves Cidade do Vinho**.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jheisong/corrida-solidaria.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jheisong/corrida-solidaria/issues"
+  },
+  "homepage": "https://github.com/jheisong/corrida-solidaria#readme",
+  "devDependencies": {
+    "wrangler": "^4.131.1"
+  }
+}
