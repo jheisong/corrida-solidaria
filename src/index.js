@@ -46,6 +46,18 @@ function normalizaCpf(v) {
   return s ? s.slice(0, 14) : null;
 }
 
+function validaCpf(cpf) {
+  if (!cpf || cpf.length !== 11) return false;
+  if (/^(\d)\1+$/.test(cpf)) return false;
+  const calc = (fatorInicial) => {
+    let soma = 0;
+    for (let i = 0; i < fatorInicial - 1; i++) soma += Number(cpf[i]) * (fatorInicial - i);
+    const resto = (soma * 10) % 11;
+    return resto === 10 ? 0 : resto;
+  };
+  return calc(10) === Number(cpf[9]) && calc(11) === Number(cpf[10]);
+}
+
 function validaEmail(s) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 }
@@ -95,8 +107,8 @@ function parseInscricao(body) {
   if (dados.doacao_valor !== null && (!Number.isFinite(dados.doacao_valor) || dados.doacao_valor < 0)) {
     push({ campo: "doacao_valor", msg: "Valor de doação inválido." });
   }
-  if (!dados.cpf || dados.cpf.length !== 11) {
-    push({ campo: "cpf", msg: "Informe um CPF válido (11 dígitos)." });
+  if (!dados.cpf || !validaCpf(dados.cpf)) {
+    push({ campo: "cpf", msg: "CPF inválido." });
   }
 
   return { erros, dados };
@@ -197,7 +209,7 @@ async function handleDoacaoAvulsa(request, env, inscricaoId) {
   }
   const cpfDigitos = normalizaCpf(body.cpf);
   const valor = Number(body.valor);
-  if (!cpfDigitos || cpfDigitos.length !== 11) return json({ ok: false, mensagem: "Informe seu CPF." }, 400);
+  if (!cpfDigitos || !validaCpf(cpfDigitos)) return json({ ok: false, mensagem: "CPF inválido." }, 400);
   if (!Number.isFinite(valor) || valor <= 0) return json({ ok: false, mensagem: "Valor inválido." }, 400);
 
   const insc = await env.DB.prepare("SELECT id, nome, cpf FROM inscricoes WHERE id = ?").bind(inscricaoId).first();
@@ -224,7 +236,7 @@ async function handleVerificarCpf(request, env) {
     return json({ ok: false, mensagem: "JSON inválido" }, 400);
   }
   const cpf = normalizaCpf(body.cpf);
-  if (!cpf || cpf.length !== 11) return json({ ok: false, mensagem: "CPF inválido." }, 400);
+  if (!cpf || !validaCpf(cpf)) return json({ ok: false, mensagem: "CPF inválido." }, 400);
 
   const existente = await env.DB.prepare(
     "SELECT id, nome, quer_camiseta, tamanho_camiseta FROM inscricoes WHERE cpf = ? LIMIT 1"
@@ -488,11 +500,11 @@ export default {
       return new Response(r.body, { status: r.status, headers: r.headers });
     }
 
-    // Domínio oficial mostra apenas o "em breve" até 15/09/2026 nos caminhos de página.
+    // "Em breve" opcional: só ativa se secret MOSTRAR_EM_BREVE=1.
     // Assets (img/, css, js) e API continuam funcionando normalmente.
     const oficial = url.hostname.endsWith("lccidadedovinho.com.br");
     const ehPagina = url.pathname === "/" || url.pathname === "/index.html";
-    if (oficial && ehPagina && env.ASSETS) {
+    if (env.MOSTRAR_EM_BREVE === "1" && oficial && ehPagina && env.ASSETS) {
       const emBreveUrl = new URL(url);
       emBreveUrl.pathname = "/em-breve.html";
       const r = await env.ASSETS.fetch(new Request(emBreveUrl.toString(), { method: "GET" }));

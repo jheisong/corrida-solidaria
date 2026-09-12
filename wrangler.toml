@@ -2,6 +2,10 @@ name = "corrida-solidaria"
 main = "src/index.js"
 compatibility_date = "2025-01-01"
 
+routes = [
+  { pattern = "treinosolidario.lccidadedovinho.com.br", custom_domain = true },
+]
+
 # Servir arquivos estáticos de ./public
 [assets]
 directory = "./public"
@@ -9,47 +13,35 @@ binding = "ASSETS"
 not_found_handling = "single-page-application"
 run_worker_first = true
 
-# D1 database. Rodar antes:
-#   wrangler d1 create corrida-solidaria
-# e copiar o database_id retornado pra cá.
+# D1 database
 [[d1_databases]]
 binding = "DB"
 database_name = "corrida-solidaria"
 database_id = "eb4a816e-4717-416f-ad7c-48c121f32ae5"
 migrations_dir = "migrations"
 
-# Secret (NÃO commitar). Definir com:
-#   wrangler secret put PAINEL_SENHA
-# Local: criar .dev.vars com PAINEL_SENHA="..."
+# KV: cache do access_token Sicredi (expira em 300s).
+[[kv_namespaces]]
+binding = "TOKENS"
+id = "c19d155ab3d7471f9fccdcfed901f6bd"
+
+# mTLS Sicredi (cert 06304442000108, expira 11/09/2028)
+[[mtls_certificates]]
+binding = "SICREDI"
+certificate_id = "e53450f5-0151-4938-abc5-96e2b47e6c8e"
 
 [observability]
 enabled = true
 
-# KV para cachear access_token do Sicredi (expira em 300s).
-# Criar com: wrangler kv namespace create TOKENS
-# e colar o id abaixo.
-# [[kv_namespaces]]
-# binding = "TOKENS"
-# id = "COLAR_ID_AQUI"
+[vars]
+SICREDI_AMBIENTE = "producao"
 
-# mTLS Sicredi. Upload do certificado:
-#   wrangler mtls-certificate upload \
-#     --cert certificados/06304442000108.cer \
-#     --key  certificados/api-pix-lccidadedovinho.key \
-#     --name sicredi-pix
-# Copiar o certificate_id retornado e descomentar:
-# [[mtls_certificates]]
-# binding = "SICREDI"
-# certificate_id = "COLAR_ID_AQUI"
-
-# Secrets (definir com `wrangler secret put NOME`):
+# Secrets em prod (definir com `wrangler secret put NOME`):
+#   PAINEL_SENHA
 #   SICREDI_CLIENT_ID
 #   SICREDI_CLIENT_SECRET
-#   SICREDI_CHAVE_PIX          # chave Pix da conta recebedora
-#   SICREDI_WEBHOOK_URL        # ex.: https://corrida.lccidadedovinho.com.br/api/webhook
-#   SICREDI_VALOR_INSCRICAO    # valor base em reais (ex.: "50.00")
-# Var não-secreta:
-#   SICREDI_AMBIENTE = "homologacao" | "producao"  (default: homologacao)
-
-# [vars]
-# SICREDI_AMBIENTE = "homologacao"
+#   SICREDI_CHAVE_PIX          # chave Pix (ex.: CNPJ 06304442000108)
+#   SICREDI_WEBHOOK_URL        # https://treinosolidario.lccidadedovinho.com.br/api/webhook
+#   SICREDI_VALOR_INSCRICAO    # opcional; default 0 se não definido
+#
+# NÃO setar SICREDI_MOCK em prod (habilita rota /api/dev/pagar).
