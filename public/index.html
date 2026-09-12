@@ -250,15 +250,8 @@
       <span class="kicker" style="font-size: 15px;">Passo 2 de 3 · Opcional</span>
       <h3 style="font-size: 30px;">Leve a camisa oficial</h3>
       <p style="margin: 0; font-size: 16px;">Garanta a camisa oficial do evento por <strong style="color: #16357F;">R$ 40,00</strong>. Todo o valor é revertido para a causa: ações de prevenção e conscientização sobre o diabetes na comunidade.</p>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-          <div style="height: 180px;"><div class="placeholder">Foto da camisa (frente)</div></div>
-          <span style="font-size: 13px; font-weight: 600; color: #6B7A99; text-align: center;">Frente</span>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-          <div style="height: 180px;"><div class="placeholder">Foto da camisa (verso)</div></div>
-          <span style="font-size: 13px; font-weight: 600; color: #6B7A99; text-align: center;">Verso</span>
-        </div>
+      <div style="display: flex; justify-content: center;">
+        <img src="img/camisa.png" alt="Camisa oficial do evento" style="max-width: 320px; width: 100%; height: auto; border-radius: 12px; object-fit: contain;">
       </div>
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <span style="font-weight: 600; font-size: 14px; color: #16357F;">Tamanho</span>
@@ -420,9 +413,27 @@ function abrirForm() {
   estado.somenteCamisa = false;
   estado.somenteDoacao = false;
   estado.dupInscricaoId = null;
+  estado.modalidade = MODALIDADES[0];
+  estado.tamanho = "M";
+  estado.camisa = false;
+  estado.doacao = null;
   __verifyingCpf = null;
+  resetForm();
+  renderChips();
   document.getElementById("modal").style.display = "flex";
   irPara(1);
+}
+
+function resetForm() {
+  ["f-nome","f-cpf","f-email","f-fone","f-nascimento","f-sexo","f-equipe","f-emergencia","f-outro"]
+    .forEach((id) => { const el = document.getElementById(id); if (el) el.value = ""; });
+  const cid = document.getElementById("f-cidade"); if (cid) cid.value = "Bento Gonçalves";
+  const termo = document.getElementById("f-termo"); if (termo) termo.checked = false;
+  ["erro1","erro3"].forEach((id) => mostraErro(id, ""));
+  const bloco = document.getElementById("bloco-pix"); if (bloco) bloco.style.display = "none";
+  const confirmado = document.getElementById("pagamento-confirmado"); if (confirmado) confirmado.style.display = "none";
+  clearInterval(pollingTimer);
+  window.__pagamento = null;
 }
 function fecharForm() { document.getElementById("modal").style.display = "none"; }
 
