@@ -186,7 +186,13 @@ async function handleInscricao(request, env) {
   }
 
   try {
-    const tipo = Number(dados.doacao_valor || 0) > 0 ? "MISTO" : "INSCRICAO";
+    const temDoacao = Number(dados.doacao_valor || 0) > 0;
+    const temCamisa = !!dados.quer_camiseta;
+    const temInscricao = Number(env.SICREDI_VALOR_INSCRICAO || 0) > 0;
+    let tipo = "INSCRICAO";
+    if ((temDoacao && temCamisa) || (temInscricao && (temDoacao || temCamisa))) tipo = "MISTO";
+    else if (temCamisa && !temInscricao && !temDoacao) tipo = "CAMISA";
+    else if (temDoacao && !temInscricao && !temCamisa) tipo = "DOACAO";
     const cob = await criarECadastrarCobranca(env, id, dados, valor, tipo);
     return json({
       ok: true, id, valor,
@@ -302,7 +308,11 @@ async function handleComprarCamisa(request, env, inscricaoId) {
 function calcularValor(env, dados) {
   const base = Number(env.SICREDI_VALOR_INSCRICAO || 0);
   const doacao = Number(dados.doacao_valor || 0);
-  const total = (Number.isFinite(base) ? base : 0) + (Number.isFinite(doacao) ? doacao : 0);
+  const camisa = dados.quer_camiseta ? Number(env.CAMISA_VALOR || 40) : 0;
+  const total =
+    (Number.isFinite(base) ? base : 0) +
+    (Number.isFinite(doacao) ? doacao : 0) +
+    (Number.isFinite(camisa) ? camisa : 0);
   return Math.max(0, Math.round(total * 100) / 100);
 }
 
