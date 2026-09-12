@@ -440,10 +440,40 @@ async function handleCadastrarWebhook(request, env) {
 
 async function handleListar(request, env) {
   if (!autorizado(request, env)) return json({ ok: false, mensagem: "Não autorizado." }, 401);
-  const { results } = await env.DB.prepare(
-    "SELECT * FROM inscricoes ORDER BY created_at DESC LIMIT 500"
-  ).all();
+  const { results } = await env.DB.prepare(`
+    SELECT
+      i.*,
+      COALESCE(p.qtd_cobrancas, 0)  AS qtd_cobrancas,
+      COALESCE(p.qtd_pagas, 0)      AS qtd_pagas,
+      COALESCE(p.total_cobrado, 0)  AS total_cobrado,
+      COALESCE(p.total_pago, 0)     AS total_pago,
+      p.ultimo_pago_em              AS ultimo_pago_em
+    FROM inscricoes i
+    LEFT JOIN (
+      SELECT
+        inscricao_id,
+        COUNT(*)                                                         AS qtd_cobrancas,
+        SUM(CASE WHEN status = 'CONCLUIDA' THEN 1 ELSE 0 END)             AS qtd_pagas,
+        SUM(valor)                                                        AS total_cobrado,
+        SUM(CASE WHEN status = 'CONCLUIDA' THEN valor ELSE 0 END)         AS total_pago,
+        MAX(pago_em)                                                      AS ultimo_pago_em
+      FROM pagamentos
+      GROUP BY inscricao_id
+    ) p ON p.inscricao_id = i.id
+    ORDER BY i.created_at DESC
+    LIMIT 500
+  `).all();
   return json({ ok: true, total: results.length, inscricoes: results });
+}
+
+async function handleDetalhe(request, env, id) {
+  if (!autorizado(request, env)) return json({ ok: false, mensagem: "Não autorizado." }, 401);
+  const insc = await env.DB.prepare("SELECT * FROM inscricoes WHERE id = ?").bind(id).first();
+  if (!insc) return json({ ok: false, mensagem: "Inscrição não encontrada." }, 404);
+  const { results: pagamentos } = await env.DB.prepare(
+    "SELECT txid, valor, status, tipo, chave_pix, pix_copia_cola, location_id, e2eid, pagador_nome, pagador_cpf, criado_em, pago_em FROM pagamentos WHERE inscricao_id = ? ORDER BY criado_em DESC"
+  ).bind(id).all();
+  return json({ ok: true, inscricao: insc, pagamentos });
 }
 
 export default {
@@ -462,6 +492,10 @@ export default {
     }
     if (url.pathname === "/api/inscricoes" && request.method === "GET") {
       return handleListar(request, env);
+    }
+    {
+      const m = url.pathname.match(/^\/api\/inscricao\/(\d+)$/);
+      if (m && request.method === "GET") return handleDetalhe(request, env, Number(m[1]));
     }
     if (url.pathname === "/api/health") {
       return json({ ok: true, evento: "Corrida Solidária", data: "2026-11-08" });

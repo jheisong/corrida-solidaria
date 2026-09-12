@@ -59,6 +59,35 @@
   .b-kids { background: #E7F6EC; color: #1E8A46; }
   .b-sim { background: #E7F6EC; color: #1E8A46; }
   .b-nao { background: #FDECEC; color: #C22B2B; }
+  .b-pago { background: #E7F6EC; color: #1E8A46; }
+  .b-pendente { background: #FFF6E3; color: #B8860B; }
+  .b-parcial { background: #E7EFFB; color: #16357F; }
+  .b-sem { background: #EEE; color: #666; }
+  .link-id { color: #16357F; font-weight: 700; cursor: pointer; text-decoration: underline dotted; }
+  .link-id:hover { color: #F5A800; }
+  .drawer-back { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 50; display: none; }
+  .drawer-back.show { display: block; }
+  .drawer { position: fixed; top: 0; right: 0; width: min(720px, 96vw); height: 100vh; background: #fff; z-index: 51; box-shadow: -20px 0 40px rgba(0,0,0,.2); display: none; flex-direction: column; }
+  .drawer.show { display: flex; }
+  .drawer header { background: #16357F; color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .drawer header h2 { color: #fff; font-size: 22px; }
+  .drawer header button { background: transparent; color: #fff; border: 1px solid #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+  .drawer .body { overflow-y: auto; padding: 20px; flex: 1; }
+  .drawer h3 { font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; color: #16357F; font-size: 18px; margin: 20px 0 10px; border-bottom: 2px solid #E3E9F4; padding-bottom: 6px; }
+  .drawer h3:first-child { margin-top: 0; }
+  .kv { display: grid; grid-template-columns: 160px 1fr; gap: 8px 16px; font-size: 14px; }
+  .kv dt { color: #5B6A87; font-weight: 600; }
+  .kv dd { margin: 0; color: #1D2A44; word-break: break-word; }
+  .cob-card { background: #F6F8FC; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; border-left: 4px solid #16357F; }
+  .cob-card.pago { border-left-color: #1E8A46; }
+  .cob-card.pendente { border-left-color: #F5A800; }
+  .cob-card .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 8px; }
+  .cob-card .txid { font-family: monospace; font-size: 12px; color: #5B6A87; word-break: break-all; }
+  .cob-card .valor-linha { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; color: #16357F; }
+  .cob-card .meta { font-size: 13px; color: #5B6A87; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+  .cob-card .meta strong { color: #1D2A44; }
+  .cob-card .copiar { margin-top: 8px; background: #E3E9F4; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; color: #16357F; }
+  .cob-card .copiar:hover { background: #16357F; color: #fff; }
   .vazio { padding: 40px; text-align: center; color: #5B6A87; }
   .footer-info { padding: 16px; background: #F6F8FC; border-top: 1px solid #E3E9F4; font-size: 13px; color: #5B6A87; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
   .msg-erro { background: #FDECEC; color: #C22B2B; padding: 12px 16px; border-radius: 8px; margin: 12px 0; font-weight: 600; font-size: 14px; display: none; }
@@ -113,6 +142,13 @@
         <option value="sim">Com camiseta</option>
         <option value="nao">Sem camiseta</option>
       </select>
+      <select id="f-pgto">
+        <option value="">Todos pagamentos</option>
+        <option value="pago">Pago</option>
+        <option value="parcial">Parcial</option>
+        <option value="pendente">Pendente</option>
+        <option value="sem">Sem cobrança</option>
+      </select>
       <div class="grow"></div>
       <button class="sec" id="btn-reload">↻ Atualizar</button>
       <button id="btn-csv">↓ Baixar CSV</button>
@@ -138,6 +174,9 @@
               <th data-k="tamanho_camiseta">Tam.</th>
               <th data-k="contato_emergencia">Emergência</th>
               <th data-k="doacao_valor">Doação</th>
+              <th data-k="total_cobrado">Cobrado</th>
+              <th data-k="total_pago">Pago</th>
+              <th data-k="_status_pgto">Status pgto</th>
               <th data-k="observacoes">Obs.</th>
             </tr>
           </thead>
@@ -151,6 +190,15 @@
     </div>
   </div>
 </div>
+
+<div id="drawer-back" class="drawer-back"></div>
+<aside id="drawer" class="drawer" aria-hidden="true">
+  <header>
+    <h2 id="drawer-title">Inscrição</h2>
+    <button id="drawer-close">Fechar</button>
+  </header>
+  <div class="body" id="drawer-body">Carregando...</div>
+</aside>
 
 <script>
 const KEY = "cs_painel_token";
@@ -176,6 +224,16 @@ function fmtBRL(v) {
 function esc(v) {
   if (v === null || v === undefined) return "";
   return String(v).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+
+function statusPgto(d) {
+  const qtd = Number(d.qtd_cobrancas || 0);
+  const cobrado = Number(d.total_cobrado || 0);
+  const pago = Number(d.total_pago || 0);
+  if (qtd === 0) return { key: "sem", label: "Sem cobrança", cls: "b-sem" };
+  if (pago <= 0) return { key: "pendente", label: "Pendente", cls: "b-pendente" };
+  if (pago + 0.001 < cobrado) return { key: "parcial", label: "Parcial", cls: "b-parcial" };
+  return { key: "pago", label: "Pago", cls: "b-pago" };
 }
 
 function badge(mod) {
@@ -255,6 +313,7 @@ el("btn-reload").addEventListener("click", carregar);
 el("f-busca").addEventListener("input", render);
 el("f-mod").addEventListener("change", render);
 el("f-camisa").addEventListener("change", render);
+el("f-pgto").addEventListener("change", render);
 
 document.querySelectorAll("th[data-k]").forEach(th => {
   th.addEventListener("click", () => {
@@ -269,10 +328,12 @@ function filtrado() {
   const q = el("f-busca").value.toLowerCase().trim();
   const mod = el("f-mod").value;
   const cam = el("f-camisa").value;
+  const pg = el("f-pgto").value;
   return dados.filter(d => {
     if (mod && d.modalidade !== mod) return false;
     if (cam === "sim" && !d.quer_camiseta) return false;
     if (cam === "nao" && d.quer_camiseta) return false;
+    if (pg && statusPgto(d).key !== pg) return false;
     if (q) {
       const blob = [d.nome, d.email, d.telefone, d.cidade, d.cpf, d.equipe].filter(Boolean).join(" ").toLowerCase();
       if (!blob.includes(q)) return false;
@@ -283,8 +344,9 @@ function filtrado() {
 
 function ordenado(lista) {
   const { k, asc } = ord;
+  const getter = k === "_status_pgto" ? (d) => statusPgto(d).label : (d) => d[k];
   return [...lista].sort((a, b) => {
-    let va = a[k], vb = b[k];
+    let va = getter(a), vb = getter(b);
     if (va === null || va === undefined) va = "";
     if (vb === null || vb === undefined) vb = "";
     if (typeof va === "number" && typeof vb === "number") return asc ? va - vb : vb - va;
@@ -309,11 +371,13 @@ function render() {
   const lista = ordenado(filtrado());
   const tb = el("tbody");
   if (!lista.length) {
-    tb.innerHTML = '<tr><td colspan="16" class="vazio">Nenhuma inscrição encontrada com os filtros atuais.</td></tr>';
+    tb.innerHTML = '<tr><td colspan="19" class="vazio">Nenhuma inscrição encontrada com os filtros atuais.</td></tr>';
   } else {
-    tb.innerHTML = lista.map(d => `
+    tb.innerHTML = lista.map(d => {
+      const s = statusPgto(d);
+      return `
       <tr>
-        <td>${d.id}</td>
+        <td><span class="link-id" data-id="${d.id}">#${d.id}</span></td>
         <td>${esc(fmtData(d.created_at))}</td>
         <td><strong>${esc(d.nome)}</strong></td>
         <td>${esc(d.email)}</td>
@@ -328,9 +392,15 @@ function render() {
         <td>${esc(d.tamanho_camiseta || "")}</td>
         <td>${esc(d.contato_emergencia)}</td>
         <td>${esc(fmtBRL(d.doacao_valor))}</td>
+        <td>${esc(fmtBRL(d.total_cobrado))}</td>
+        <td>${esc(fmtBRL(d.total_pago))}</td>
+        <td><span class="badge ${s.cls}">${s.label}</span></td>
         <td>${esc(d.observacoes || "")}</td>
-      </tr>
-    `).join("");
+      </tr>`;
+    }).join("");
+    tb.querySelectorAll(".link-id").forEach(a => {
+      a.addEventListener("click", () => abrirDetalhe(Number(a.dataset.id)));
+    });
   }
   el("info-linhas").textContent = lista.length + " de " + dados.length + " inscrições";
 }
@@ -339,7 +409,9 @@ function renderCards() {
   const total = dados.length;
   const porMod = { "corrida-5km": 0, "caminhada-5km": 0, "kids-250m": 0 };
   const porTam = {};
-  let comCamisa = 0, comDoacao = 0, arrecadado = 0;
+  let comCamisa = 0, comDoacao = 0, doacaoPedida = 0;
+  let totalCobrado = 0, totalPago = 0;
+  let qtdPago = 0, qtdPendente = 0, qtdParcial = 0, qtdSem = 0;
   dados.forEach(d => {
     if (d.modalidade in porMod) porMod[d.modalidade]++;
     if (d.quer_camiseta) {
@@ -347,12 +419,26 @@ function renderCards() {
       const t = d.tamanho_camiseta || "?";
       porTam[t] = (porTam[t] || 0) + 1;
     }
-    if (d.doacao_valor) { comDoacao++; arrecadado += Number(d.doacao_valor); }
+    if (d.doacao_valor) { comDoacao++; doacaoPedida += Number(d.doacao_valor); }
+    totalCobrado += Number(d.total_cobrado || 0);
+    totalPago += Number(d.total_pago || 0);
+    const k = statusPgto(d).key;
+    if (k === "pago") qtdPago++;
+    else if (k === "pendente") qtdPendente++;
+    else if (k === "parcial") qtdParcial++;
+    else qtdSem++;
   });
+  const pendenteValor = Math.max(0, totalCobrado - totalPago);
   el("cards").innerHTML = `
     <div class="card">
       <div class="lbl">Total inscritos</div>
       <div class="val">${total}</div>
+      <ul>
+        <li>Pagos <strong>${qtdPago}</strong></li>
+        <li>Parciais <strong>${qtdParcial}</strong></li>
+        <li>Pendentes <strong>${qtdPendente}</strong></li>
+        <li>Sem cobrança <strong>${qtdSem}</strong></li>
+      </ul>
     </div>
     <div class="card">
       <div class="lbl">Por modalidade</div>
@@ -363,24 +449,123 @@ function renderCards() {
       </ul>
     </div>
     <div class="card ouro">
-      <div class="lbl">Camisetas</div>
+      <div class="lbl">Camisetas pedidas</div>
       <div class="val">${comCamisa}</div>
       <ul>${Object.keys(porTam).sort().map(t => `<li>${esc(t)} <strong>${porTam[t]}</strong></li>`).join("")}</ul>
     </div>
     <div class="card ouro">
-      <div class="lbl">Doações</div>
-      <div class="val">${comDoacao}</div>
-      <ul><li>Arrecadado <strong>${fmtBRL(arrecadado)}</strong></li></ul>
+      <div class="lbl">Arrecadado (pago)</div>
+      <div class="val">${fmtBRL(totalPago)}</div>
+      <ul>
+        <li>Cobrado <strong>${fmtBRL(totalCobrado)}</strong></li>
+        <li>Pendente <strong>${fmtBRL(pendenteValor)}</strong></li>
+        <li>Doações (pedidas) <strong>${fmtBRL(doacaoPedida)}</strong> (${comDoacao})</li>
+      </ul>
     </div>
   `;
 }
 
+function fecharDrawer() {
+  el("drawer").classList.remove("show");
+  el("drawer-back").classList.remove("show");
+  el("drawer").setAttribute("aria-hidden", "true");
+}
+el("drawer-close").addEventListener("click", fecharDrawer);
+el("drawer-back").addEventListener("click", fecharDrawer);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharDrawer(); });
+
+const TIPO_LABEL = { INSCRICAO: "Inscrição", CAMISA: "Camiseta", DOACAO: "Doação", MISTO: "Inscrição + doação" };
+const STATUS_LABEL = { ATIVA: "Aguardando", CONCLUIDA: "Pago", REMOVIDA_PELO_USUARIO_RECEBEDOR: "Removida", REMOVIDA_PELO_PSP: "Removida (PSP)" };
+
+async function abrirDetalhe(id) {
+  el("drawer").classList.add("show");
+  el("drawer-back").classList.add("show");
+  el("drawer").setAttribute("aria-hidden", "false");
+  el("drawer-title").textContent = "Inscrição #" + id;
+  el("drawer-body").textContent = "Carregando...";
+  const token = localStorage.getItem(KEY);
+  try {
+    const r = await fetch("/api/inscricao/" + id, { headers: { Authorization: "Bearer " + token } });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.mensagem || "Erro");
+    renderDrawer(j.inscricao, j.pagamentos || []);
+  } catch (e) {
+    el("drawer-body").textContent = "Falha ao carregar: " + e.message;
+  }
+}
+
+function renderDrawer(i, pags) {
+  const kv = (rows) => `<dl class="kv">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v === "" || v === null || v === undefined ? "—" : esc(v)}</dd>`).join("")}</dl>`;
+  const dados = kv([
+    ["Nome", i.nome],
+    ["E-mail", i.email],
+    ["Telefone", i.telefone],
+    ["CPF", i.cpf],
+    ["Nascimento", fmtNasc(i.data_nascimento)],
+    ["Sexo", i.sexo],
+    ["Cidade", i.cidade],
+    ["Modalidade", i.modalidade],
+    ["Equipe", i.equipe],
+    ["Camiseta", i.quer_camiseta ? "Sim (" + (i.tamanho_camiseta || "?") + ")" : "Não"],
+    ["Contato emergência", i.contato_emergencia],
+    ["Doação (informada)", fmtBRL(i.doacao_valor)],
+    ["Observações", i.observacoes],
+    ["Inscrito em", fmtData(i.created_at)],
+  ]);
+
+  const cobs = pags.length ? pags.map(p => {
+    const pago = p.status === "CONCLUIDA";
+    const cls = pago ? "pago" : (p.status === "ATIVA" ? "pendente" : "");
+    return `
+      <div class="cob-card ${cls}">
+        <div class="top">
+          <div>
+            <span class="badge ${pago ? "b-pago" : (p.status === "ATIVA" ? "b-pendente" : "b-sem")}">${esc(STATUS_LABEL[p.status] || p.status)}</span>
+            <strong style="margin-left:8px;">${esc(TIPO_LABEL[p.tipo] || p.tipo || "—")}</strong>
+          </div>
+          <div class="valor-linha">${fmtBRL(p.valor)}</div>
+        </div>
+        <div class="txid">txid: ${esc(p.txid)}</div>
+        <div class="meta">
+          <span>Criado: <strong>${esc(fmtData(p.criado_em))}</strong></span>
+          ${p.pago_em ? `<span>Pago: <strong>${esc(fmtData(p.pago_em))}</strong></span>` : ""}
+          ${p.pagador_nome ? `<span>Pagador: <strong>${esc(p.pagador_nome)}</strong></span>` : ""}
+          ${p.pagador_cpf ? `<span>Doc: <strong>${esc(p.pagador_cpf)}</strong></span>` : ""}
+          ${p.e2eid ? `<span>E2E: <strong>${esc(p.e2eid)}</strong></span>` : ""}
+        </div>
+        ${!pago && p.pix_copia_cola ? `<button class="copiar" data-copy="${esc(p.pix_copia_cola)}">Copiar Pix copia-e-cola</button>` : ""}
+      </div>`;
+  }).join("") : '<p style="color:#5B6A87;">Nenhuma cobrança gerada para esta inscrição.</p>';
+
+  el("drawer-body").innerHTML = `
+    <h3>Dados da inscrição</h3>
+    ${dados}
+    <h3>Cobranças Pix (${pags.length})</h3>
+    ${cobs}
+  `;
+  el("drawer-body").querySelectorAll(".copiar").forEach(b => {
+    b.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(b.dataset.copy);
+        const t = b.textContent;
+        b.textContent = "Copiado!";
+        setTimeout(() => { b.textContent = t; }, 1500);
+      } catch { alert("Não foi possível copiar."); }
+    });
+  });
+}
+
 el("btn-csv").addEventListener("click", () => {
   const lista = ordenado(filtrado());
-  const cols = ["id","created_at","nome","email","telefone","cpf","data_nascimento","sexo","cidade","modalidade","equipe","quer_camiseta","tamanho_camiseta","contato_emergencia","doacao_valor","observacoes"];
+  const cols = ["id","created_at","nome","email","telefone","cpf","data_nascimento","sexo","cidade","modalidade","equipe","quer_camiseta","tamanho_camiseta","contato_emergencia","doacao_valor","total_cobrado","total_pago","status_pgto","qtd_cobrancas","qtd_pagas","ultimo_pago_em","observacoes"];
   const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const linhas = [cols.join(",")].concat(
-    lista.map(d => cols.map(c => q(c === "quer_camiseta" ? (d[c] ? "sim" : "não") : d[c])).join(","))
+    lista.map(d => cols.map(c => {
+      if (c === "quer_camiseta") return q(d[c] ? "sim" : "não");
+      if (c === "status_pgto") return q(statusPgto(d).label);
+      return q(d[c]);
+    }).join(","))
   );
   const blob = new Blob(["﻿" + linhas.join("\n")], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
