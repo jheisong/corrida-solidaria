@@ -24,3 +24,32 @@ migrations_dir = "migrations"
 
 [observability]
 enabled = true
+
+# KV para cachear access_token do Sicredi (expira em 300s).
+# Criar com: wrangler kv namespace create TOKENS
+# e colar o id abaixo.
+# [[kv_namespaces]]
+# binding = "TOKENS"
+# id = "COLAR_ID_AQUI"
+
+# mTLS Sicredi. Upload do certificado:
+#   wrangler mtls-certificate upload \
+#     --cert certificados/06304442000108.cer \
+#     --key  certificados/api-pix-lccidadedovinho.key \
+#     --name sicredi-pix
+# Copiar o certificate_id retornado e descomentar:
+# [[mtls_certificates]]
+# binding = "SICREDI"
+# certificate_id = "COLAR_ID_AQUI"
+
+# Secrets (definir com `wrangler secret put NOME`):
+#   SICREDI_CLIENT_ID
+#   SICREDI_CLIENT_SECRET
+#   SICREDI_CHAVE_PIX          # chave Pix da conta recebedora
+#   SICREDI_WEBHOOK_URL        # ex.: https://corrida.lccidadedovinho.com.br/api/webhook
+#   SICREDI_VALOR_INSCRICAO    # valor base em reais (ex.: "50.00")
+# Var não-secreta:
+#   SICREDI_AMBIENTE = "homologacao" | "producao"  (default: homologacao)
+
+# [vars]
+# SICREDI_AMBIENTE = "homologacao"

@@ -4,6 +4,8 @@
  * Worker: rotas /api/* + assets estáticos em /public
  */
 
+import { gerarTxid, criarCobranca, cadastrarWebhook } from "./sicredi.js";
+
 const MODALIDADES = new Set(["corrida-5km", "caminhada-5km", "kids-250m"]);
 const TAMANHOS = new Set(["PP", "P", "M", "G", "GG", "XG", "INFANTIL"]);
 const SEXOS = new Set(["F", "M", "OUTRO", "PREFIRO_NAO_INFORMAR"]);
@@ -128,16 +130,162 @@ async function handleInscricao(request, env) {
     return json({ ok: false, mensagem: erros[0].msg, erros }, 400);
   }
 
+  let id;
   try {
-    const id = await inserirInscricao(env, dados);
-    return json({
-      ok: true,
-      id,
-      mensagem: "Inscrição registrada com sucesso! Você receberá a confirmação por e-mail.",
-    }, 201);
+    id = await inserirInscricao(env, dados);
   } catch (e) {
     console.error("Erro inserir inscrição:", e);
     return json({ ok: false, mensagem: "Não foi possível registrar sua inscrição. Tente novamente em instantes." }, 500);
+  }
+
+  const valor = calcularValor(env, dados);
+  if (valor <= 0 || !env.SICREDI || !env.SICREDI_CHAVE_PIX) {
+    return json({
+      ok: true, id, valor,
+      mensagem: "Inscrição registrada com sucesso! Você receberá a confirmação por e-mail.",
+    }, 201);
+  }
+
+  try {
+    const cob = await criarECadastrarCobranca(env, id, dados, valor);
+    return json({
+      ok: true, id, valor,
+      pagamento: cob,
+      mensagem: "Inscrição registrada. Pague o Pix para confirmar.",
+    }, 201);
+  } catch (e) {
+    console.error("Erro criar cobrança:", e);
+    return json({
+      ok: true, id, valor,
+      mensagem: "Inscrição registrada, mas não conseguimos gerar o Pix agora. Entraremos em contato.",
+    }, 201);
+  }
+}
+
+function calcularValor(env, dados) {
+  const base = Number(env.SICREDI_VALOR_INSCRICAO || 0);
+  const doacao = Number(dados.doacao_valor || 0);
+  const total = (Number.isFinite(base) ? base : 0) + (Number.isFinite(doacao) ? doacao : 0);
+  return Math.max(0, Math.round(total * 100) / 100);
+}
+
+async function criarECadastrarCobranca(env, inscricaoId, dados, valor) {
+  const txid = gerarTxid("LCCV");
+  const cob = await criarCobranca(env, {
+    txid,
+    valor,
+    chavePix: env.SICREDI_CHAVE_PIX,
+    cpf: dados.cpf,
+    nome: dados.nome,
+    solicitacao: `Inscrição Corrida Solidária - ${dados.modalidade}`,
+    expiracao: 3 * 60 * 60,
+    infoAdicionais: [
+      { nome: "Inscricao", valor: String(inscricaoId) },
+      { nome: "Modalidade", valor: dados.modalidade },
+    ],
+  });
+
+  const pixCopiaCola = cob.pixCopiaECola || null;
+  const locationId = cob.loc?.id ? String(cob.loc.id) : null;
+
+  await env.DB.prepare(`
+    INSERT INTO pagamentos (txid, inscricao_id, valor, status, chave_pix, pix_copia_cola, location_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).bind(txid, inscricaoId, valor, cob.status || "ATIVA", env.SICREDI_CHAVE_PIX, pixCopiaCola, locationId).run();
+
+  return { txid, valor, status: cob.status || "ATIVA", pixCopiaECola: pixCopiaCola };
+}
+
+async function handleWebhookPix(request, env) {
+  let payload;
+  try { payload = await request.json(); } catch {
+    return json({ ok: false, mensagem: "JSON inválido" }, 400);
+  }
+
+  const eventos = Array.isArray(payload?.pix) ? payload.pix : [];
+  if (!eventos.length) return json({ ok: true, ignorado: true });
+
+  for (const ev of eventos) {
+    const txid = ev.txid;
+    const e2eid = ev.endToEndId;
+    const valor = Number(ev.valor);
+    if (!txid) continue;
+
+    const existente = await env.DB.prepare("SELECT txid FROM pagamentos WHERE txid = ?").bind(txid).first();
+    if (!existente) {
+      console.warn("Webhook Pix para txid desconhecido:", txid);
+      continue;
+    }
+
+    await env.DB.prepare(`
+      UPDATE pagamentos
+         SET status = 'CONCLUIDA',
+             e2eid = ?,
+             pagador_nome = COALESCE(?, pagador_nome),
+             pagador_cpf  = COALESCE(?, pagador_cpf),
+             webhook_payload = ?,
+             pago_em = datetime('now')
+       WHERE txid = ? AND status <> 'CONCLUIDA'
+    `).bind(
+      e2eid || null,
+      ev.pagador?.nome || null,
+      ev.pagador?.documento || ev.pagador?.cpf || ev.pagador?.cnpj || null,
+      JSON.stringify(ev),
+      txid,
+    ).run();
+
+    if (Number.isFinite(valor)) {
+      // Validação simples: valor pago não pode ser menor que cobrado.
+      const cob = await env.DB.prepare("SELECT valor FROM pagamentos WHERE txid = ?").bind(txid).first();
+      if (cob && valor + 0.001 < Number(cob.valor)) {
+        console.warn("Pagamento com valor menor que cobrado", { txid, valor, cobrado: cob.valor });
+      }
+    }
+  }
+
+  return json({ ok: true });
+}
+
+async function handlePagamentoStatus(request, env, txid) {
+  const row = await env.DB.prepare(
+    "SELECT txid, inscricao_id, valor, status, pix_copia_cola, pago_em, criado_em FROM pagamentos WHERE txid = ?"
+  ).bind(txid).first();
+  if (!row) return json({ ok: false, mensagem: "Cobrança não encontrada" }, 404);
+  return json({ ok: true, pagamento: row });
+}
+
+async function handleDevPagar(request, env, txid) {
+  const cob = await env.DB.prepare("SELECT txid, valor, chave_pix FROM pagamentos WHERE txid = ?").bind(txid).first();
+  if (!cob) return json({ ok: false, mensagem: "txid não encontrado" }, 404);
+  const fake = {
+    pix: [{
+      endToEndId: "E" + Date.now().toString().padStart(31, "0"),
+      txid,
+      valor: Number(cob.valor).toFixed(2),
+      chave: cob.chave_pix,
+      horario: new Date().toISOString(),
+      pagador: { nome: "PAGADOR TESTE MOCK", documento: "12345678901", tipoDocumento: "CPF" },
+    }],
+  };
+  const req = new Request("http://mock/api/webhook/pix", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(fake),
+  });
+  return handleWebhookPix(req, env);
+}
+
+async function handleCadastrarWebhook(request, env) {
+  if (!autorizado(request, env)) return json({ ok: false, mensagem: "Não autorizado." }, 401);
+  if (!env.SICREDI_CHAVE_PIX || !env.SICREDI_WEBHOOK_URL) {
+    return json({ ok: false, mensagem: "SICREDI_CHAVE_PIX / SICREDI_WEBHOOK_URL não configurados." }, 400);
+  }
+  try {
+    const r = await cadastrarWebhook(env, env.SICREDI_CHAVE_PIX, env.SICREDI_WEBHOOK_URL);
+    return json({ ok: true, resposta: r });
+  } catch (e) {
+    console.error("Erro cadastrar webhook:", e);
+    return json({ ok: false, mensagem: String(e.message || e) }, 502);
   }
 }
 
@@ -165,6 +313,23 @@ export default {
     }
     if (url.pathname === "/api/health") {
       return json({ ok: true, evento: "Corrida Solidária", data: "2026-11-08" });
+    }
+    // Sicredi pode postar em <url_cadastrada> ou <url_cadastrada>/pix.
+    // Cadastre SICREDI_WEBHOOK_URL como "https://.../api/webhook".
+    if ((url.pathname === "/api/webhook" || url.pathname === "/api/webhook/pix")
+        && request.method === "POST") {
+      return handleWebhookPix(request, env);
+    }
+    if (url.pathname === "/api/webhook/pix/cadastrar" && request.method === "POST") {
+      return handleCadastrarWebhook(request, env);
+    }
+    {
+      const m = url.pathname.match(/^\/api\/pagamento\/([A-Za-z0-9]{26,35})$/);
+      if (m && request.method === "GET") return handlePagamentoStatus(request, env, m[1]);
+    }
+    if (env.SICREDI_MOCK === "1") {
+      const m = url.pathname.match(/^\/api\/dev\/pagar\/([A-Za-z0-9]{26,35})$/);
+      if (m && request.method === "POST") return handleDevPagar(request, env, m[1]);
     }
 
     // /painel → serve painel.html (autenticação é feita no cliente via Bearer).
