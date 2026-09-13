@@ -231,6 +231,19 @@
       <h3 style="font-size: 30px;">Atleta já inscrito</h3>
       <p style="font-size: 15px; color: #33415E;"><strong id="dup-nome" style="color: #16357F;"></strong> já está inscrito na Corrida Solidária. Se este é você e precisa alterar algum dado, entre em contato pelo e-mail <a href="mailto:lionsclubebgcidadedovinho@gmail.com" style="color: #16357F; font-weight: 700;">lionsclubebgcidadedovinho@gmail.com</a><button type="button" class="btn-copiar-email" onclick="copiarEmail(this)" title="Copiar e-mail" aria-label="Copiar e-mail">📋</button>.</p>
       <div id="dup-com-camisa" style="display: none; background: #EAF6EA; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #1F6E1F;">Camisa <strong id="dup-tamanho"></strong> já registrada nesta inscrição. Você pode pedir camisas adicionais abaixo.</div>
+      <div id="dup-pendente" style="display: none; background: #FFF6E3; border: 1.5px solid #F5A800; border-radius: 12px; padding: 14px; flex-direction: column; align-items: center; gap: 10px;">
+        <strong style="color: #B57100; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase;">Pagamento pendente</strong>
+        <span style="font-size: 14px; color: #33415E; text-align: center;">Cobrança em aberto de <strong id="dup-pend-valor" style="color: #16357F;"></strong>. Pague o Pix abaixo para concluir.</span>
+        <div style="width: 100%; display: flex; align-items: center; gap: 8px;">
+          <button id="dup-btn-copiar" type="button" class="btn" style="background: #16357F; color: #FFFFFF; padding: 8px 14px; font-size: 14px; white-space: nowrap;" onclick="copiarPixPendente()">Copiar código</button>
+          <code id="dup-pend-preview" style="flex: 1; font-family: monospace; font-size: 12px; color: #6B7A99; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: #FFFFFF; border: 1px solid #D6DFEF; border-radius: 6px; padding: 6px 8px;"></code>
+        </div>
+        <input id="dup-pend-cc" type="hidden">
+        <div style="width: 160px; height: 160px; background: #FFFFFF; border-radius: 10px; padding: 6px; display: flex; align-items: center; justify-content: center;">
+          <img id="dup-pend-qr" alt="QR Code Pix" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        <span id="dup-pend-status" style="font-size: 12px; color: #6B7A99; text-align: center;">Aguardando confirmação do pagamento…</span>
+      </div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="grid2">
         <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1.5px solid #D6DFEF; border-radius: 12px;">
           <span style="font-weight: 700; color: #16357F;">Nova doação</span>
@@ -384,7 +397,7 @@ function irPara(n) {
   });
   document.getElementById("passo-duplicado").style.display = "none";
 }
-function mostrarDuplicado(insc) {
+function mostrarDuplicado(insc, pagamentoPendente) {
   ["passo1", "passo2", "passo3", "passo4"].forEach((id) => {
     document.getElementById(id).style.display = "none";
   });
@@ -396,8 +409,59 @@ function mostrarDuplicado(insc) {
     ? "Quer pedir outra camisa? Escolha o tamanho e pague por Pix:"
     : "Ainda não pediu a camisa oficial? Peça agora:";
   document.getElementById("dup-btn-camisa").textContent = temCamisa ? "Comprar outra camisa" : "Comprar camisa";
+
+  estado.pagamentoPendente = pagamentoPendente || null;
+  const bloco = document.getElementById("dup-pendente");
+  if (pagamentoPendente && pagamentoPendente.pixCopiaECola && window.qrcode) {
+    document.getElementById("dup-pend-valor").textContent = fmt(Number(pagamentoPendente.valor));
+    document.getElementById("dup-pend-cc").value = pagamentoPendente.pixCopiaECola;
+    document.getElementById("dup-pend-preview").textContent = pagamentoPendente.pixCopiaECola.slice(0, 24) + "…";
+    const qr = window.qrcode(0, "M");
+    qr.addData(pagamentoPendente.pixCopiaECola, "Byte");
+    qr.make();
+    document.getElementById("dup-pend-qr").src = qr.createDataURL(6, 8);
+    const status = document.getElementById("dup-pend-status");
+    if (status) { status.textContent = "Aguardando confirmação do pagamento…"; status.style.color = "#6B7A99"; }
+    bloco.style.display = "flex";
+    iniciarPollingPendente(pagamentoPendente.txid);
+  } else {
+    bloco.style.display = "none";
+  }
+
   document.getElementById("passo-duplicado").style.display = "flex";
   estado.dupInscricaoId = insc.id;
+}
+
+function copiarPixPendente() {
+  const cc = document.getElementById("dup-pend-cc");
+  if (!cc || !cc.value) return;
+  navigator.clipboard.writeText(cc.value).then(() => {
+    const btn = document.getElementById("dup-btn-copiar");
+    if (!btn) return;
+    const orig = btn.textContent;
+    btn.textContent = "Copiado!";
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  });
+}
+
+function iniciarPollingPendente(txid) {
+  if (!txid) return;
+  clearInterval(pollingTimer);
+  const fim = Date.now() + 30 * 60 * 1000;
+  pollingTimer = setInterval(async () => {
+    if (Date.now() > fim) { clearInterval(pollingTimer); return; }
+    try {
+      const r = await fetch("/api/pagamento/" + encodeURIComponent(txid));
+      const d = await r.json();
+      if (d.ok && d.pagamento && d.pagamento.status === "CONCLUIDA") {
+        clearInterval(pollingTimer);
+        const bloco = document.getElementById("dup-pendente");
+        if (bloco) bloco.innerHTML = '<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;"><span style="width: 56px; height: 56px; border-radius: 50%; background: #FFFFFF; color: #1E8A46; font-size: 28px; display: flex; align-items: center; justify-content: center;">✓</span><strong style="color: #1F6E1F; font-family: \'Barlow Condensed\', sans-serif; font-size: 22px; text-transform: uppercase;">Pagamento confirmado!</strong><span style="color: #1F6E1F; font-size: 15px;">Obrigado pelo apoio à causa. Nos vemos na largada!</span></div>';
+        bloco.style.background = "#EAF6EA";
+        bloco.style.borderColor = "#1E8A46";
+      }
+    } catch {}
+  }, 5000);
 }
 async function irParaCamisaExistente() {
   estado.somenteCamisa = true;
@@ -469,7 +533,7 @@ async function verificarCpfAuto(cpf) {
       body: JSON.stringify({ cpf }),
     });
     const d = await r.json();
-    if (d.ok && d.existe) mostrarDuplicado(d.inscricao || {});
+    if (d.ok && d.existe) mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente);
   } catch { /* silencioso */ }
 }
 function mostraErro(id, msg) {
@@ -477,10 +541,26 @@ function mostraErro(id, msg) {
   el.textContent = msg; el.style.display = msg ? "block" : "none";
 }
 
+function validaEmailFront(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s); }
+function validaCpfFront(cpf) {
+  if (!cpf || cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+  const calc = (n) => {
+    let s = 0;
+    for (let i = 0; i < n - 1; i++) s += Number(cpf[i]) * (n - i);
+    const r = (s * 10) % 11;
+    return r === 10 ? 0 : r;
+  };
+  return calc(10) === Number(cpf[9]) && calc(11) === Number(cpf[10]);
+}
+
 async function submitDados() {
   const cpf = val("f-cpf").replace(/\D/g, "");
-  if (!val("f-nome") || !val("f-email")) return mostraErro("erro1", "Preencha nome e e-mail para continuar.");
+  if (!val("f-nome")) return mostraErro("erro1", "Informe seu nome.");
   if (cpf.length !== 11) return mostraErro("erro1", "Informe um CPF válido (11 dígitos).");
+  if (!validaCpfFront(cpf)) return mostraErro("erro1", "CPF inválido.");
+  const email = val("f-email");
+  if (!email) return mostraErro("erro1", "Informe seu e-mail.");
+  if (!validaEmailFront(email)) return mostraErro("erro1", "E-mail inválido.");
   if (!val("f-fone")) return mostraErro("erro1", "Informe seu WhatsApp.");
   if (!val("f-nascimento")) return mostraErro("erro1", "Informe sua data de nascimento.");
   if (!document.getElementById("f-termo").checked) return mostraErro("erro1", "É preciso aceitar o termo de responsabilidade para continuar.");
@@ -492,7 +572,7 @@ async function submitDados() {
       body: JSON.stringify({ cpf }),
     });
     const d = await r.json();
-    if (d.ok && d.existe) { mostrarDuplicado(d.inscricao || {}); return; }
+    if (d.ok && d.existe) { mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente); return; }
   } catch { /* segue offline se falhar */ }
   irPara(2);
 }
@@ -547,7 +627,7 @@ async function concluir(pular) {
     if (resp.status === 409 && data.cpf_duplicado) {
       btn.disabled = false; btn.textContent = "Concluir inscrição";
       mostraErro("erro3", "");
-      mostrarDuplicado(data.inscricao || {});
+      mostrarDuplicado(data.inscricao || {}, data.pagamento_pendente);
       return;
     }
     if (!data.ok) {

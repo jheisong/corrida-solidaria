@@ -155,6 +155,7 @@ async function handleInscricao(request, env) {
     "SELECT id, nome, quer_camiseta, tamanho_camiseta FROM inscricoes WHERE cpf = ? LIMIT 1"
   ).bind(dados.cpf).first();
   if (existente) {
+    const pendente = await buscarPagamentoPendente(env, existente.id);
     return json({
       ok: false,
       cpf_duplicado: true,
@@ -165,6 +166,7 @@ async function handleInscricao(request, env) {
         tem_camiseta: !!existente.quer_camiseta,
         tamanho_camiseta: existente.tamanho_camiseta,
       },
+      pagamento_pendente: pendente,
     }, 409);
   }
 
@@ -236,6 +238,26 @@ async function handleDoacaoAvulsa(request, env, inscricaoId) {
   }
 }
 
+async function buscarPagamentoPendente(env, inscricaoId) {
+  const row = await env.DB.prepare(`
+    SELECT txid, valor, tipo, pix_copia_cola, criado_em
+      FROM pagamentos
+     WHERE inscricao_id = ?
+       AND status = 'ATIVA'
+       AND datetime(criado_em, '+3 hours') > datetime('now')
+     ORDER BY criado_em DESC
+     LIMIT 1
+  `).bind(inscricaoId).first();
+  if (!row) return null;
+  return {
+    txid: row.txid,
+    valor: row.valor,
+    tipo: row.tipo,
+    pixCopiaECola: row.pix_copia_cola,
+    criado_em: row.criado_em,
+  };
+}
+
 async function handleVerificarCpf(request, env) {
   let body;
   try { body = await request.json(); } catch {
@@ -250,6 +272,8 @@ async function handleVerificarCpf(request, env) {
 
   if (!existente) return json({ ok: true, existe: false });
 
+  const pendente = await buscarPagamentoPendente(env, existente.id);
+
   return json({
     ok: true,
     existe: true,
@@ -259,6 +283,7 @@ async function handleVerificarCpf(request, env) {
       tem_camiseta: !!existente.quer_camiseta,
       tamanho_camiseta: existente.tamanho_camiseta,
     },
+    pagamento_pendente: pendente,
   });
 }
 
