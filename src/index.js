@@ -4,7 +4,7 @@
  * Worker: rotas /api/* + assets estáticos em /public
  */
 
-import { gerarTxid, criarCobranca, cadastrarWebhook } from "./sicredi.js";
+import { gerarTxid, criarCobranca, cadastrarWebhook, revisarCobrancaExpiracao } from "./sicredi.js";
 
 const MODALIDADES = new Set(["corrida-5km", "caminhada-5km", "kids-250m"]);
 const TAMANHOS = new Set(["PP", "P", "M", "G", "GG", "XG", "INFANTIL"]);
@@ -288,9 +288,20 @@ async function handleCancelarPendente(request, env, inscricaoId) {
   if (!insc) return json({ ok: false, mensagem: "Inscrição não encontrada." }, 404);
   if (insc.cpf !== cpfDigitos) return json({ ok: false, mensagem: "CPF não confere com a inscrição." }, 403);
 
-  // Zera camisa/doação e marca cobranças ATIVA como removidas pelo recebedor.
-  // Sicredi não permite mudar status via API — o QR fica válido até expirar
-  // (48h). Se pagador enviar Pix, o webhook cai; painel resolve manual.
+  // Marca as cobranças ATIVA como removidas pelo recebedor no banco local
+  // e força expiração=1s na Sicredi (único jeito de "invalidar" o QR via API,
+  // já que o Bacen não expõe mudança de status). Se o PATCH falhar (rede,
+  // versão de API), seguimos e a cobrança ainda expira pelo prazo natural.
+  const { results: ativas } = await env.DB.prepare(
+    "SELECT txid FROM pagamentos WHERE inscricao_id = ? AND status = 'ATIVA'"
+  ).bind(inscricaoId).all();
+
+  const patchErrors = [];
+  for (const row of ativas || []) {
+    try { await revisarCobrancaExpiracao(env, row.txid, 1); }
+    catch (e) { patchErrors.push({ txid: row.txid, erro: String(e.message || e) }); }
+  }
+
   const res = await env.DB.prepare(
     "UPDATE pagamentos SET status = 'REMOVIDA_PELO_USUARIO_RECEBEDOR' WHERE inscricao_id = ? AND status = 'ATIVA'"
   ).bind(inscricaoId).run();
@@ -298,7 +309,13 @@ async function handleCancelarPendente(request, env, inscricaoId) {
     "UPDATE inscricoes SET quer_camiseta = 0, tamanho_camiseta = NULL, doacao_valor = NULL WHERE id = ?"
   ).bind(inscricaoId).run();
 
-  return json({ ok: true, canceladas: res.meta?.changes ?? 0, mensagem: "Pedido cancelado. Se você já enviou o Pix, entre em contato pelo e-mail do Lions." });
+  if (patchErrors.length) console.error("Cancelar: falhas no PATCH Sicredi:", patchErrors);
+
+  return json({
+    ok: true,
+    canceladas: res.meta?.changes ?? 0,
+    mensagem: "Pedido cancelado.",
+  });
 }
 
 async function handleRenovarPagamento(request, env, inscricaoId) {

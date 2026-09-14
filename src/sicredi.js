@@ -154,6 +154,20 @@ export async function criarCobranca(env, { txid, valor, chavePix, cpf, nome, sol
   return r.json;
 }
 
+/**
+ * Revisa cobrança existente. Único jeito prático de "cancelar" uma cobrança
+ * imediata na Sicredi: forçar a expiração para 1s. Bacen não expõe status
+ * REMOVIDA via API — o QR só sai do ar quando o calendário vence.
+ */
+export async function revisarCobrancaExpiracao(env, txid, expiracaoSegundos = 1) {
+  if (env.SICREDI_MOCK === "1") return { txid, calendario: { expiracao: expiracaoSegundos }, _mock: true };
+  const r = await chamarApi(env, "PATCH", `/api/v3/cob/${encodeURIComponent(txid)}`, {
+    calendario: { expiracao: expiracaoSegundos },
+  });
+  if (!r.ok) throw new Error(`Falha revisar cobrança ${r.status}: ${(r.texto || "").slice(0, 500)}`);
+  return r.json;
+}
+
 export async function consultarCobranca(env, txid) {
   const r = await chamarApi(env, "GET", `/api/v3/cob/${encodeURIComponent(txid)}`);
   if (!r.ok) throw new Error(`Falha consultar cobrança ${r.status}: ${(r.texto || "").slice(0, 500)}`);
