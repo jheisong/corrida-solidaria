@@ -231,6 +231,11 @@
       <h3 style="font-size: 30px;">Atleta já inscrito</h3>
       <p style="font-size: 15px; color: #33415E;"><strong id="dup-nome" style="color: #16357F;"></strong> já está inscrito na Corrida Solidária. Se este é você e precisa alterar algum dado, entre em contato pelo e-mail <a href="mailto:lionsclubebgcidadedovinho@gmail.com" style="color: #16357F; font-weight: 700;">lionsclubebgcidadedovinho@gmail.com</a><button type="button" class="btn-copiar-email" onclick="copiarEmail(this)" title="Copiar e-mail" aria-label="Copiar e-mail">📋</button>.</p>
       <div id="dup-com-camisa" style="display: none; background: #EAF6EA; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #1F6E1F;">Camisa <strong id="dup-tamanho"></strong> já registrada nesta inscrição. Você pode pedir camisas adicionais abaixo.</div>
+      <div id="dup-expirado" style="display: none; background: #FFF6E3; border: 1.5px solid #F5A800; border-radius: 12px; padding: 14px; flex-direction: column; align-items: center; gap: 10px;">
+        <strong style="color: #B57100; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase;">Pagamento em aberto</strong>
+        <span style="font-size: 14px; color: #33415E; text-align: center;">Ainda há <strong id="dup-exp-valor" style="color: #16357F;"></strong> pendente da sua inscrição. O Pix anterior expirou — gere um novo para pagar.</span>
+        <button class="btn" onclick="renovarPagamento()">Gerar novo Pix</button>
+      </div>
       <div id="dup-pendente" style="display: none; background: #FFF6E3; border: 1.5px solid #F5A800; border-radius: 12px; padding: 14px; flex-direction: column; align-items: center; gap: 10px;">
         <strong style="color: #B57100; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase;">Pagamento pendente</strong>
         <span style="font-size: 14px; color: #33415E; text-align: center;">Cobrança em aberto de <strong id="dup-pend-valor" style="color: #16357F;"></strong>. Pague o Pix abaixo para concluir.</span>
@@ -397,7 +402,8 @@ function irPara(n) {
   });
   document.getElementById("passo-duplicado").style.display = "none";
 }
-function mostrarDuplicado(insc, pagamentoPendente) {
+function mostrarDuplicado(insc, pagamentoPendente, extras) {
+  extras = extras || {};
   ["passo1", "passo2", "passo3", "passo4"].forEach((id) => {
     document.getElementById(id).style.display = "none";
   });
@@ -428,8 +434,47 @@ function mostrarDuplicado(insc, pagamentoPendente) {
     bloco.style.display = "none";
   }
 
+  const expirado = document.getElementById("dup-expirado");
+  if (!pagamentoPendente && extras.pode_renovar && Number(extras.valor_residual) > 0) {
+    document.getElementById("dup-exp-valor").textContent = fmt(Number(extras.valor_residual));
+    expirado.style.display = "flex";
+  } else {
+    expirado.style.display = "none";
+  }
+
   document.getElementById("passo-duplicado").style.display = "flex";
   estado.dupInscricaoId = insc.id;
+}
+
+async function renovarPagamento() {
+  const cpf = val("f-cpf").replace(/\D/g, "");
+  if (!cpf) return;
+  try {
+    const r = await fetch(`/api/inscricao/${estado.dupInscricaoId}/renovar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cpf }),
+    });
+    const d = await r.json();
+    if (!d.ok || !d.pagamento) { alert(d.mensagem || "Não conseguimos gerar o Pix."); return; }
+    document.getElementById("dup-expirado").style.display = "none";
+    mostrarPixPendenteInline(d.pagamento);
+  } catch { alert("Falha de conexão."); }
+}
+
+function mostrarPixPendenteInline(pag) {
+  const bloco = document.getElementById("dup-pendente");
+  document.getElementById("dup-pend-valor").textContent = fmt(Number(pag.valor));
+  document.getElementById("dup-pend-cc").value = pag.pixCopiaECola;
+  document.getElementById("dup-pend-preview").textContent = pag.pixCopiaECola.slice(0, 24) + "…";
+  const qr = window.qrcode(0, "M");
+  qr.addData(pag.pixCopiaECola, "Byte");
+  qr.make();
+  document.getElementById("dup-pend-qr").src = qr.createDataURL(6, 8);
+  const status = document.getElementById("dup-pend-status");
+  if (status) { status.textContent = "Aguardando confirmação do pagamento…"; status.style.color = "#6B7A99"; }
+  bloco.style.display = "flex";
+  iniciarPollingPendente(pag.txid);
 }
 
 function copiarPixPendente() {
@@ -533,7 +578,7 @@ async function verificarCpfAuto(cpf) {
       body: JSON.stringify({ cpf }),
     });
     const d = await r.json();
-    if (d.ok && d.existe) mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente);
+    if (d.ok && d.existe) mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente, { pode_renovar: d.pode_renovar, valor_residual: d.valor_residual });
   } catch { /* silencioso */ }
 }
 function mostraErro(id, msg) {
@@ -572,7 +617,7 @@ async function submitDados() {
       body: JSON.stringify({ cpf }),
     });
     const d = await r.json();
-    if (d.ok && d.existe) { mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente); return; }
+    if (d.ok && d.existe) { mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente, { pode_renovar: d.pode_renovar, valor_residual: d.valor_residual }); return; }
   } catch { /* segue offline se falhar */ }
   irPara(2);
 }
@@ -627,7 +672,7 @@ async function concluir(pular) {
     if (resp.status === 409 && data.cpf_duplicado) {
       btn.disabled = false; btn.textContent = "Concluir inscrição";
       mostraErro("erro3", "");
-      mostrarDuplicado(data.inscricao || {}, data.pagamento_pendente);
+      mostrarDuplicado(data.inscricao || {}, data.pagamento_pendente, { pode_renovar: data.pode_renovar, valor_residual: data.valor_residual });
       return;
     }
     if (!data.ok) {

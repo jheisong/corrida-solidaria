@@ -156,6 +156,10 @@ async function handleInscricao(request, env) {
   ).bind(dados.cpf).first();
   if (existente) {
     const pendente = await buscarPagamentoPendente(env, existente.id);
+    const inscCompleta = await env.DB.prepare(
+      "SELECT id, quer_camiseta, doacao_valor FROM inscricoes WHERE id = ?"
+    ).bind(existente.id).first();
+    const { residual } = await calcularResidual(env, inscCompleta);
     return json({
       ok: false,
       cpf_duplicado: true,
@@ -167,6 +171,8 @@ async function handleInscricao(request, env) {
         tamanho_camiseta: existente.tamanho_camiseta,
       },
       pagamento_pendente: pendente,
+      pode_renovar: !pendente && residual > 0,
+      valor_residual: residual,
     }, 409);
   }
 
@@ -258,6 +264,57 @@ async function buscarPagamentoPendente(env, inscricaoId) {
   };
 }
 
+async function calcularResidual(env, insc) {
+  // Valor que a inscrição deveria ter cobrado (base + camisa + doação).
+  const base = Number(env.SICREDI_VALOR_INSCRICAO || 0);
+  const camisa = insc.quer_camiseta ? Number(env.CAMISA_VALOR || 40) : 0;
+  const doacao = Number(insc.doacao_valor || 0);
+  const esperado = Math.round((base + camisa + doacao) * 100) / 100;
+  const row = await env.DB.prepare(
+    "SELECT COALESCE(SUM(valor), 0) AS total FROM pagamentos WHERE inscricao_id = ? AND status = 'CONCLUIDA'"
+  ).bind(insc.id).first();
+  const pago = Math.round(Number(row?.total || 0) * 100) / 100;
+  const residual = Math.max(0, Math.round((esperado - pago) * 100) / 100);
+  return { esperado, pago, residual };
+}
+
+async function handleRenovarPagamento(request, env, inscricaoId) {
+  let body;
+  try { body = await request.json(); } catch {
+    return json({ ok: false, mensagem: "JSON inválido" }, 400);
+  }
+  const cpfDigitos = normalizaCpf(body.cpf);
+  if (!cpfDigitos || !validaCpf(cpfDigitos)) return json({ ok: false, mensagem: "CPF inválido." }, 400);
+
+  const insc = await env.DB.prepare(
+    "SELECT id, nome, cpf, quer_camiseta, doacao_valor FROM inscricoes WHERE id = ?"
+  ).bind(inscricaoId).first();
+  if (!insc) return json({ ok: false, mensagem: "Inscrição não encontrada." }, 404);
+  if (insc.cpf !== cpfDigitos) return json({ ok: false, mensagem: "CPF não confere com a inscrição." }, 403);
+
+  // Se ainda há cobrança ATIVA <3h, retorna essa mesma em vez de duplicar.
+  const pendenteAtivo = await buscarPagamentoPendente(env, insc.id);
+  if (pendenteAtivo) return json({ ok: true, id: insc.id, valor: pendenteAtivo.valor, pagamento: pendenteAtivo, mensagem: "Pagamento pendente reaproveitado." });
+
+  const { residual } = await calcularResidual(env, insc);
+  if (residual <= 0) return json({ ok: false, mensagem: "Não há valor pendente." }, 400);
+
+  const podeCobrar = env.SICREDI_MOCK === "1" || !!env.SICREDI;
+  if (!podeCobrar || !env.SICREDI_CHAVE_PIX) return json({ ok: false, mensagem: "Pix indisponível." }, 503);
+
+  const tipo = insc.quer_camiseta && Number(insc.doacao_valor || 0) > 0 ? "MISTO"
+    : insc.quer_camiseta ? "CAMISA"
+    : Number(insc.doacao_valor || 0) > 0 ? "DOACAO"
+    : "INSCRICAO";
+  try {
+    const cob = await criarECadastrarCobranca(env, insc.id, { cpf: cpfDigitos, nome: insc.nome, modalidade: "renovacao" }, residual, tipo);
+    return json({ ok: true, id: insc.id, valor: residual, pagamento: cob, mensagem: "Novo Pix gerado." }, 201);
+  } catch (e) {
+    console.error("Erro renovar cobrança:", e);
+    return json({ ok: false, mensagem: "Não conseguimos gerar o Pix." }, 502);
+  }
+}
+
 async function handleVerificarCpf(request, env) {
   let body;
   try { body = await request.json(); } catch {
@@ -273,6 +330,10 @@ async function handleVerificarCpf(request, env) {
   if (!existente) return json({ ok: true, existe: false });
 
   const pendente = await buscarPagamentoPendente(env, existente.id);
+  const inscCompleta = await env.DB.prepare(
+    "SELECT id, quer_camiseta, doacao_valor FROM inscricoes WHERE id = ?"
+  ).bind(existente.id).first();
+  const { residual } = await calcularResidual(env, inscCompleta);
 
   return json({
     ok: true,
@@ -284,6 +345,8 @@ async function handleVerificarCpf(request, env) {
       tamanho_camiseta: existente.tamanho_camiseta,
     },
     pagamento_pendente: pendente,
+    pode_renovar: !pendente && residual > 0,
+    valor_residual: residual,
   });
 }
 
@@ -545,6 +608,10 @@ export default {
     {
       const m = url.pathname.match(/^\/api\/inscricao\/(\d+)\/doacao$/);
       if (m && request.method === "POST") return handleDoacaoAvulsa(request, env, Number(m[1]));
+    }
+    {
+      const m = url.pathname.match(/^\/api\/inscricao\/(\d+)\/renovar$/);
+      if (m && request.method === "POST") return handleRenovarPagamento(request, env, Number(m[1]));
     }
     if (env.SICREDI_MOCK === "1") {
       const m = url.pathname.match(/^\/api\/dev\/pagar\/([A-Za-z0-9]{26,35})$/);
