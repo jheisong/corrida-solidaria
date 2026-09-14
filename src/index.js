@@ -250,7 +250,7 @@ async function buscarPagamentoPendente(env, inscricaoId) {
       FROM pagamentos
      WHERE inscricao_id = ?
        AND status = 'ATIVA'
-       AND datetime(criado_em, '+3 hours') > datetime('now')
+       AND datetime(criado_em, '+48 hours') > datetime('now')
      ORDER BY criado_em DESC
      LIMIT 1
   `).bind(inscricaoId).first();
@@ -276,6 +276,29 @@ async function calcularResidual(env, insc) {
   const pago = Math.round(Number(row?.total || 0) * 100) / 100;
   const residual = Math.max(0, Math.round((esperado - pago) * 100) / 100);
   return { esperado, pago, residual };
+}
+
+async function handleCancelarPendente(request, env, inscricaoId) {
+  let body;
+  try { body = await request.json(); } catch { body = {}; }
+  const cpfDigitos = normalizaCpf(body.cpf);
+  if (!cpfDigitos || !validaCpf(cpfDigitos)) return json({ ok: false, mensagem: "CPF inválido." }, 400);
+
+  const insc = await env.DB.prepare("SELECT id, cpf FROM inscricoes WHERE id = ?").bind(inscricaoId).first();
+  if (!insc) return json({ ok: false, mensagem: "Inscrição não encontrada." }, 404);
+  if (insc.cpf !== cpfDigitos) return json({ ok: false, mensagem: "CPF não confere com a inscrição." }, 403);
+
+  // Zera camisa/doação e marca cobranças ATIVA como removidas pelo recebedor.
+  // Sicredi não permite mudar status via API — o QR fica válido até expirar
+  // (48h). Se pagador enviar Pix, o webhook cai; painel resolve manual.
+  const res = await env.DB.prepare(
+    "UPDATE pagamentos SET status = 'REMOVIDA_PELO_USUARIO_RECEBEDOR' WHERE inscricao_id = ? AND status = 'ATIVA'"
+  ).bind(inscricaoId).run();
+  await env.DB.prepare(
+    "UPDATE inscricoes SET quer_camiseta = 0, tamanho_camiseta = NULL, doacao_valor = NULL WHERE id = ?"
+  ).bind(inscricaoId).run();
+
+  return json({ ok: true, canceladas: res.meta?.changes ?? 0, mensagem: "Pedido cancelado. Se você já enviou o Pix, entre em contato pelo e-mail do Lions." });
 }
 
 async function handleRenovarPagamento(request, env, inscricaoId) {
@@ -414,7 +437,7 @@ async function criarECadastrarCobranca(env, inscricaoId, dados, valor, tipo = "I
     cpf: dados.cpf,
     nome: dados.nome,
     solicitacao: `${rotulo} - Corrida Solidária`,
-    expiracao: 3 * 60 * 60,
+    expiracao: 48 * 60 * 60,
     infoAdicionais: [
       { nome: "Inscricao", valor: String(inscricaoId) },
       { nome: "Tipo", valor: tipo },
@@ -612,6 +635,10 @@ export default {
     {
       const m = url.pathname.match(/^\/api\/inscricao\/(\d+)\/renovar$/);
       if (m && request.method === "POST") return handleRenovarPagamento(request, env, Number(m[1]));
+    }
+    {
+      const m = url.pathname.match(/^\/api\/inscricao\/(\d+)\/cancelar-pendente$/);
+      if (m && request.method === "POST") return handleCancelarPendente(request, env, Number(m[1]));
     }
     if (env.SICREDI_MOCK === "1") {
       const m = url.pathname.match(/^\/api\/dev\/pagar\/([A-Za-z0-9]{26,35})$/);
