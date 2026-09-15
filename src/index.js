@@ -580,11 +580,11 @@ async function handleListar(request, env) {
     LEFT JOIN (
       SELECT
         inscricao_id,
-        COUNT(*)                                                         AS qtd_cobrancas,
-        SUM(CASE WHEN status = 'CONCLUIDA' THEN 1 ELSE 0 END)             AS qtd_pagas,
-        SUM(valor)                                                        AS total_cobrado,
-        SUM(CASE WHEN status = 'CONCLUIDA' THEN valor ELSE 0 END)         AS total_pago,
-        MAX(pago_em)                                                      AS ultimo_pago_em
+        SUM(CASE WHEN status NOT LIKE 'REMOVIDA_%' THEN 1 ELSE 0 END)                       AS qtd_cobrancas,
+        SUM(CASE WHEN status = 'CONCLUIDA' THEN 1 ELSE 0 END)                                AS qtd_pagas,
+        SUM(CASE WHEN status NOT LIKE 'REMOVIDA_%' THEN valor ELSE 0 END)                    AS total_cobrado,
+        SUM(CASE WHEN status = 'CONCLUIDA' THEN valor ELSE 0 END)                            AS total_pago,
+        MAX(pago_em)                                                                          AS ultimo_pago_em
       FROM pagamentos
       GROUP BY inscricao_id
     ) p ON p.inscricao_id = i.id
