@@ -33,6 +33,8 @@
   .card { background: #F6F8FC; border-radius: 12px; padding: 20px; }
   .placeholder { display: flex; align-items: center; justify-content: center; color: #6B7A99; font-size: 14px; font-weight: 600; background: repeating-linear-gradient(45deg, #EDF1F9, #EDF1F9 12px, #F6F8FC 12px, #F6F8FC 24px); border-radius: 12px; height: 100%; text-align: center; padding: 12px; }
   .req { color: #D93B3B; font-weight: 700; margin-left: 4px; }
+  .btn-link-cancelar { background: transparent; border: none; color: #A03030; font-size: 13px; text-decoration: underline; cursor: pointer; padding: 4px 6px; font-weight: 500; font-family: 'Barlow', sans-serif; }
+  .btn-link-cancelar:hover { color: #C22B2B; }
   .btn-copiar-email { display: inline-flex; align-items: center; justify-content: center; margin-left: 6px; width: 26px; height: 26px; padding: 0; border: 1px solid #D6DFEF; background: #FFFFFF; border-radius: 6px; font-size: 13px; line-height: 1; cursor: pointer; color: #16357F; vertical-align: middle; }
   .btn-copiar-email:hover { border-color: #16357F; background: #F6F8FC; }
   .opt { color: #6B7A99; font-weight: 400; margin-left: 4px; font-size: 13px; }
@@ -234,10 +236,8 @@
       <div id="dup-expirado" style="display: none; background: #FFF6E3; border: 1.5px solid #F5A800; border-radius: 12px; padding: 14px; flex-direction: column; align-items: center; gap: 10px;">
         <strong style="color: #B57100; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase;">Pagamento em aberto</strong>
         <span style="font-size: 14px; color: #33415E; text-align: center;">Ainda há <strong id="dup-exp-valor" style="color: #16357F;"></strong> pendente da sua inscrição. O Pix anterior expirou.</span>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
-          <button class="btn" onclick="renovarPagamento()">Gerar novo Pix</button>
-          <button class="btn" style="background: #FFFFFF; color: #C22B2B; border: 1.5px solid #C22B2B;" onclick="cancelarPedidoPendente()">Cancelar pedido pendente</button>
-        </div>
+        <button class="btn" onclick="renovarPagamento()">Gerar novo Pix</button>
+        <button type="button" class="btn-link-cancelar" onclick="cancelarPedidoPendente()">Cancelar pedido pendente</button>
       </div>
       <div id="dup-pendente" style="display: none; background: #FFF6E3; border: 1.5px solid #F5A800; border-radius: 12px; padding: 14px; flex-direction: column; align-items: center; gap: 10px;">
         <strong style="color: #B57100; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase;">Pagamento pendente</strong>
@@ -251,7 +251,7 @@
           <img id="dup-pend-qr" alt="QR Code Pix" style="width: 100%; height: 100%; object-fit: contain;">
         </div>
         <span id="dup-pend-status" style="font-size: 12px; color: #6B7A99; text-align: center;">Aguardando confirmação do pagamento…</span>
-        <button class="btn" style="background: #FFFFFF; color: #C22B2B; border: 1.5px solid #C22B2B; padding: 8px 14px; font-size: 14px;" onclick="cancelarPedidoPendente()">Cancelar pedido pendente</button>
+        <button type="button" class="btn-link-cancelar" onclick="cancelarPedidoPendente()">Cancelar pedido pendente</button>
       </div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="grid2">
         <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1.5px solid #D6DFEF; border-radius: 12px;">
@@ -325,6 +325,17 @@
         <span style="color: #1F6E1F; font-size: 15px;">Obrigado pelo apoio à causa. Nos vemos na largada!</span>
       </div>
       <button class="btn" style="background: #16357F; color: #FFFFFF;" onclick="fecharForm()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-confirmar" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); z-index: 200; align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: #FFFFFF; border-radius: 12px; padding: 24px; max-width: 420px; width: 100%; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);">
+    <h4 id="mc-titulo" style="margin: 0; color: #16357F; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; text-transform: uppercase;"></h4>
+    <p id="mc-msg" style="margin: 0; font-size: 14px; color: #33415E; line-height: 1.45;"></p>
+    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
+      <button class="btn-ghost" style="text-decoration: none; padding: 8px 14px; color: #33415E;" onclick="mcResolve(false)">Voltar</button>
+      <button id="mc-ok" class="btn" style="padding: 10px 20px; font-size: 15px;" onclick="mcResolve(true)">Confirmar</button>
     </div>
   </div>
 </div>
@@ -450,9 +461,30 @@ function mostrarDuplicado(insc, pagamentoPendente, extras) {
   estado.dupInscricaoId = insc.id;
 }
 
+let __mcResolve = null;
+function confirmar(titulo, msg, okText, tipo) {
+  document.getElementById("mc-titulo").textContent = titulo;
+  document.getElementById("mc-msg").textContent = msg;
+  const btn = document.getElementById("mc-ok");
+  btn.textContent = okText || "Confirmar";
+  if (tipo === "danger") { btn.style.background = "#C22B2B"; btn.style.color = "#FFFFFF"; }
+  else { btn.style.background = "#F5A800"; btn.style.color = "#16357F"; }
+  document.getElementById("modal-confirmar").style.display = "flex";
+  return new Promise((res) => { __mcResolve = res; });
+}
+function mcResolve(v) {
+  document.getElementById("modal-confirmar").style.display = "none";
+  if (__mcResolve) { __mcResolve(v); __mcResolve = null; }
+}
+
 async function cancelarPedidoPendente() {
   if (!estado.dupInscricaoId) return;
-  const ok = confirm("Cancelar o pedido pendente? Sua camisa/doação serão removidas e o Pix não poderá mais ser pago. Se você já enviou o Pix, aguarde nosso contato.");
+  const ok = await confirmar(
+    "Cancelar pedido pendente?",
+    "Sua camisa e/ou doação em aberto serão removidas e o Pix não poderá mais ser pago. Se você já enviou o Pix, aguarde nosso contato.",
+    "Sim, cancelar",
+    "danger"
+  );
   if (!ok) return;
   const cpf = val("f-cpf").replace(/\D/g, "");
   try {
@@ -462,13 +494,15 @@ async function cancelarPedidoPendente() {
       body: JSON.stringify({ cpf }),
     });
     const d = await r.json();
-    if (!d.ok) { alert(d.mensagem || "Não conseguimos cancelar."); return; }
+    if (!d.ok) { await confirmar("Não foi possível cancelar", d.mensagem || "Tente novamente.", "OK"); return; }
     clearInterval(pollingTimer);
     document.getElementById("dup-pendente").style.display = "none";
     document.getElementById("dup-expirado").style.display = "none";
     document.getElementById("dup-com-camisa").style.display = "none";
-    alert(d.mensagem || "Pedido cancelado.");
-  } catch { alert("Falha de conexão."); }
+    await confirmar("Pedido cancelado", d.mensagem || "Tudo certo.", "OK");
+  } catch {
+    await confirmar("Falha de conexão", "Verifique sua internet e tente novamente.", "OK");
+  }
 }
 
 async function renovarPagamento() {
