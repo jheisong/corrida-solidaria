@@ -332,7 +332,7 @@ async function handleRenovarPagamento(request, env, inscricaoId) {
   if (!insc) return json({ ok: false, mensagem: "Inscrição não encontrada." }, 404);
   if (insc.cpf !== cpfDigitos) return json({ ok: false, mensagem: "CPF não confere com a inscrição." }, 403);
 
-  // Se ainda há cobrança ATIVA <3h, retorna essa mesma em vez de duplicar.
+  // Se ainda há cobrança ATIVA dentro do prazo (48h), reaproveita.
   const pendenteAtivo = await buscarPagamentoPendente(env, insc.id);
   if (pendenteAtivo) return json({ ok: true, id: insc.id, valor: pendenteAtivo.valor, pagamento: pendenteAtivo, mensagem: "Pagamento pendente reaproveitado." });
 
@@ -341,6 +341,21 @@ async function handleRenovarPagamento(request, env, inscricaoId) {
 
   const podeCobrar = env.SICREDI_MOCK === "1" || !!env.SICREDI;
   if (!podeCobrar || !env.SICREDI_CHAVE_PIX) return json({ ok: false, mensagem: "Pix indisponível." }, 503);
+
+  // Invalida qualquer ATIVA antiga (fora do filtro 48h) — evita QR órfão vivo
+  // no Sicredi enquanto emitimos um novo. PATCH falho vira log, não bloqueia.
+  const { results: antigas } = await env.DB.prepare(
+    "SELECT txid FROM pagamentos WHERE inscricao_id = ? AND status = 'ATIVA'"
+  ).bind(insc.id).all();
+  for (const a of antigas || []) {
+    try { await revisarCobrancaExpiracao(env, a.txid, 1); }
+    catch (e) { console.error("Renovar: PATCH falhou p/ txid", a.txid, String(e.message || e)); }
+  }
+  if (antigas && antigas.length) {
+    await env.DB.prepare(
+      "UPDATE pagamentos SET status = 'REMOVIDA_PELO_USUARIO_RECEBEDOR' WHERE inscricao_id = ? AND status = 'ATIVA'"
+    ).bind(insc.id).run();
+  }
 
   const tipo = insc.quer_camiseta && Number(insc.doacao_valor || 0) > 0 ? "MISTO"
     : insc.quer_camiseta ? "CAMISA"

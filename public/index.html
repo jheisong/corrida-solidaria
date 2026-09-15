@@ -450,15 +450,17 @@ function mostrarDuplicado(insc, pagamentoPendente, extras) {
   }
 
   const expirado = document.getElementById("dup-expirado");
-  if (!pagamentoPendente && extras.pode_renovar && Number(extras.valor_residual) > 0) {
-    document.getElementById("dup-exp-valor").textContent = fmt(Number(extras.valor_residual));
-    expirado.style.display = "flex";
-  } else {
-    expirado.style.display = "none";
-  }
+  expirado.style.display = "none";
 
   document.getElementById("passo-duplicado").style.display = "flex";
   estado.dupInscricaoId = insc.id;
+
+  // Sem cobrança pendente mas com valor devido: gera Pix novo automaticamente.
+  // Se falhar, exibe o card manual com o botão "Gerar novo Pix" como fallback.
+  if (!pagamentoPendente && extras.pode_renovar && Number(extras.valor_residual) > 0) {
+    document.getElementById("dup-exp-valor").textContent = fmt(Number(extras.valor_residual));
+    renovarPagamento({ auto: true, valorFallback: Number(extras.valor_residual) });
+  }
 }
 
 let __mcResolve = null;
@@ -505,7 +507,8 @@ async function cancelarPedidoPendente() {
   }
 }
 
-async function renovarPagamento() {
+async function renovarPagamento(opts) {
+  opts = opts || {};
   const cpf = val("f-cpf").replace(/\D/g, "");
   if (!cpf) return;
   try {
@@ -515,10 +518,21 @@ async function renovarPagamento() {
       body: JSON.stringify({ cpf }),
     });
     const d = await r.json();
-    if (!d.ok || !d.pagamento) { alert(d.mensagem || "Não conseguimos gerar o Pix."); return; }
+    if (!d.ok || !d.pagamento) {
+      // Auto: mostra o card manual como fallback (usuário pode tentar de novo).
+      if (opts.auto) {
+        document.getElementById("dup-expirado").style.display = "flex";
+      } else {
+        await confirmar("Não foi possível gerar o Pix", d.mensagem || "Tente novamente em instantes.", "OK");
+      }
+      return;
+    }
     document.getElementById("dup-expirado").style.display = "none";
     mostrarPixPendenteInline(d.pagamento);
-  } catch { alert("Falha de conexão."); }
+  } catch {
+    if (opts.auto) document.getElementById("dup-expirado").style.display = "flex";
+    else await confirmar("Falha de conexão", "Verifique sua internet e tente novamente.", "OK");
+  }
 }
 
 function mostrarPixPendenteInline(pag) {
