@@ -394,6 +394,7 @@ export function pagamentoPendente(dados) {
     `<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Sua inscrição está garantida — mas pra confirmar sua camisa/doação, é só pagar o Pix. Clique no botão abaixo e finalizamos rapidinho.</p>`,
     tabela,
     `<p style="margin:16px 0 0;font-size:13px;color:${COR_SUAVE};line-height:1.55;">O botão abre o site já com seu CPF preenchido e o Pix pronto — se o código anterior expirou, geramos um novo automaticamente.</p>`,
+    `<p style="margin:8px 0 0;font-size:13px;color:${COR_SUAVE};line-height:1.55;">Mudou de ideia? Você pode <strong>cancelar o pedido</strong> pelo próprio site: informe seu CPF e clique em <em>“Cancelar apenas camisa/doação”</em>. Sua inscrição na corrida continua ativa.</p>`,
     blocoAlimento,
   ];
 
@@ -420,6 +421,8 @@ export function pagamentoPendente(dados) {
       ``,
       `Sua inscrição está garantida — clique no link pra pagar o Pix (se o código anterior expirou, geramos um novo automaticamente):`,
       linkRetomar,
+      ``,
+      `Mudou de ideia? Você pode cancelar o pedido pelo site — informe seu CPF e clique em "Cancelar apenas camisa/doação". Sua inscrição na corrida continua ativa.`,
       ``,
       LEMBRETE_ALIMENTO,
       ``,
