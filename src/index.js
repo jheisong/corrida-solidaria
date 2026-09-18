@@ -789,7 +789,7 @@ const FILTROS_EMAIL = new Set([
   "todos", "pendentes", "pendentes_sem_email", "pendentes_email_antigo_48h",
   "sem_camisa", "sem_camisa_sem_oferta", "pagos_confirmados",
 ]);
-const TIPOS_EMAIL_MANUAL = new Set(["PENDENTE", "OFERTA_CAMISA", "AVISO_GERAL"]);
+const TIPOS_EMAIL_MANUAL = new Set(["CONFIRMACAO", "PENDENTE", "OFERTA_CAMISA", "AVISO_GERAL"]);
 
 async function listarAtletasParaEmail(env, filtro) {
   const { results } = await env.DB.prepare(`
@@ -941,7 +941,16 @@ async function handleEnviarEmails(request, env, ctx) {
 
     let tpl;
     try {
-      if (tipo === "PENDENTE") {
+      if (tipo === "CONFIRMACAO") {
+        tpl = await confirmacaoInscricao({
+          nome: r.nome, cpf: r.cpf, numero_inscricao: r.id, categoria: r.modalidade,
+          quer_camiseta: Number(r.qtd_camisas) > 0,
+          tamanho_camiseta: r.tamanhos_camisa || null,
+          valor_camiseta: totalCamisas,
+          valor_doacao: totalDoacoes,
+          valor_total: esperado,
+        });
+      } else if (tipo === "PENDENTE") {
         tpl = pagamentoPendente({
           nome: r.nome, cpf: r.cpf, numero_inscricao: r.id, categoria: r.modalidade,
           valor_residual: residual,
