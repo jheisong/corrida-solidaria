@@ -184,10 +184,9 @@ async function handleInscricao(request, env, ctx) {
   ).bind(dados.cpf).first();
   if (existente) {
     const pendente = await buscarPagamentoPendente(env, existente.id);
-    const { residual } = await calcularResidual(env, { id: existente.id });
-    const primeiraCamisa = await env.DB.prepare(
-      "SELECT tamanho FROM camisas WHERE inscricao_id = ? AND status IN ('PENDENTE','PAGO') ORDER BY criado_em LIMIT 1"
-    ).bind(existente.id).first();
+    const { residual, esperado, pago } = await calcularResidual(env, { id: existente.id });
+    const itens = await listaItens(env, existente.id);
+    const primeiraCamisa = (itens.camisas || [])[0] || null;
     return json({
       ok: false,
       cpf_duplicado: true,
@@ -198,6 +197,8 @@ async function handleInscricao(request, env, ctx) {
         tem_camiseta: !!primeiraCamisa,
         tamanho_camiseta: primeiraCamisa?.tamanho || null,
       },
+      itens,
+      totais: { esperado, pago, residual },
       pagamento_pendente: pendente,
       pode_renovar: !pendente && residual > 0,
       valor_residual: residual,
@@ -409,6 +410,14 @@ async function handleCancelarPendente(request, env, inscricaoId) {
   });
 }
 
+async function listaItens(env, inscricaoId) {
+  const [cams, dons] = await Promise.all([
+    env.DB.prepare("SELECT tamanho, valor, status FROM camisas WHERE inscricao_id = ? AND status IN ('PENDENTE','PAGO') ORDER BY criado_em").bind(inscricaoId).all(),
+    env.DB.prepare("SELECT valor, status FROM doacoes WHERE inscricao_id = ? AND status IN ('PENDENTE','PAGO') ORDER BY criado_em").bind(inscricaoId).all(),
+  ]);
+  return { camisas: cams.results || [], doacoes: dons.results || [] };
+}
+
 async function resumoPendencias(env, inscricaoId) {
   const [cams, dons] = await Promise.all([
     env.DB.prepare("SELECT tamanho, valor FROM camisas WHERE inscricao_id = ? AND status = 'PENDENTE' ORDER BY criado_em").bind(inscricaoId).all(),
@@ -512,10 +521,9 @@ async function handleVerificarCpf(request, env) {
   if (!existente) return json({ ok: true, existe: false });
 
   const pendente = await buscarPagamentoPendente(env, existente.id);
-  const { residual } = await calcularResidual(env, { id: existente.id });
-  const primeiraCamisa = await env.DB.prepare(
-    "SELECT tamanho FROM camisas WHERE inscricao_id = ? AND status IN ('PENDENTE','PAGO') ORDER BY criado_em LIMIT 1"
-  ).bind(existente.id).first();
+  const { residual, esperado, pago } = await calcularResidual(env, { id: existente.id });
+  const itens = await listaItens(env, existente.id);
+  const primeiraCamisa = (itens.camisas || [])[0] || null;
 
   return json({
     ok: true,
@@ -526,6 +534,8 @@ async function handleVerificarCpf(request, env) {
       tem_camiseta: !!primeiraCamisa,
       tamanho_camiseta: primeiraCamisa?.tamanho || null,
     },
+    itens,
+    totais: { esperado, pago, residual },
     pagamento_pendente: pendente,
     pode_renovar: !pendente && residual > 0,
     valor_residual: residual,

@@ -240,7 +240,7 @@
       <span class="kicker" style="font-size: 15px; color: #F5A800;">CPF já cadastrado</span>
       <h3 style="font-size: 30px;">Atleta já inscrito</h3>
       <p style="font-size: 15px; color: #33415E;"><strong id="dup-nome" style="color: #16357F;"></strong> já está inscrito na Corrida Solidária. Se este é você e precisa alterar algum dado, entre em contato pelo e-mail <a href="mailto:lionsclubebgcidadedovinho@gmail.com" style="color: #16357F; font-weight: 700;">lionsclubebgcidadedovinho@gmail.com</a><button type="button" class="btn-copiar-email" onclick="copiarEmail(this)" title="Copiar e-mail" aria-label="Copiar e-mail">📋</button>.</p>
-      <div id="dup-com-camisa" style="display: none; background: #EAF6EA; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #1F6E1F;">Camisa <strong id="dup-tamanho"></strong> já registrada nesta inscrição. Você pode pedir camisas adicionais abaixo.</div>
+      <div id="dup-resumo" style="display: none; background: #F6F8FC; border: 1px solid #E3E9F4; border-radius: 12px; padding: 14px; flex-direction: column; gap: 6px; font-size: 14px;"></div>
       <div id="dup-expirado" style="display: none; background: #FFF6E3; border: 1.5px solid #F5A800; border-radius: 12px; padding: 14px; flex-direction: column; align-items: center; gap: 10px;">
         <strong style="color: #B57100; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase;">Pagamento em aberto</strong>
         <span style="font-size: 14px; color: #33415E; text-align: center;">Ainda há <strong id="dup-exp-valor" style="color: #16357F;"></strong> pendente da sua inscrição. O Pix anterior expirou.</span>
@@ -451,8 +451,7 @@ function mostrarDuplicado(insc, pagamentoPendente, extras) {
   });
   document.getElementById("dup-nome").textContent = (insc.nome || "").split(" ")[0] || "Este CPF";
   const temCamisa = !!insc.tem_camiseta;
-  document.getElementById("dup-com-camisa").style.display = temCamisa ? "block" : "none";
-  document.getElementById("dup-tamanho").textContent = insc.tamanho_camiseta || "";
+  renderResumoAtleta(extras.itens, extras.totais);
   document.getElementById("dup-cta-camisa").textContent = temCamisa
     ? "Quer pedir outra camisa? Escolha o tamanho e pague por Pix:"
     : "Ainda não pediu a camisa oficial? Peça agora:";
@@ -527,7 +526,7 @@ async function cancelarPedidoPendente() {
     clearInterval(pollingTimer);
     document.getElementById("dup-pendente").style.display = "none";
     document.getElementById("dup-expirado").style.display = "none";
-    document.getElementById("dup-com-camisa").style.display = "none";
+    document.getElementById("dup-resumo").style.display = "none";
     await confirmar("Pedido cancelado", "Camisa e/ou doação removidas. Sua inscrição na corrida continua confirmada — nos vemos na largada!", "OK");
   } catch {
     await confirmar("Falha de conexão", "Verifique sua internet e tente novamente.", "OK");
@@ -678,7 +677,7 @@ async function verificarCpfAuto(cpf) {
       body: JSON.stringify({ cpf }),
     });
     const d = await r.json();
-    if (d.ok && d.existe) mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente, { pode_renovar: d.pode_renovar, valor_residual: d.valor_residual });
+    if (d.ok && d.existe) mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente, { pode_renovar: d.pode_renovar, valor_residual: d.valor_residual, itens: d.itens, totais: d.totais });
   } catch { /* silencioso */ }
 }
 function mostraErro(id, msg) {
@@ -717,7 +716,7 @@ async function submitDados() {
       body: JSON.stringify({ cpf }),
     });
     const d = await r.json();
-    if (d.ok && d.existe) { mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente, { pode_renovar: d.pode_renovar, valor_residual: d.valor_residual }); return; }
+    if (d.ok && d.existe) { mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente, { pode_renovar: d.pode_renovar, valor_residual: d.valor_residual, itens: d.itens, totais: d.totais }); return; }
   } catch { /* segue offline se falhar */ }
   irPara(2);
 }
@@ -772,7 +771,7 @@ async function concluir(pular) {
     if (resp.status === 409 && data.cpf_duplicado) {
       btn.disabled = false; btn.textContent = "Concluir inscrição";
       mostraErro("erro3", "");
-      mostrarDuplicado(data.inscricao || {}, data.pagamento_pendente, { pode_renovar: data.pode_renovar, valor_residual: data.valor_residual });
+      mostrarDuplicado(data.inscricao || {}, data.pagamento_pendente, { pode_renovar: data.pode_renovar, valor_residual: data.valor_residual, itens: data.itens, totais: data.totais });
       return;
     }
     if (!data.ok) {
@@ -853,6 +852,37 @@ async function concluirSomenteDoacao(pular) {
     mostraErro("erro3", "Falha de conexão. Tente novamente.");
     btn.disabled = false; btn.textContent = "Concluir inscrição";
   }
+}
+
+function renderResumoAtleta(itens, totais) {
+  const el = document.getElementById("dup-resumo");
+  if (!el) return;
+  const cams = (itens && itens.camisas) || [];
+  const dons = (itens && itens.doacoes) || [];
+  if (!cams.length && !dons.length) { el.style.display = "none"; el.innerHTML = ""; return; }
+  const linhaStatus = (s) => s === "PAGO"
+    ? `<span style="background:#E7F6EC;color:#1F6E1F;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:700;">PAGO</span>`
+    : `<span style="background:#FFF6E3;color:#B57100;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:700;">PENDENTE</span>`;
+  const linha = (rotulo, valor, status) =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+       <span>${rotulo} ${linhaStatus(status)}</span>
+       <strong style="color:#16357F;">${fmt(Number(valor))}</strong>
+     </div>`;
+  const html = [
+    ...cams.map(c => linha(`Camisa (${c.tamanho || "?"})`, c.valor, c.status)),
+    ...dons.map(d => linha("Doação solidária", d.valor, d.status)),
+  ];
+  if (totais) {
+    const pago = Number(totais.pago || 0);
+    const esperado = Number(totais.esperado || 0);
+    const residual = Number(totais.residual || 0);
+    html.push(`<div style="border-top:1px solid #E3E9F4;margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;font-size:13px;color:#6B7A99;">
+      <span>Pago ${fmt(pago)} · Devido ${fmt(esperado)}</span>
+      ${residual > 0 ? `<strong style="color:#B57100;">Pendente ${fmt(residual)}</strong>` : `<strong style="color:#1F6E1F;">Tudo pago 🎉</strong>`}
+    </div>`);
+  }
+  el.innerHTML = html.join("");
+  el.style.display = "flex";
 }
 
 function labelModalidade(m) {
