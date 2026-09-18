@@ -307,8 +307,7 @@
       <h3 style="font-size: 30px;">Inscrição confirmada!</h3>
       <p style="margin: 0; font-size: 16px;">Nos vemos na largada, <strong style="color: #16357F;" id="r-nome"></strong>. Retire sua pulseira a partir das <strong style="color: #16357F;">07h00</strong> do dia 8/11, levando <strong style="color: #16357F;">1 kg de alimento não perecível</strong> — ela garante sua medalha de participação.</p>
       <div style="width: 100%; background: #F6F8FC; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 15px;">
-        <div style="display: flex; justify-content: space-between;"><span>Nº de inscrição</span><strong style="color: #16357F;" id="r-num"></strong></div>
-        <div style="display: flex; justify-content: space-between;"><span>Modalidade</span><strong style="color: #16357F;" id="r-modalidade"></strong></div>
+        <div style="display: flex; justify-content: space-between;"><span>Inscrição</span><strong style="color: #16357F;"><span id="r-modalidade"></span> <span style="color: #6B7A99; font-weight: 500;">(Nº <span id="r-num"></span>)</span></strong></div>
         <div id="r-pendencias" style="display: none; flex-direction: column; gap: 4px; border-top: 1px solid #E3E9F4; padding-top: 8px; margin-top: 4px;">
           <div id="r-pend-lista" style="display: flex; flex-direction: column; gap: 4px;"></div>
         </div>
@@ -792,7 +791,7 @@ async function concluir(pular) {
   mostraErro("erro3", "");
 
   document.getElementById("r-nome").textContent = val("f-nome").split(" ")[0];
-  document.getElementById("r-num").textContent = "#" + numInscricao;
+  document.getElementById("r-num").textContent = numInscricao;
   document.getElementById("r-modalidade").textContent = labelModalidade(estado.modalidade.api);
   renderPendencias([
     estado.camisa ? { rotulo: "Camisa (" + estado.tamanho + ")", valor: PRECO_CAMISA } : null,
@@ -844,7 +843,7 @@ async function concluirSomenteDoacao(pular) {
     btn.disabled = false; btn.textContent = "Concluir inscrição";
     const totalCobranca = Number(data.valor || doacao);
     document.getElementById("r-nome").textContent = (val("f-nome") || "Você").split(" ")[0];
-    document.getElementById("r-num").textContent = "#" + estado.dupInscricaoId;
+    document.getElementById("r-num").textContent = estado.dupInscricaoId;
     document.getElementById("r-modalidade").textContent = labelModalidade(data.modalidade);
     renderPendenciasDoBackend(data.pendencias);
     document.getElementById("r-total").textContent = fmt(totalCobranca);
@@ -932,7 +931,7 @@ async function concluirSomenteCamisa() {
 
     const totalCobranca = Number(data.valor || PRECO_CAMISA);
     document.getElementById("r-nome").textContent = (val("f-nome") || "Você").split(" ")[0];
-    document.getElementById("r-num").textContent = "#" + inscId;
+    document.getElementById("r-num").textContent = inscId;
     document.getElementById("r-modalidade").textContent = labelModalidade(data.modalidade);
     renderPendenciasDoBackend(data.pendencias);
     document.getElementById("r-total").textContent = fmt(totalCobranca);
