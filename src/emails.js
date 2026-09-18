@@ -222,6 +222,8 @@ export async function confirmacaoInscricao(dados) {
   const temPag = Number(dados.valor_total || 0) > 0;
   const linkRetomar = deepLinkRetomar(dados.cpf);
 
+  const totalCamDoa = Number(dados.valor_camiseta || 0) + Number(dados.valor_doacao || 0);
+  const temContribuicao = totalCamDoa > 0;
   const tabela = tabelaKV([
     ["Nº de inscrição", `#${esc(dados.numero_inscricao)}`],
     ["Modalidade", esc(modalidade)],
@@ -232,8 +234,10 @@ export async function confirmacaoInscricao(dados) {
       ? ["Doação solidária", brl(dados.valor_doacao)]
       : null,
     temPag
-      ? ["Valor da sua contribuição", brl(dados.valor_total), { corValor: COR_AMBAR_FG }]
-      : ["Inscrição", "Gratuita", { corValor: COR_SUCESSO_FG }],
+      ? ["Valor pendente", brl(dados.valor_total), { corValor: COR_AMBAR_FG }]
+      : (temContribuicao
+          ? ["Contribuição confirmada", brl(totalCamDoa), { corValor: COR_SUCESSO_FG }]
+          : ["Inscrição", "Gratuita", { corValor: COR_SUCESSO_FG }]),
   ]);
 
   if (temPag) {
@@ -285,7 +289,45 @@ export async function confirmacaoInscricao(dados) {
     };
   }
 
-  // 1b — gratuita
+  // 1c — pagou tudo (camisa/doação confirmadas)
+  if (temContribuicao) {
+    const blocos = [
+      `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Muito obrigado, <strong style="color:${COR_PRIMARIA};">${esc(nome)}</strong>! Sua inscrição no <strong>${esc(EVENTO)}</strong> está confirmada e sua contribuição já foi paga. 💙</p>`,
+      `<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Nos vemos na largada em <strong>${esc(DATA_EVENTO)}</strong>, na ${esc(LOCAL_EVENTO)}.</p>`,
+      tabela,
+      blocoAlimento,
+      `<p style="margin:12px 0 0;font-size:13px;color:${COR_SUAVE};">Retirada de pulseiras (e da camisa) a partir das 07h00 · Largada da caminhada às 08h30.</p>`,
+    ];
+    return {
+      subject: "Inscrição confirmada — tudo certo pra corrida 💙",
+      html: layout({
+        titulo: `Tudo certo, ${esc(nome)}! 🎉`,
+        preheader: `Sua inscrição e sua contribuição de ${brl(totalCamDoa)} estão confirmadas.`,
+        blocos,
+        ctaTexto: "Ver detalhes no site",
+        ctaHref: LINK_SITE,
+      }),
+      text: [
+        `Olá, ${nome}!`,
+        ``,
+        `Sua inscrição no ${EVENTO} está confirmada e sua contribuição já foi paga.`,
+        `Data: ${DATA_EVENTO} — ${LOCAL_EVENTO}`,
+        ``,
+        `Nº de inscrição: #${dados.numero_inscricao}`,
+        `Modalidade: ${modalidade}`,
+        dados.quer_camiseta ? `Camiseta: tamanho ${dados.tamanho_camiseta} — ${brl(dados.valor_camiseta || 40)}` : null,
+        Number(dados.valor_doacao || 0) > 0 ? `Doação solidária: ${brl(dados.valor_doacao)}` : null,
+        `Contribuição confirmada: ${brl(totalCamDoa)}`,
+        ``,
+        LEMBRETE_ALIMENTO,
+        ``,
+        `Dúvidas? ${EMAIL_CONTATO}`,
+        `— ${ORGANIZADOR}`,
+      ].filter((x) => x !== null).join("\n"),
+    };
+  }
+
+  // 1b — gratuita (sem camisa e sem doação)
   const blocos = [
     `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Que alegria ter você com a gente no <strong>${esc(EVENTO)}</strong>, <strong style="color:${COR_PRIMARIA};">${esc(nome)}</strong>. Sua vaga está garantida — sem custo nenhum.</p>`,
     `<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Nos vemos na largada em <strong>${esc(DATA_EVENTO)}</strong>, na ${esc(LOCAL_EVENTO)}.</p>`,

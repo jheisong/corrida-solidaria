@@ -962,7 +962,7 @@ async function handleEnviarEmails(request, env, ctx) {
           tamanho_camiseta: r.tamanhos_camisa || null,
           valor_camiseta: totalCamisas,
           valor_doacao: totalDoacoes,
-          valor_total: esperado,
+          valor_total: residual,   // 0 se já quitou → template vira "confirmada sem pendência"
         });
       } else if (tipo === "PENDENTE") {
         tpl = pagamentoPendente({
