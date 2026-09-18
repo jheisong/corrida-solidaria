@@ -309,14 +309,15 @@ async function handleDoacaoAvulsa(request, env, inscricaoId, ctx) {
   ).bind(inscricaoId, Math.round(valor * 100) / 100).run();
 
   try {
-    const cob = await criarECadastrarCobranca(env, inscricaoId, { cpf: cpfDigitos, nome: insc.nome, modalidade: "doacao" }, Math.round(valor * 100) / 100, "DOACAO");
+    const cob = await regenerarCobrancaResidual(env, insc, cpfDigitos);
+    const valorCob = cob?.valor || 0;
     disparaConfirmacao(env, ctx, {
       inscricao_id: inscricaoId, nome: insc.nome, email: insc.email, cpf: insc.cpf,
       categoria: insc.modalidade, quer_camiseta: false,
-      doacao_valor: valor, valor_total: valor,
+      doacao_valor: valor, valor_total: valorCob,
       pix_copia_cola: cob?.pixCopiaECola,
     });
-    return json({ ok: true, id: inscricaoId, valor, pagamento: cob, mensagem: "Pague o Pix da doação." }, 201);
+    return json({ ok: true, id: inscricaoId, valor: valorCob, pagamento: cob, mensagem: "Pague o Pix da doação." }, 201);
   } catch (e) {
     console.error("Erro cobrança doação:", e);
     return json({ ok: false, mensagem: "Não conseguimos gerar o Pix agora." }, 502);
@@ -407,6 +408,52 @@ async function handleCancelarPendente(request, env, inscricaoId) {
   });
 }
 
+/**
+ * Invalida cobranças ATIVA (PATCH expiracao=1 no Sicredi + marca REMOVIDA
+ * no D1) e cria uma nova cobrança pelo residual atual da inscrição.
+ * Retorna a nova cobrança, ou null se não há residual.
+ * Chama pelo handleComprarCamisa/handleDoacaoAvulsa/handleRenovarPagamento.
+ */
+async function regenerarCobrancaResidual(env, insc, cpfDigitos, reaproveitar = false) {
+  const podeCobrar = env.SICREDI_MOCK === "1" || !!env.SICREDI;
+  if (!podeCobrar || !env.SICREDI_CHAVE_PIX) throw new Error("Pix indisponível.");
+
+  if (reaproveitar) {
+    const pendenteAtivo = await buscarPagamentoPendente(env, insc.id);
+    if (pendenteAtivo) return pendenteAtivo;
+  }
+
+  const { residual } = await calcularResidual(env, insc);
+  if (residual <= 0) return null;
+
+  const { results: antigas } = await env.DB.prepare(
+    "SELECT txid FROM pagamentos WHERE inscricao_id = ? AND status = 'ATIVA'"
+  ).bind(insc.id).all();
+  for (const a of antigas || []) {
+    try { await revisarCobrancaExpiracao(env, a.txid, 1); }
+    catch (e) { console.error("Regenerar: PATCH falhou p/ txid", a.txid, String(e.message || e)); }
+  }
+  if (antigas && antigas.length) {
+    await env.DB.prepare(
+      "UPDATE pagamentos SET status = 'REMOVIDA_PELO_USUARIO_RECEBEDOR' WHERE inscricao_id = ? AND status = 'ATIVA'"
+    ).bind(insc.id).run();
+  }
+
+  const [cam, don] = await Promise.all([
+    env.DB.prepare("SELECT COUNT(*) n FROM camisas WHERE inscricao_id = ? AND status = 'PENDENTE'").bind(insc.id).first(),
+    env.DB.prepare("SELECT COUNT(*) n FROM doacoes WHERE inscricao_id = ? AND status = 'PENDENTE'").bind(insc.id).first(),
+  ]);
+  const temCam = Number(cam?.n || 0) > 0;
+  const temDon = Number(don?.n || 0) > 0;
+  const tipo = temCam && temDon ? "MISTO" : temCam ? "CAMISA" : temDon ? "DOACAO" : "INSCRICAO";
+
+  return await criarECadastrarCobranca(
+    env, insc.id,
+    { cpf: cpfDigitos, nome: insc.nome, modalidade: "renovacao" },
+    residual, tipo
+  );
+}
+
 async function handleRenovarPagamento(request, env, inscricaoId) {
   let body;
   try { body = await request.json(); } catch {
@@ -416,46 +463,18 @@ async function handleRenovarPagamento(request, env, inscricaoId) {
   if (!cpfDigitos || !validaCpf(cpfDigitos)) return json({ ok: false, mensagem: "CPF inválido." }, 400);
 
   const insc = await env.DB.prepare(
-    "SELECT id, nome, cpf, quer_camiseta, doacao_valor FROM inscricoes WHERE id = ?"
+    "SELECT id, nome, cpf FROM inscricoes WHERE id = ?"
   ).bind(inscricaoId).first();
   if (!insc) return json({ ok: false, mensagem: "Inscrição não encontrada." }, 404);
   if (insc.cpf !== cpfDigitos) return json({ ok: false, mensagem: "CPF não confere com a inscrição." }, 403);
 
-  // Se ainda há cobrança ATIVA dentro do prazo (48h), reaproveita.
-  const pendenteAtivo = await buscarPagamentoPendente(env, insc.id);
-  if (pendenteAtivo) return json({ ok: true, id: insc.id, valor: pendenteAtivo.valor, pagamento: pendenteAtivo, mensagem: "Pagamento pendente reaproveitado." });
-
-  const { residual } = await calcularResidual(env, insc);
-  if (residual <= 0) return json({ ok: false, mensagem: "Não há valor pendente." }, 400);
-
-  const podeCobrar = env.SICREDI_MOCK === "1" || !!env.SICREDI;
-  if (!podeCobrar || !env.SICREDI_CHAVE_PIX) return json({ ok: false, mensagem: "Pix indisponível." }, 503);
-
-  // Invalida qualquer ATIVA antiga (fora do filtro 48h) — evita QR órfão vivo
-  // no Sicredi enquanto emitimos um novo. PATCH falho vira log, não bloqueia.
-  const { results: antigas } = await env.DB.prepare(
-    "SELECT txid FROM pagamentos WHERE inscricao_id = ? AND status = 'ATIVA'"
-  ).bind(insc.id).all();
-  for (const a of antigas || []) {
-    try { await revisarCobrancaExpiracao(env, a.txid, 1); }
-    catch (e) { console.error("Renovar: PATCH falhou p/ txid", a.txid, String(e.message || e)); }
-  }
-  if (antigas && antigas.length) {
-    await env.DB.prepare(
-      "UPDATE pagamentos SET status = 'REMOVIDA_PELO_USUARIO_RECEBEDOR' WHERE inscricao_id = ? AND status = 'ATIVA'"
-    ).bind(insc.id).run();
-  }
-
-  const tipo = insc.quer_camiseta && Number(insc.doacao_valor || 0) > 0 ? "MISTO"
-    : insc.quer_camiseta ? "CAMISA"
-    : Number(insc.doacao_valor || 0) > 0 ? "DOACAO"
-    : "INSCRICAO";
   try {
-    const cob = await criarECadastrarCobranca(env, insc.id, { cpf: cpfDigitos, nome: insc.nome, modalidade: "renovacao" }, residual, tipo);
-    return json({ ok: true, id: insc.id, valor: residual, pagamento: cob, mensagem: "Novo Pix gerado." }, 201);
+    const cob = await regenerarCobrancaResidual(env, insc, cpfDigitos, /*reaproveitar*/ true);
+    if (!cob) return json({ ok: false, mensagem: "Não há valor pendente." }, 400);
+    return json({ ok: true, id: insc.id, valor: cob.valor, pagamento: cob, mensagem: "Pix atualizado." }, 201);
   } catch (e) {
     console.error("Erro renovar cobrança:", e);
-    return json({ ok: false, mensagem: "Não conseguimos gerar o Pix." }, 502);
+    return json({ ok: false, mensagem: String(e?.message || e) }, 502);
   }
 }
 
@@ -526,14 +545,9 @@ async function handleComprarCamisa(request, env, inscricaoId, ctx) {
     "INSERT INTO camisas (inscricao_id, tamanho, valor, status) VALUES (?, ?, ?, 'PENDENTE')"
   ).bind(inscricaoId, tamanho, Number(env.CAMISA_VALOR || 40)).run();
 
-  const valor = Number(env.CAMISA_VALOR || "40");
-  const podeCobrar = env.SICREDI_MOCK === "1" || !!env.SICREDI;
-  if (valor <= 0 || !podeCobrar || !env.SICREDI_CHAVE_PIX) {
-    return json({ ok: true, id: inscricaoId, valor, mensagem: "Camiseta registrada." }, 201);
-  }
-
   try {
-    const cob = await criarECadastrarCobranca(env, inscricaoId, { cpf: cpfDigitos, nome: insc.nome, modalidade: "camisa" }, valor, "CAMISA");
+    const cob = await regenerarCobrancaResidual(env, insc, cpfDigitos);
+    const valor = cob?.valor || 0;
     disparaConfirmacao(env, ctx, {
       inscricao_id: inscricaoId, nome: insc.nome, email: insc.email, cpf: insc.cpf,
       categoria: insc.modalidade, quer_camiseta: true, tamanho_camiseta: tamanho,
@@ -543,7 +557,7 @@ async function handleComprarCamisa(request, env, inscricaoId, ctx) {
     return json({ ok: true, id: inscricaoId, valor, pagamento: cob, mensagem: "Pague o Pix da camiseta." }, 201);
   } catch (e) {
     console.error("Erro cobrança camisa:", e);
-    return json({ ok: true, id: inscricaoId, valor, mensagem: "Camiseta registrada. Pix indisponível agora." }, 201);
+    return json({ ok: true, id: inscricaoId, mensagem: "Camiseta registrada. Pix indisponível agora." }, 201);
   }
 }
 
