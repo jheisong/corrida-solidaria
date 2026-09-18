@@ -317,7 +317,8 @@ async function handleDoacaoAvulsa(request, env, inscricaoId, ctx) {
       doacao_valor: valor, valor_total: valorCob,
       pix_copia_cola: cob?.pixCopiaECola,
     });
-    return json({ ok: true, id: inscricaoId, valor: valorCob, pagamento: cob, mensagem: "Pague o Pix da doação." }, 201);
+    const pendencias = await resumoPendencias(env, inscricaoId);
+    return json({ ok: true, id: inscricaoId, valor: valorCob, pagamento: cob, pendencias, mensagem: "Pague o Pix da doação." }, 201);
   } catch (e) {
     console.error("Erro cobrança doação:", e);
     return json({ ok: false, mensagem: "Não conseguimos gerar o Pix agora." }, 502);
@@ -406,6 +407,24 @@ async function handleCancelarPendente(request, env, inscricaoId) {
     canceladas: res.meta?.changes ?? 0,
     mensagem: "Pedido cancelado.",
   });
+}
+
+async function resumoPendencias(env, inscricaoId) {
+  const [cams, dons] = await Promise.all([
+    env.DB.prepare("SELECT tamanho, valor FROM camisas WHERE inscricao_id = ? AND status = 'PENDENTE' ORDER BY criado_em").bind(inscricaoId).all(),
+    env.DB.prepare("SELECT valor FROM doacoes WHERE inscricao_id = ? AND status = 'PENDENTE' ORDER BY criado_em").bind(inscricaoId).all(),
+  ]);
+  const camisas = cams.results || [];
+  const doacoes = dons.results || [];
+  const total_camisas = camisas.reduce((s, c) => s + Number(c.valor || 0), 0);
+  const total_doacoes = doacoes.reduce((s, d) => s + Number(d.valor || 0), 0);
+  return {
+    camisas,
+    doacoes,
+    total_camisas: Math.round(total_camisas * 100) / 100,
+    total_doacoes: Math.round(total_doacoes * 100) / 100,
+    total: Math.round((total_camisas + total_doacoes) * 100) / 100,
+  };
 }
 
 /**
@@ -554,7 +573,8 @@ async function handleComprarCamisa(request, env, inscricaoId, ctx) {
       valor_total: valor,
       pix_copia_cola: cob?.pixCopiaECola,
     });
-    return json({ ok: true, id: inscricaoId, valor, pagamento: cob, mensagem: "Pague o Pix da camiseta." }, 201);
+    const pendencias = await resumoPendencias(env, inscricaoId);
+    return json({ ok: true, id: inscricaoId, valor, pagamento: cob, pendencias, mensagem: "Pague o Pix da camiseta." }, 201);
   } catch (e) {
     console.error("Erro cobrança camisa:", e);
     return json({ ok: true, id: inscricaoId, mensagem: "Camiseta registrada. Pix indisponível agora." }, 201);
