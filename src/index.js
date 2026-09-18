@@ -5,7 +5,7 @@
  */
 
 import { gerarTxid, criarCobranca, cadastrarWebhook, revisarCobrancaExpiracao } from "./sicredi.js";
-import { enviarEregistrar, confirmacaoInscricao, pagamentoConfirmado } from "./emails.js";
+import { enviarEregistrar, confirmacaoInscricao, pagamentoConfirmado, pagamentoPendente, ofertaCamisa, avisoGeral } from "./emails.js";
 
 const MODALIDADES = new Set(["corrida-5km", "caminhada-5km", "kids-250m"]);
 const TAMANHOS = new Set(["PP", "P", "M", "G", "GG", "XG", "INFANTIL"]);
@@ -729,6 +729,196 @@ async function handleListar(request, env) {
   return json({ ok: true, total: results.length, inscricoes: results });
 }
 
+// -------- painel: gestão de e-mails --------------------------------------
+
+const FILTROS_EMAIL = new Set([
+  "todos", "pendentes", "pendentes_sem_email", "pendentes_email_antigo_48h",
+  "sem_camisa", "sem_camisa_sem_oferta", "pagos_confirmados",
+]);
+const TIPOS_EMAIL_MANUAL = new Set(["PENDENTE", "OFERTA_CAMISA", "AVISO_GERAL"]);
+
+async function listarAtletasParaEmail(env, filtro) {
+  const { results } = await env.DB.prepare(`
+    SELECT
+      i.id, i.nome, i.email, i.cpf, i.modalidade,
+      i.quer_camiseta, i.tamanho_camiseta, i.doacao_valor, i.created_at,
+      COALESCE(pagos.total_pago, 0)                                        AS total_pago,
+      COALESCE(pagos.qtd_pagas, 0)                                         AS qtd_pagas,
+      (SELECT MAX(criado_em) FROM emails_enviados e
+        WHERE e.inscricao_id = i.id AND e.tipo = 'PENDENTE')               AS ultimo_pendente_em,
+      (SELECT MAX(criado_em) FROM emails_enviados e
+        WHERE e.inscricao_id = i.id AND e.tipo = 'OFERTA_CAMISA')          AS ultimo_oferta_em
+    FROM inscricoes i
+    LEFT JOIN (
+      SELECT
+        inscricao_id,
+        SUM(CASE WHEN status = 'CONCLUIDA' THEN valor ELSE 0 END) AS total_pago,
+        SUM(CASE WHEN status = 'CONCLUIDA' THEN 1 ELSE 0 END)     AS qtd_pagas
+      FROM pagamentos GROUP BY inscricao_id
+    ) pagos ON pagos.inscricao_id = i.id
+    WHERE i.email IS NOT NULL AND i.email <> ''
+      AND i.email_invalido = 0 AND i.email_complained = 0
+    ORDER BY i.created_at DESC
+  `).all();
+
+  const base = Number(env.SICREDI_VALOR_INSCRICAO || 0);
+  const camisaVal = Number(env.CAMISA_VALOR || 40);
+  const agora = Date.now();
+  const _48hAtras = agora - 48 * 60 * 60 * 1000;
+
+  const enriquecidos = (results || []).map((r) => {
+    const camisa = r.quer_camiseta ? camisaVal : 0;
+    const doacao = Number(r.doacao_valor || 0);
+    const esperado = Math.round((base + camisa + doacao) * 100) / 100;
+    const pago = Math.round(Number(r.total_pago || 0) * 100) / 100;
+    const residual = Math.max(0, Math.round((esperado - pago) * 100) / 100);
+    return {
+      id: r.id,
+      nome: r.nome,
+      email: r.email,
+      cpf: r.cpf,
+      modalidade: r.modalidade,
+      quer_camiseta: !!r.quer_camiseta,
+      tamanho_camiseta: r.tamanho_camiseta,
+      doacao_valor: doacao,
+      valor_esperado: esperado,
+      valor_pago: pago,
+      valor_residual: residual,
+      ultimo_pendente_em: r.ultimo_pendente_em,
+      ultimo_oferta_em: r.ultimo_oferta_em,
+      created_at: r.created_at,
+    };
+  });
+
+  return enriquecidos.filter((r) => {
+    switch (filtro) {
+      case "todos": return true;
+      case "pendentes": return r.valor_residual > 0;
+      case "pendentes_sem_email": return r.valor_residual > 0 && !r.ultimo_pendente_em;
+      case "pendentes_email_antigo_48h":
+        return r.valor_residual > 0 && r.ultimo_pendente_em &&
+          new Date(r.ultimo_pendente_em.replace(" ", "T") + "Z").getTime() < _48hAtras;
+      case "sem_camisa": return !r.quer_camiseta;
+      case "sem_camisa_sem_oferta": return !r.quer_camiseta && !r.ultimo_oferta_em;
+      case "pagos_confirmados":
+        return r.valor_esperado > 0 && r.valor_residual === 0;
+      default: return true;
+    }
+  });
+}
+
+async function cotaHoje(env) {
+  const limite = Number(env.EMAIL_LIMITE_DIARIO || 100);
+  const row = await env.DB.prepare(
+    "SELECT COUNT(*) n FROM emails_enviados WHERE status = 'ENVIADO' AND date(criado_em) = date('now')"
+  ).first();
+  const usado = Number(row?.n || 0);
+  return { limite, usado, restante: Math.max(0, limite - usado) };
+}
+
+async function handleListarEmails(request, env) {
+  if (!autorizado(request, env)) return json({ ok: false, mensagem: "Não autorizado." }, 401);
+  let body; try { body = await request.json(); } catch { body = {}; }
+  const filtro = String(body.filtro || "todos");
+  if (!FILTROS_EMAIL.has(filtro)) return json({ ok: false, mensagem: "Filtro inválido." }, 400);
+  const atletas = await listarAtletasParaEmail(env, filtro);
+  const cota = await cotaHoje(env);
+  return json({ ok: true, filtro, total: atletas.length, atletas, cota });
+}
+
+async function handleEnviarEmails(request, env, ctx) {
+  if (!autorizado(request, env)) return json({ ok: false, mensagem: "Não autorizado." }, 401);
+  let body; try { body = await request.json(); } catch { body = {}; }
+  const ids = Array.isArray(body.ids) ? body.ids.map(Number).filter(Number.isFinite) : [];
+  const tipo = String(body.tipo || "");
+  if (!ids.length) return json({ ok: false, mensagem: "Selecione ao menos um atleta." }, 400);
+  if (!TIPOS_EMAIL_MANUAL.has(tipo)) return json({ ok: false, mensagem: "Tipo inválido." }, 400);
+
+  const extraAssunto = String(body.extra?.assunto || "").slice(0, 200);
+  const extraCorpo = String(body.extra?.corpo_html || "").slice(0, 30000);
+  if (tipo === "AVISO_GERAL" && (!extraAssunto || !extraCorpo)) {
+    return json({ ok: false, mensagem: "AVISO_GERAL requer assunto e corpo_html." }, 400);
+  }
+
+  // Carrega os atletas selecionados (sem filtro adicional — o operador escolheu na UI).
+  const placeholders = ids.map(() => "?").join(",");
+  const { results } = await env.DB.prepare(`
+    SELECT i.id, i.nome, i.email, i.cpf, i.modalidade,
+           i.quer_camiseta, i.tamanho_camiseta, i.doacao_valor,
+           COALESCE(pagos.total_pago, 0) AS total_pago
+      FROM inscricoes i
+      LEFT JOIN (SELECT inscricao_id, SUM(CASE WHEN status='CONCLUIDA' THEN valor ELSE 0 END) AS total_pago FROM pagamentos GROUP BY inscricao_id) pagos ON pagos.inscricao_id = i.id
+     WHERE i.id IN (${placeholders})
+       AND i.email IS NOT NULL AND i.email <> ''
+       AND i.email_invalido = 0 AND i.email_complained = 0
+  `).bind(...ids).all();
+
+  const base = Number(env.SICREDI_VALOR_INSCRICAO || 0);
+  const camisaVal = Number(env.CAMISA_VALOR || 40);
+
+  const cota = await cotaHoje(env);
+  let restante = cota.restante;
+  const resumo = { total: results.length, enviados: 0, falhou: 0, ignorados_cota: 0, detalhes: [] };
+
+  for (const r of results) {
+    if (restante <= 0) {
+      resumo.ignorados_cota++;
+      resumo.detalhes.push({ id: r.id, status: "IGNORADO_COTA" });
+      continue;
+    }
+    const camisa = r.quer_camiseta ? camisaVal : 0;
+    const doacao = Number(r.doacao_valor || 0);
+    const esperado = Math.round((base + camisa + doacao) * 100) / 100;
+    const pago = Math.round(Number(r.total_pago || 0) * 100) / 100;
+    const residual = Math.max(0, Math.round((esperado - pago) * 100) / 100);
+
+    let tpl;
+    try {
+      if (tipo === "PENDENTE") {
+        tpl = pagamentoPendente({
+          nome: r.nome, cpf: r.cpf, numero_inscricao: r.id, categoria: r.modalidade,
+          valor_residual: residual,
+          quer_camiseta: !!r.quer_camiseta, tamanho_camiseta: r.tamanho_camiseta,
+          valor_camiseta: camisa, valor_doacao: doacao,
+        });
+      } else if (tipo === "OFERTA_CAMISA") {
+        tpl = ofertaCamisa({
+          nome: r.nome, cpf: r.cpf, numero_inscricao: r.id, categoria: r.modalidade,
+          valor_camiseta: camisaVal,
+        });
+      } else if (tipo === "AVISO_GERAL") {
+        tpl = avisoGeral({
+          nome: r.nome, categoria: r.modalidade,
+          assunto: extraAssunto, corpo_html: extraCorpo,
+        });
+      }
+    } catch (e) {
+      resumo.falhou++;
+      resumo.detalhes.push({ id: r.id, status: "TEMPLATE_ERRO", erro: String(e?.message || e) });
+      continue;
+    }
+
+    const res = await enviarEregistrar(env, {
+      inscricao_id: r.id,
+      tipo,
+      to: r.email,
+      subject: tpl.subject,
+      html: tpl.html,
+      text: tpl.text,
+    });
+    if (res.ok) {
+      resumo.enviados++;
+      restante--;
+      resumo.detalhes.push({ id: r.id, status: "ENVIADO" });
+    } else {
+      resumo.falhou++;
+      resumo.detalhes.push({ id: r.id, status: "FALHOU", motivo: res.motivo });
+    }
+  }
+
+  return json({ ok: true, tipo, ...resumo, cota_restante: restante });
+}
+
 async function handleDetalhe(request, env, id) {
   if (!autorizado(request, env)) return json({ ok: false, mensagem: "Não autorizado." }, 401);
   const insc = await env.DB.prepare("SELECT * FROM inscricoes WHERE id = ?").bind(id).first();
@@ -771,6 +961,12 @@ export default {
     }
     if (url.pathname === "/api/webhook/pix/cadastrar" && request.method === "POST") {
       return handleCadastrarWebhook(request, env);
+    }
+    if (url.pathname === "/api/painel/emails/listar" && request.method === "POST") {
+      return handleListarEmails(request, env);
+    }
+    if (url.pathname === "/api/painel/emails/enviar" && request.method === "POST") {
+      return handleEnviarEmails(request, env, ctx);
     }
     {
       const m = url.pathname.match(/^\/api\/pagamento\/([A-Za-z0-9]{26,35})$/);

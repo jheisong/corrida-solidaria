@@ -92,6 +92,24 @@
   .footer-info { padding: 16px; background: #F6F8FC; border-top: 1px solid #E3E9F4; font-size: 13px; color: #5B6A87; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
   .msg-erro { background: #FDECEC; color: #C22B2B; padding: 12px 16px; border-radius: 8px; margin: 12px 0; font-weight: 600; font-size: 14px; display: none; }
   .msg-erro.show { display: block; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 2px solid #E3E9F4; }
+  .tabs button { background: transparent; border: none; padding: 12px 18px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; font-size: 15px; cursor: pointer; color: #6B7A99; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+  .tabs button.on { color: #16357F; border-bottom-color: #F5A800; }
+  .tab-view { display: none; }
+  .tab-view.on { display: block; }
+  .pill { background: #E3E9F4; color: #16357F; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 700; margin-left: 6px; }
+  .msg-ok { background: #E7F6EC; color: #1E8A46; padding: 12px 16px; border-radius: 8px; margin: 12px 0; font-weight: 600; font-size: 14px; display: none; }
+  .msg-ok.show { display: block; }
+  .prev-tpl { background: #F6F8FC; border: 1px solid #E3E9F4; border-radius: 10px; padding: 12px; max-height: 320px; overflow: auto; font-size: 13px; }
+  .prev-tpl pre { white-space: pre-wrap; word-break: break-word; margin: 0; font-family: monospace; }
+  .row-check { width: 32px; text-align: center; }
+  .modal-back { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-back.show { display: flex; }
+  .modal-box { background: #fff; border-radius: 14px; max-width: 720px; width: 100%; max-height: 90vh; overflow: auto; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+  .modal-box h3 { font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; color: #16357F; font-size: 20px; margin: 0 0 12px; }
+  .modal-box .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+  .modal-box button { background: #F5A800; color: #16357F; border: none; padding: 10px 18px; font-weight: 700; border-radius: 8px; cursor: pointer; font-size: 14px; }
+  .modal-box button.sec { background: #E3E9F4; color: #16357F; }
   @media (max-width: 600px) {
     .wrap { padding: 12px; }
     .card .val { font-size: 26px; }
@@ -126,6 +144,13 @@
 
   <div class="wrap">
     <div id="msg-erro" class="msg-erro"></div>
+
+    <div class="tabs">
+      <button data-tab="inscricoes" class="on" onclick="trocarTab('inscricoes')">Inscrições</button>
+      <button data-tab="emails" onclick="trocarTab('emails')">E-mails</button>
+    </div>
+
+    <div id="tab-inscricoes" class="tab-view on">
 
     <div class="cards" id="cards"></div>
 
@@ -187,6 +212,84 @@
         <span id="info-linhas">0 inscrições</span>
         <span id="info-att">—</span>
       </div>
+    </div>
+
+    </div><!-- /#tab-inscricoes -->
+
+    <div id="tab-emails" class="tab-view">
+      <div class="tools">
+        <select id="em-filtro">
+          <option value="pendentes_sem_email">Pendentes sem e-mail enviado</option>
+          <option value="pendentes_email_antigo_48h">Pendentes com e-mail há mais de 48h</option>
+          <option value="pendentes">Todos com pagamento pendente</option>
+          <option value="sem_camisa_sem_oferta">Sem camisa · sem oferta enviada</option>
+          <option value="sem_camisa">Todos sem camisa</option>
+          <option value="pagos_confirmados">Pagos confirmados</option>
+          <option value="todos">Todos os inscritos</option>
+        </select>
+        <button id="em-listar">Listar</button>
+        <div class="grow"></div>
+        <span id="em-cota" style="font-size:13px;color:#5B6A87;"></span>
+      </div>
+
+      <div id="em-msg-erro" class="msg-erro"></div>
+      <div id="em-msg-ok" class="msg-ok"></div>
+
+      <div class="tabela-box">
+        <div class="tabela-scroll" style="max-height:60vh;">
+          <table id="em-tabela">
+            <thead>
+              <tr>
+                <th class="row-check"><input type="checkbox" id="em-check-all"></th>
+                <th>#</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Modalidade</th>
+                <th>Camisa</th>
+                <th>Doação</th>
+                <th>Pendente</th>
+                <th>Último PENDENTE</th>
+                <th>Última OFERTA</th>
+              </tr>
+            </thead>
+            <tbody id="em-tbody"></tbody>
+          </table>
+        </div>
+        <div class="footer-info">
+          <span id="em-info">Selecione um filtro e clique em <strong>Listar</strong>.</span>
+        </div>
+      </div>
+
+      <div class="tools" style="margin-top:16px;">
+        <select id="em-tipo">
+          <option value="PENDENTE">PENDENTE — cobrar valor em aberto</option>
+          <option value="OFERTA_CAMISA">OFERTA_CAMISA — convite pra camisa</option>
+          <option value="AVISO_GERAL">AVISO_GERAL — corpo livre</option>
+        </select>
+        <span id="em-sel-contagem" style="font-size:13px;color:#5B6A87;">0 selecionados</span>
+        <div class="grow"></div>
+        <button class="sec" id="em-preview">Preview</button>
+        <button id="em-enviar">Enviar para selecionados</button>
+      </div>
+
+      <div id="em-aviso-geral" style="display:none;background:#fff;border-radius:12px;padding:16px;margin-top:12px;">
+        <h3 style="font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;color:#16357F;margin:0 0 10px;">Aviso geral</h3>
+        <label style="display:block;font-size:13px;color:#5B6A87;font-weight:600;margin-bottom:6px;">Assunto</label>
+        <input id="em-assunto" placeholder="Ex.: Última semana — retire sua camisa" style="width:100%;padding:10px 12px;border:1.5px solid #D6DFEF;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:12px;">
+        <label style="display:block;font-size:13px;color:#5B6A87;font-weight:600;margin-bottom:6px;">Corpo (HTML permitido)</label>
+        <textarea id="em-corpo" rows="8" placeholder="<p>Olá!</p><p>Mensagem…</p>" style="width:100%;padding:10px 12px;border:1.5px solid #D6DFEF;border-radius:8px;font-size:14px;font-family:monospace;"></textarea>
+      </div>
+    </div><!-- /#tab-emails -->
+
+  </div>
+</div>
+
+<div id="em-modal" class="modal-back" onclick="if(event.target===this)fecharPreview()">
+  <div class="modal-box">
+    <h3>Preview do e-mail</h3>
+    <div id="em-modal-body" class="prev-tpl"></div>
+    <div class="actions">
+      <button class="sec" onclick="fecharPreview()">Fechar</button>
     </div>
   </div>
 </div>
@@ -578,6 +681,163 @@ el("btn-csv").addEventListener("click", () => {
 });
 
 carregar();
+
+// ========================================================================
+// Aba E-mails
+// ========================================================================
+function trocarTab(nome) {
+  document.querySelectorAll(".tabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === nome));
+  document.querySelectorAll(".tab-view").forEach((v) => v.classList.toggle("on", v.id === `tab-${nome}`));
+}
+
+let emAtletas = [];
+const emSel = new Set();
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+function fmtBRL(v) { return "R$ " + Number(v || 0).toFixed(2).replace(".", ","); }
+function fmtDT(s) { return s ? String(s).replace("T", " ").replace("Z", "") : "—"; }
+function modLabel(m) { return ({"corrida-5km":"Corrida 5 km","caminhada-5km":"Caminhada 5 km","kids-250m":"Kids 250 m"})[m] || m; }
+
+document.getElementById("em-listar").addEventListener("click", listarEmails);
+document.getElementById("em-check-all").addEventListener("change", (e) => {
+  const on = e.target.checked;
+  emSel.clear();
+  if (on) emAtletas.forEach((a) => emSel.add(a.id));
+  document.querySelectorAll("#em-tbody input[type=checkbox]").forEach((c) => { c.checked = on; });
+  atualizaContagemSel();
+});
+document.getElementById("em-tipo").addEventListener("change", (e) => {
+  document.getElementById("em-aviso-geral").style.display = e.target.value === "AVISO_GERAL" ? "block" : "none";
+});
+document.getElementById("em-preview").addEventListener("click", abrirPreview);
+document.getElementById("em-enviar").addEventListener("click", enviarSelecionados);
+
+async function listarEmails() {
+  const filtro = document.getElementById("em-filtro").value;
+  const btn = document.getElementById("em-listar");
+  btn.disabled = true; btn.textContent = "Listando…";
+  emErr("");
+  emOk("");
+  try {
+    const r = await fetch("/api/painel/emails/listar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem(KEY) },
+      body: JSON.stringify({ filtro }),
+    });
+    if (r.status === 401) { localStorage.removeItem(KEY); return mostrarLogin(); }
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.mensagem || "erro");
+    emAtletas = d.atletas || [];
+    emSel.clear();
+    document.getElementById("em-check-all").checked = false;
+    renderEmailTable();
+    document.getElementById("em-cota").textContent = `Cota diária: ${d.cota.usado}/${d.cota.limite} · ${d.cota.restante} restantes`;
+    document.getElementById("em-info").textContent = `${d.total} atleta(s) encontrado(s).`;
+    atualizaContagemSel();
+  } catch (e) {
+    emErr(String(e.message || e));
+  } finally {
+    btn.disabled = false; btn.textContent = "Listar";
+  }
+}
+
+function renderEmailTable() {
+  const tbody = document.getElementById("em-tbody");
+  if (!emAtletas.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="vazio">Nenhum atleta encontrado com esse filtro.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = emAtletas.map((a) => `
+    <tr>
+      <td class="row-check"><input type="checkbox" data-id="${a.id}" ${emSel.has(a.id) ? "checked" : ""}></td>
+      <td>#${a.id}</td>
+      <td>${escapeHtml(a.nome)}</td>
+      <td>${escapeHtml(a.email)}</td>
+      <td>${modLabel(a.modalidade)}</td>
+      <td>${a.quer_camiseta ? "Sim · " + (a.tamanho_camiseta || "") : "—"}</td>
+      <td>${Number(a.doacao_valor) > 0 ? fmtBRL(a.doacao_valor) : "—"}</td>
+      <td>${a.valor_residual > 0 ? "<strong style='color:#B8860B;'>" + fmtBRL(a.valor_residual) + "</strong>" : "—"}</td>
+      <td>${fmtDT(a.ultimo_pendente_em)}</td>
+      <td>${fmtDT(a.ultimo_oferta_em)}</td>
+    </tr>`).join("");
+  tbody.querySelectorAll("input[type=checkbox]").forEach((c) => {
+    c.addEventListener("change", (e) => {
+      const id = Number(e.target.dataset.id);
+      if (e.target.checked) emSel.add(id); else emSel.delete(id);
+      atualizaContagemSel();
+    });
+  });
+}
+
+function atualizaContagemSel() {
+  document.getElementById("em-sel-contagem").textContent = `${emSel.size} selecionado(s)`;
+}
+
+function abrirPreview() {
+  if (!emAtletas.length) { emErr("Liste os atletas primeiro."); return; }
+  const alvo = emAtletas.find((a) => emSel.has(a.id)) || emAtletas[0];
+  const tipo = document.getElementById("em-tipo").value;
+  const body = document.getElementById("em-modal-body");
+  const linhas = [
+    `<strong>Destinatário exemplo:</strong> ${escapeHtml(alvo.nome)} &lt;${escapeHtml(alvo.email)}&gt;`,
+    `<strong>Modalidade:</strong> ${modLabel(alvo.modalidade)}`,
+    `<strong>Valor pendente:</strong> ${alvo.valor_residual > 0 ? fmtBRL(alvo.valor_residual) : "—"}`,
+    `<strong>Camisa:</strong> ${alvo.quer_camiseta ? "Sim · " + (alvo.tamanho_camiseta || "?") : "Não"}`,
+    ``,
+    `<strong>Template:</strong> ${tipo}`,
+  ];
+  if (tipo === "AVISO_GERAL") {
+    linhas.push(`<strong>Assunto:</strong> ${escapeHtml(document.getElementById("em-assunto").value)}`);
+    linhas.push(`<strong>Corpo (HTML):</strong>`);
+    linhas.push(`<pre>${escapeHtml(document.getElementById("em-corpo").value)}</pre>`);
+  } else {
+    linhas.push(`(o corpo do template é gerado automaticamente com os dados do atleta selecionado no envio)`);
+  }
+  body.innerHTML = linhas.join("<br>");
+  document.getElementById("em-modal").classList.add("show");
+}
+function fecharPreview() {
+  document.getElementById("em-modal").classList.remove("show");
+}
+
+async function enviarSelecionados() {
+  const ids = [...emSel];
+  if (!ids.length) { emErr("Selecione pelo menos um atleta."); return; }
+  const tipo = document.getElementById("em-tipo").value;
+  const extra = {};
+  if (tipo === "AVISO_GERAL") {
+    extra.assunto = document.getElementById("em-assunto").value.trim();
+    extra.corpo_html = document.getElementById("em-corpo").value.trim();
+    if (!extra.assunto || !extra.corpo_html) { emErr("Preencha assunto e corpo do aviso."); return; }
+  }
+  if (!confirm(`Enviar ${ids.length} e-mail(s) do tipo ${tipo}?`)) return;
+  const btn = document.getElementById("em-enviar");
+  btn.disabled = true; btn.textContent = "Enviando…";
+  emErr(""); emOk("");
+  try {
+    const r = await fetch("/api/painel/emails/enviar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem(KEY) },
+      body: JSON.stringify({ ids, tipo, extra }),
+    });
+    if (r.status === 401) { localStorage.removeItem(KEY); return mostrarLogin(); }
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.mensagem || "erro");
+    emOk(`Enviados: ${d.enviados} · Falharam: ${d.falhou} · Ignorados por cota: ${d.ignorados_cota || 0} · Cota restante hoje: ${d.cota_restante}`);
+    await listarEmails();
+  } catch (e) {
+    emErr(String(e.message || e));
+  } finally {
+    btn.disabled = false; btn.textContent = "Enviar para selecionados";
+  }
+}
+
+function emErr(m) { const el = document.getElementById("em-msg-erro"); el.textContent = m; el.classList.toggle("show", !!m); }
+function emOk(m) { const el = document.getElementById("em-msg-ok"); el.textContent = m; el.classList.toggle("show", !!m); }
+
 </script>
 </body>
 </html>

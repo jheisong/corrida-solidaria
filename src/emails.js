@@ -324,6 +324,162 @@ export async function confirmacaoInscricao(dados) {
   };
 }
 
+// -------- template: PENDENTE -------------------------------------------
+
+/**
+ * Lembrete de pagamento para atletas com valor residual em aberto.
+ * dados: { nome, cpf, numero_inscricao, categoria, valor_residual,
+ *          quer_camiseta, tamanho_camiseta, valor_camiseta,
+ *          valor_doacao }
+ */
+export function pagamentoPendente(dados) {
+  const nome = primeiroNome(dados.nome);
+  const modalidade = labelModalidade(dados.categoria);
+  const linkRetomar = deepLinkRetomar(dados.cpf);
+  const itens = [];
+  if (dados.quer_camiseta) itens.push(`camisa ${dados.tamanho_camiseta || ""}`.trim());
+  if (Number(dados.valor_doacao || 0) > 0) itens.push(`doação ${brl(dados.valor_doacao)}`);
+  const descItens = itens.length ? itens.join(" + ") : "camisa/doação";
+
+  const tabela = tabelaKV([
+    ["Nº de inscrição", `#${esc(dados.numero_inscricao)}`],
+    ["Modalidade", esc(modalidade)],
+    ["Pedido em aberto", esc(descItens)],
+    ["Valor pendente", brl(dados.valor_residual), { corValor: COR_AMBAR_FG }],
+  ]);
+
+  const blocos = [
+    `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Oi, <strong style="color:${COR_PRIMARIA};">${esc(nome)}</strong>! Vimos que ainda tem <strong>${brl(dados.valor_residual)}</strong> em aberto do seu pedido no <strong>${esc(EVENTO)}</strong>. 💛</p>`,
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Sua inscrição está garantida — mas pra confirmar sua camisa/doação, é só pagar o Pix. Clique no botão abaixo e finalizamos rapidinho.</p>`,
+    tabela,
+    `<p style="margin:16px 0 0;font-size:13px;color:${COR_SUAVE};line-height:1.55;">O botão abre o site já com seu CPF preenchido e o Pix pronto — se o código anterior expirou, geramos um novo automaticamente.</p>`,
+    blocoAlimento,
+  ];
+
+  return {
+    subject: `Lembrete: ${brl(dados.valor_residual)} em aberto do seu pedido 💛`,
+    html: layout({
+      titulo: `Ainda dá tempo, ${esc(nome)}! 🧡`,
+      preheader: `${brl(dados.valor_residual)} pendente da sua camisa/doação — pague em segundos pelo Pix.`,
+      blocos,
+      ctaTexto: "Pagar Pix agora",
+      ctaHref: linkRetomar,
+    }),
+    text: [
+      `Oi, ${nome}!`,
+      ``,
+      `Ainda tem ${brl(dados.valor_residual)} em aberto do seu pedido no ${EVENTO}.`,
+      `Nº de inscrição: #${dados.numero_inscricao}`,
+      `Modalidade: ${modalidade}`,
+      `Pedido em aberto: ${descItens}`,
+      ``,
+      `Sua inscrição está garantida — clique no link pra pagar o Pix (se o código anterior expirou, geramos um novo automaticamente):`,
+      linkRetomar,
+      ``,
+      LEMBRETE_ALIMENTO,
+      ``,
+      `Dúvidas? ${EMAIL_CONTATO}`,
+      `— ${ORGANIZADOR}`,
+    ].join("\n"),
+  };
+}
+
+// -------- template: OFERTA_CAMISA --------------------------------------
+
+/**
+ * Convite para adquirir a camisa oficial (atletas sem camisa).
+ * dados: { nome, cpf, numero_inscricao, categoria, valor_camiseta }
+ */
+export function ofertaCamisa(dados) {
+  const nome = primeiroNome(dados.nome);
+  const modalidade = labelModalidade(dados.categoria);
+  const linkRetomar = deepLinkRetomar(dados.cpf);
+  const valor = Number(dados.valor_camiseta || 40);
+
+  const blocos = [
+    `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Oi, <strong style="color:${COR_PRIMARIA};">${esc(nome)}</strong>! Que tal levar a <strong>camisa oficial</strong> do <strong>${esc(EVENTO)}</strong> pra casa? 💙</p>`,
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Além de ficar lindo(a) na largada, cada camisa ajuda a levar prevenção ao diabetes para mais pessoas.</p>`,
+    tabelaKV([
+      ["Nº de inscrição", `#${esc(dados.numero_inscricao)}`],
+      ["Modalidade", esc(modalidade)],
+      ["Camisa oficial", brl(valor), { corValor: COR_DESTAQUE }],
+    ]),
+    `<p style="margin:16px 0 0;font-size:14px;color:${COR_TEXTO};line-height:1.55;">Escolha o tamanho e pague direto pelo site — o botão abaixo abre com seu CPF preenchido, é rápido.</p>`,
+    blocoAlimento,
+  ];
+
+  return {
+    subject: `A camisa oficial ainda espera por você 💙`,
+    html: layout({
+      titulo: `Sua camisa oficial, ${esc(nome)} 💙`,
+      preheader: `Adquira a camisa oficial do Treino Solidário por ${brl(valor)}.`,
+      blocos,
+      ctaTexto: "Quero a camisa",
+      ctaHref: linkRetomar,
+    }),
+    text: [
+      `Oi, ${nome}!`,
+      ``,
+      `Que tal levar a camisa oficial do ${EVENTO} pra casa?`,
+      `Valor: ${brl(valor)}. Cada camisa ajuda a levar prevenção ao diabetes para mais pessoas.`,
+      ``,
+      `Nº de inscrição: #${dados.numero_inscricao}`,
+      `Modalidade: ${modalidade}`,
+      ``,
+      `Escolha o tamanho e pague pelo site (CPF já vai preenchido):`,
+      linkRetomar,
+      ``,
+      LEMBRETE_ALIMENTO,
+      ``,
+      `Dúvidas? ${EMAIL_CONTATO}`,
+      `— ${ORGANIZADOR}`,
+    ].join("\n"),
+  };
+}
+
+// -------- template: AVISO_GERAL ----------------------------------------
+
+/**
+ * Corpo livre editado pelo operador no painel.
+ * dados: { nome, categoria, assunto, corpo_html }
+ * corpo_html: HTML confiável — quem escreve é o operador autenticado.
+ */
+export function avisoGeral(dados) {
+  const nome = primeiroNome(dados.nome);
+  const modalidade = labelModalidade(dados.categoria);
+  const corpo = String(dados.corpo_html || "").trim() ||
+    "<p>Uma mensagem importante do Lions Clube Bento Gonçalves — Cidade do Vinho.</p>";
+  const assunto = String(dados.assunto || "").trim() || "Aviso — Treino Solidário";
+
+  const blocos = [
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Olá, <strong style="color:${COR_PRIMARIA};">${esc(nome)}</strong> — atleta da <strong>${esc(modalidade)}</strong>.</p>`,
+    `<div style="font-size:15px;line-height:1.6;color:${COR_TEXTO};">${corpo}</div>`,
+    blocoAlimento,
+  ];
+
+  return {
+    subject: assunto,
+    html: layout({
+      titulo: assunto,
+      preheader: assunto,
+      blocos,
+      ctaTexto: "Abrir o site",
+      ctaHref: LINK_SITE,
+    }),
+    text: [
+      `Olá, ${nome}!`,
+      ``,
+      String(dados.corpo_html || "").replace(/<[^>]+>/g, "").trim() || "Uma mensagem importante do Lions Clube Bento Gonçalves — Cidade do Vinho.",
+      ``,
+      LEMBRETE_ALIMENTO,
+      ``,
+      `Site: ${LINK_SITE}`,
+      `Dúvidas? ${EMAIL_CONTATO}`,
+      `— ${ORGANIZADOR}`,
+    ].join("\n"),
+  };
+}
+
 // -------- template: CONFIRMADO ------------------------------------------
 
 /**
