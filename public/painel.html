@@ -592,14 +592,21 @@ async function abrirDetalhe(id) {
     if (!r.ok) throw new Error("HTTP " + r.status);
     const j = await r.json();
     if (!j.ok) throw new Error(j.mensagem || "Erro");
-    renderDrawer(j.inscricao, j.pagamentos || []);
+    renderDrawer(j.inscricao, j.pagamentos || [], j.camisas || [], j.doacoes || [], j.resumo || {});
   } catch (e) {
     el("drawer-body").textContent = "Falha ao carregar: " + e.message;
   }
 }
 
-function renderDrawer(i, pags) {
+function renderDrawer(i, pags, camisas, doacoes, resumo) {
+  camisas = camisas || [];
+  doacoes = doacoes || [];
+  resumo = resumo || {};
   const kv = (rows) => `<dl class="kv">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v === "" || v === null || v === undefined ? "—" : esc(v)}</dd>`).join("")}</dl>`;
+  const statusPag = resumo.esperado === 0
+    ? "Gratuita"
+    : resumo.pago >= resumo.esperado ? "Pago"
+    : resumo.pago > 0 ? "Parcial" : "Pendente";
   const dados = kv([
     ["Nome", i.nome],
     ["E-mail", i.email],
@@ -610,12 +617,52 @@ function renderDrawer(i, pags) {
     ["Cidade", i.cidade],
     ["Modalidade", i.modalidade],
     ["Equipe", i.equipe],
-    ["Camiseta", i.quer_camiseta ? "Sim (" + (i.tamanho_camiseta || "?") + ")" : "Não"],
     ["Contato emergência", i.contato_emergencia],
-    ["Doação (informada)", fmtBRL(i.doacao_valor)],
+    ["Total devido", fmtBRL(resumo.esperado || 0)],
+    ["Total pago", fmtBRL(resumo.pago || 0)],
+    ["Residual", fmtBRL(resumo.residual || 0)],
+    ["Status pagamento", statusPag],
     ["Observações", i.observacoes],
     ["Inscrito em", fmtData(i.created_at)],
   ]);
+
+  const camisasHtml = camisas.length
+    ? camisas.map(c => {
+        const cancelado = c.status === "CANCELADO";
+        return `<div class="cob-card ${cancelado ? "" : "pago"}" style="border-left-color:${cancelado ? "#C22B2B" : "#16357F"};">
+          <div class="top">
+            <div>
+              <span class="badge ${cancelado ? "b-nao" : "b-sim"}">${esc(c.status)}</span>
+              <strong style="margin-left:8px;">Camisa · Tamanho ${esc(c.tamanho || "?")}</strong>
+            </div>
+            <div class="valor-linha">${fmtBRL(c.valor)}</div>
+          </div>
+          <div class="meta">
+            <span>Criado: <strong>${esc(fmtData(c.criado_em))}</strong></span>
+            ${c.cancelado_em ? `<span>Cancelado: <strong>${esc(fmtData(c.cancelado_em))}</strong></span>` : ""}
+          </div>
+        </div>`;
+      }).join("")
+    : '<p style="color:#5B6A87;">Nenhuma camisa pedida.</p>';
+
+  const doacoesHtml = doacoes.length
+    ? doacoes.map(d => {
+        const cancelado = d.status === "CANCELADO";
+        return `<div class="cob-card ${cancelado ? "" : "pago"}" style="border-left-color:${cancelado ? "#C22B2B" : "#1E8A46"};">
+          <div class="top">
+            <div>
+              <span class="badge ${cancelado ? "b-nao" : "b-sim"}">${esc(d.status)}</span>
+              <strong style="margin-left:8px;">Doação solidária</strong>
+            </div>
+            <div class="valor-linha">${fmtBRL(d.valor)}</div>
+          </div>
+          <div class="meta">
+            <span>Criado: <strong>${esc(fmtData(d.criado_em))}</strong></span>
+            ${d.cancelado_em ? `<span>Cancelado: <strong>${esc(fmtData(d.cancelado_em))}</strong></span>` : ""}
+          </div>
+        </div>`;
+      }).join("")
+    : '<p style="color:#5B6A87;">Nenhuma doação.</p>';
 
   const cobs = pags.length ? pags.map(p => {
     const pago = p.status === "CONCLUIDA";
@@ -644,6 +691,10 @@ function renderDrawer(i, pags) {
   el("drawer-body").innerHTML = `
     <h3>Dados da inscrição</h3>
     ${dados}
+    <h3>Camisas (${camisas.length})</h3>
+    ${camisasHtml}
+    <h3>Doações (${doacoes.length})</h3>
+    ${doacoesHtml}
     <h3>Cobranças Pix (${pags.length})</h3>
     ${cobs}
   `;

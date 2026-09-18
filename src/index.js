@@ -214,6 +214,19 @@ async function handleInscricao(request, env, ctx) {
     return json({ ok: false, mensagem: "Não foi possível registrar sua inscrição. Tente novamente em instantes." }, 500);
   }
 
+  // Materializa camisa/doação nas tabelas próprias (N:1). Fica ATIVO
+  // independente do pagamento — o total pago é agregado depois.
+  if (dados.quer_camiseta && dados.tamanho_camiseta) {
+    await env.DB.prepare(
+      "INSERT INTO camisas (inscricao_id, tamanho, valor, status) VALUES (?, ?, ?, 'ATIVO')"
+    ).bind(id, dados.tamanho_camiseta, Number(env.CAMISA_VALOR || 40)).run();
+  }
+  if (Number(dados.doacao_valor || 0) > 0) {
+    await env.DB.prepare(
+      "INSERT INTO doacoes (inscricao_id, valor, status) VALUES (?, ?, 'ATIVO')"
+    ).bind(id, Number(dados.doacao_valor)).run();
+  }
+
   const valor = calcularValor(env, dados);
   const podeCobrar = env.SICREDI_MOCK === "1" || !!env.SICREDI;
   if (valor <= 0 || !podeCobrar || !env.SICREDI_CHAVE_PIX) {
@@ -293,6 +306,10 @@ async function handleDoacaoAvulsa(request, env, inscricaoId, ctx) {
     return json({ ok: false, mensagem: "Pix indisponível no momento." }, 503);
   }
 
+  await env.DB.prepare(
+    "INSERT INTO doacoes (inscricao_id, valor, status) VALUES (?, ?, 'ATIVO')"
+  ).bind(inscricaoId, Math.round(valor * 100) / 100).run();
+
   try {
     const cob = await criarECadastrarCobranca(env, inscricaoId, { cpf: cpfDigitos, nome: insc.nome, modalidade: "doacao" }, Math.round(valor * 100) / 100, "DOACAO");
     disparaConfirmacao(env, ctx, {
@@ -329,15 +346,17 @@ async function buscarPagamentoPendente(env, inscricaoId) {
 }
 
 async function calcularResidual(env, insc) {
-  // Valor que a inscrição deveria ter cobrado (base + camisa + doação).
+  // Novo modelo: total devido = SUM(camisas ATIVO) + SUM(doacoes ATIVO).
+  // Total pago = SUM(pagamentos CONCLUIDA). Base fica só como fallback
+  // (env.SICREDI_VALOR_INSCRICAO) — normalmente 0.
   const base = Number(env.SICREDI_VALOR_INSCRICAO || 0);
-  const camisa = insc.quer_camiseta ? Number(env.CAMISA_VALOR || 40) : 0;
-  const doacao = Number(insc.doacao_valor || 0);
-  const esperado = Math.round((base + camisa + doacao) * 100) / 100;
-  const row = await env.DB.prepare(
-    "SELECT COALESCE(SUM(valor), 0) AS total FROM pagamentos WHERE inscricao_id = ? AND status = 'CONCLUIDA'"
-  ).bind(insc.id).first();
-  const pago = Math.round(Number(row?.total || 0) * 100) / 100;
+  const [camisas, doacoes, pagos] = await Promise.all([
+    env.DB.prepare("SELECT COALESCE(SUM(valor),0) AS v FROM camisas WHERE inscricao_id = ? AND status = 'ATIVO'").bind(insc.id).first(),
+    env.DB.prepare("SELECT COALESCE(SUM(valor),0) AS v FROM doacoes WHERE inscricao_id = ? AND status = 'ATIVO'").bind(insc.id).first(),
+    env.DB.prepare("SELECT COALESCE(SUM(valor),0) AS v FROM pagamentos WHERE inscricao_id = ? AND status = 'CONCLUIDA'").bind(insc.id).first(),
+  ]);
+  const esperado = Math.round((base + Number(camisas?.v || 0) + Number(doacoes?.v || 0)) * 100) / 100;
+  const pago = Math.round(Number(pagos?.v || 0) * 100) / 100;
   const residual = Math.max(0, Math.round((esperado - pago) * 100) / 100);
   return { esperado, pago, residual };
 }
@@ -369,6 +388,14 @@ async function handleCancelarPendente(request, env, inscricaoId) {
   const res = await env.DB.prepare(
     "UPDATE pagamentos SET status = 'REMOVIDA_PELO_USUARIO_RECEBEDOR' WHERE inscricao_id = ? AND status = 'ATIVA'"
   ).bind(inscricaoId).run();
+  // Cancela todos os itens ativos (camisas e doações) da inscrição.
+  await env.DB.prepare(
+    "UPDATE camisas SET status = 'CANCELADO', cancelado_em = datetime('now') WHERE inscricao_id = ? AND status = 'ATIVO'"
+  ).bind(inscricaoId).run();
+  await env.DB.prepare(
+    "UPDATE doacoes SET status = 'CANCELADO', cancelado_em = datetime('now') WHERE inscricao_id = ? AND status = 'ATIVO'"
+  ).bind(inscricaoId).run();
+  // Retrocompat: também zera flags antigas na inscrição.
   await env.DB.prepare(
     "UPDATE inscricoes SET quer_camiseta = 0, tamanho_camiseta = NULL, doacao_valor = NULL WHERE id = ?"
   ).bind(inscricaoId).run();
@@ -489,13 +516,17 @@ async function handleComprarCamisa(request, env, inscricaoId, ctx) {
   if (!insc) return json({ ok: false, mensagem: "Inscrição não encontrada." }, 404);
   if (insc.cpf !== cpfDigitos) return json({ ok: false, mensagem: "CPF não confere com a inscrição." }, 403);
 
-  // Primeira camisa: grava tamanho. Compras adicionais: mantém tamanho original
-  // na inscrição (o pedido extra fica só na tabela pagamentos via txid).
+  // Cada compra vira uma linha própria em camisas (N:1 com inscricao).
+  // Continua atualizando inscricoes.quer_camiseta/tamanho apenas na primeira
+  // por retrocompat (filtros antigos ainda dependem).
   if (!insc.quer_camiseta) {
     await env.DB.prepare(
       "UPDATE inscricoes SET quer_camiseta = 1, tamanho_camiseta = ? WHERE id = ?"
     ).bind(tamanho, inscricaoId).run();
   }
+  await env.DB.prepare(
+    "INSERT INTO camisas (inscricao_id, tamanho, valor, status) VALUES (?, ?, ?, 'ATIVO')"
+  ).bind(inscricaoId, tamanho, Number(env.CAMISA_VALOR || 40)).run();
 
   const valor = Number(env.CAMISA_VALOR || "40");
   const podeCobrar = env.SICREDI_MOCK === "1" || !!env.SICREDI;
@@ -923,10 +954,26 @@ async function handleDetalhe(request, env, id) {
   if (!autorizado(request, env)) return json({ ok: false, mensagem: "Não autorizado." }, 401);
   const insc = await env.DB.prepare("SELECT * FROM inscricoes WHERE id = ?").bind(id).first();
   if (!insc) return json({ ok: false, mensagem: "Inscrição não encontrada." }, 404);
-  const { results: pagamentos } = await env.DB.prepare(
-    "SELECT txid, valor, status, tipo, chave_pix, pix_copia_cola, location_id, e2eid, pagador_nome, pagador_cpf, criado_em, pago_em FROM pagamentos WHERE inscricao_id = ? ORDER BY criado_em DESC"
-  ).bind(id).all();
-  return json({ ok: true, inscricao: insc, pagamentos });
+  const [pagamentos, camisas, doacoes, resumo] = await Promise.all([
+    env.DB.prepare(
+      "SELECT txid, valor, status, tipo, chave_pix, pix_copia_cola, location_id, e2eid, pagador_nome, pagador_cpf, criado_em, pago_em FROM pagamentos WHERE inscricao_id = ? ORDER BY criado_em DESC"
+    ).bind(id).all(),
+    env.DB.prepare(
+      "SELECT id, tamanho, valor, status, criado_em, cancelado_em FROM camisas WHERE inscricao_id = ? ORDER BY criado_em"
+    ).bind(id).all(),
+    env.DB.prepare(
+      "SELECT id, valor, status, criado_em, cancelado_em FROM doacoes WHERE inscricao_id = ? ORDER BY criado_em"
+    ).bind(id).all(),
+    calcularResidual(env, insc),
+  ]);
+  return json({
+    ok: true,
+    inscricao: insc,
+    pagamentos: pagamentos.results,
+    camisas: camisas.results,
+    doacoes: doacoes.results,
+    resumo,
+  });
 }
 
 export default {
