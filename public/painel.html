@@ -196,9 +196,9 @@
               <th data-k="modalidade">Modalidade</th>
               <th data-k="equipe">Equipe</th>
               <th data-k="quer_camiseta">Camisa</th>
-              <th data-k="tamanho_camiseta">Tam.</th>
+              <th data-k="tamanhos_camisa">Tam.</th>
               <th data-k="contato_emergencia">Emergência</th>
-              <th data-k="doacao_valor">Doação</th>
+              <th data-k="doacao_total">Doação</th>
               <th data-k="total_cobrado">Cobrado</th>
               <th data-k="total_pago">Pago</th>
               <th data-k="_status_pgto">Status pgto</th>
@@ -492,9 +492,9 @@ function render() {
         <td>${badge(d.modalidade)}</td>
         <td>${esc(d.equipe || "")}</td>
         <td>${d.quer_camiseta ? '<span class="badge b-sim">Sim</span>' : '<span class="badge b-nao">Não</span>'}</td>
-        <td>${esc(d.tamanho_camiseta || "")}</td>
+        <td>${esc(d.tamanhos_camisa || "")}</td>
         <td>${esc(d.contato_emergencia)}</td>
-        <td>${esc(fmtBRL(d.doacao_valor))}</td>
+        <td>${esc(fmtBRL(d.doacao_total))}</td>
         <td>${esc(fmtBRL(d.total_cobrado))}</td>
         <td>${esc(fmtBRL(d.total_pago))}</td>
         <td><span class="badge ${s.cls}">${s.label}</span></td>
@@ -519,10 +519,11 @@ function renderCards() {
     if (d.modalidade in porMod) porMod[d.modalidade]++;
     if (d.quer_camiseta) {
       comCamisa++;
-      const t = d.tamanho_camiseta || "?";
-      porTam[t] = (porTam[t] || 0) + 1;
+      (d.tamanhos_camisa || "?").split(/,\s*/).filter(Boolean).forEach(t => {
+        porTam[t] = (porTam[t] || 0) + 1;
+      });
     }
-    if (d.doacao_valor) { comDoacao++; doacaoPedida += Number(d.doacao_valor); }
+    if (Number(d.doacao_total) > 0) { comDoacao++; doacaoPedida += Number(d.doacao_total); }
     totalCobrado += Number(d.total_cobrado || 0);
     totalPago += Number(d.total_pago || 0);
     const k = statusPgto(d).key;
@@ -626,13 +627,20 @@ function renderDrawer(i, pags, camisas, doacoes, resumo) {
     ["Inscrito em", fmtData(i.created_at)],
   ]);
 
+  const badgeStatus = (s) => {
+    const cls = s === "PAGO" ? "b-pago" : s === "CANCELADO" ? "b-nao" : "b-pendente";
+    const lbl = s === "PAGO" ? "Pago" : s === "CANCELADO" ? "Cancelado" : "Pendente";
+    return `<span class="badge ${cls}">${lbl}</span>`;
+  };
+  const bordaStatus = (s) => s === "PAGO" ? "#1E8A46" : s === "CANCELADO" ? "#C22B2B" : "#F5A800";
+
   const camisasHtml = camisas.length
     ? camisas.map(c => {
-        const cancelado = c.status === "CANCELADO";
-        return `<div class="cob-card ${cancelado ? "" : "pago"}" style="border-left-color:${cancelado ? "#C22B2B" : "#16357F"};">
+        const st = c.status_efetivo || (c.status === "CANCELADO" ? "CANCELADO" : "PENDENTE");
+        return `<div class="cob-card" style="border-left-color:${bordaStatus(st)};">
           <div class="top">
             <div>
-              <span class="badge ${cancelado ? "b-nao" : "b-sim"}">${esc(c.status)}</span>
+              ${badgeStatus(st)}
               <strong style="margin-left:8px;">Camisa · Tamanho ${esc(c.tamanho || "?")}</strong>
             </div>
             <div class="valor-linha">${fmtBRL(c.valor)}</div>
@@ -647,11 +655,11 @@ function renderDrawer(i, pags, camisas, doacoes, resumo) {
 
   const doacoesHtml = doacoes.length
     ? doacoes.map(d => {
-        const cancelado = d.status === "CANCELADO";
-        return `<div class="cob-card ${cancelado ? "" : "pago"}" style="border-left-color:${cancelado ? "#C22B2B" : "#1E8A46"};">
+        const st = d.status_efetivo || (d.status === "CANCELADO" ? "CANCELADO" : "PENDENTE");
+        return `<div class="cob-card" style="border-left-color:${bordaStatus(st)};">
           <div class="top">
             <div>
-              <span class="badge ${cancelado ? "b-nao" : "b-sim"}">${esc(d.status)}</span>
+              ${badgeStatus(st)}
               <strong style="margin-left:8px;">Doação solidária</strong>
             </div>
             <div class="valor-linha">${fmtBRL(d.valor)}</div>
@@ -712,7 +720,7 @@ function renderDrawer(i, pags, camisas, doacoes, resumo) {
 
 el("btn-csv").addEventListener("click", () => {
   const lista = ordenado(filtrado());
-  const cols = ["id","created_at","nome","email","telefone","cpf","data_nascimento","sexo","cidade","modalidade","equipe","quer_camiseta","tamanho_camiseta","contato_emergencia","doacao_valor","total_cobrado","total_pago","status_pgto","qtd_cobrancas","qtd_pagas","ultimo_pago_em","observacoes"];
+  const cols = ["id","created_at","nome","email","telefone","cpf","data_nascimento","sexo","cidade","modalidade","equipe","quer_camiseta","tamanhos_camisa","contato_emergencia","doacao_total","total_cobrado","total_pago","status_pgto","qtd_cobrancas","qtd_pagas","ultimo_pago_em","observacoes"];
   const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const linhas = [cols.join(",")].concat(
     lista.map(d => cols.map(c => {

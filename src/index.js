@@ -119,13 +119,11 @@ async function inserirInscricao(env, d) {
   const stmt = env.DB.prepare(`
     INSERT INTO inscricoes (
       nome, email, telefone, cpf, data_nascimento, sexo, cidade, modalidade,
-      equipe, quer_camiseta, tamanho_camiseta, contato_emergencia,
-      aceite_termo, observacoes, doacao_valor
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      equipe, quer_camiseta, contato_emergencia, aceite_termo, observacoes
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     d.nome, d.email, d.telefone, d.cpf, d.data_nascimento, d.sexo || "", d.cidade || "", d.modalidade,
-    d.equipe, d.quer_camiseta ? 1 : 0, d.tamanho_camiseta, d.contato_emergencia || "",
-    1, d.observacoes, d.doacao_valor
+    d.equipe, d.quer_camiseta ? 1 : 0, d.contato_emergencia || "", 1, d.observacoes
   );
   const r = await stmt.run();
   return r.meta.last_row_id;
@@ -182,14 +180,14 @@ async function handleInscricao(request, env, ctx) {
   }
 
   const existente = await env.DB.prepare(
-    "SELECT id, nome, quer_camiseta, tamanho_camiseta FROM inscricoes WHERE cpf = ? LIMIT 1"
+    "SELECT id, nome, quer_camiseta FROM inscricoes WHERE cpf = ? LIMIT 1"
   ).bind(dados.cpf).first();
   if (existente) {
     const pendente = await buscarPagamentoPendente(env, existente.id);
-    const inscCompleta = await env.DB.prepare(
-      "SELECT id, quer_camiseta, doacao_valor FROM inscricoes WHERE id = ?"
+    const { residual } = await calcularResidual(env, { id: existente.id });
+    const primeiraCamisa = await env.DB.prepare(
+      "SELECT tamanho FROM camisas WHERE inscricao_id = ? AND status IN ('PENDENTE','PAGO') ORDER BY criado_em LIMIT 1"
     ).bind(existente.id).first();
-    const { residual } = await calcularResidual(env, inscCompleta);
     return json({
       ok: false,
       cpf_duplicado: true,
@@ -197,8 +195,8 @@ async function handleInscricao(request, env, ctx) {
       inscricao: {
         id: existente.id,
         nome: existente.nome,
-        tem_camiseta: !!existente.quer_camiseta,
-        tamanho_camiseta: existente.tamanho_camiseta,
+        tem_camiseta: !!primeiraCamisa,
+        tamanho_camiseta: primeiraCamisa?.tamanho || null,
       },
       pagamento_pendente: pendente,
       pode_renovar: !pendente && residual > 0,
@@ -218,12 +216,12 @@ async function handleInscricao(request, env, ctx) {
   // independente do pagamento — o total pago é agregado depois.
   if (dados.quer_camiseta && dados.tamanho_camiseta) {
     await env.DB.prepare(
-      "INSERT INTO camisas (inscricao_id, tamanho, valor, status) VALUES (?, ?, ?, 'ATIVO')"
+      "INSERT INTO camisas (inscricao_id, tamanho, valor, status) VALUES (?, ?, ?, 'PENDENTE')"
     ).bind(id, dados.tamanho_camiseta, Number(env.CAMISA_VALOR || 40)).run();
   }
   if (Number(dados.doacao_valor || 0) > 0) {
     await env.DB.prepare(
-      "INSERT INTO doacoes (inscricao_id, valor, status) VALUES (?, ?, 'ATIVO')"
+      "INSERT INTO doacoes (inscricao_id, valor, status) VALUES (?, ?, 'PENDENTE')"
     ).bind(id, Number(dados.doacao_valor)).run();
   }
 
@@ -307,7 +305,7 @@ async function handleDoacaoAvulsa(request, env, inscricaoId, ctx) {
   }
 
   await env.DB.prepare(
-    "INSERT INTO doacoes (inscricao_id, valor, status) VALUES (?, ?, 'ATIVO')"
+    "INSERT INTO doacoes (inscricao_id, valor, status) VALUES (?, ?, 'PENDENTE')"
   ).bind(inscricaoId, Math.round(valor * 100) / 100).run();
 
   try {
@@ -351,8 +349,8 @@ async function calcularResidual(env, insc) {
   // (env.SICREDI_VALOR_INSCRICAO) — normalmente 0.
   const base = Number(env.SICREDI_VALOR_INSCRICAO || 0);
   const [camisas, doacoes, pagos] = await Promise.all([
-    env.DB.prepare("SELECT COALESCE(SUM(valor),0) AS v FROM camisas WHERE inscricao_id = ? AND status = 'ATIVO'").bind(insc.id).first(),
-    env.DB.prepare("SELECT COALESCE(SUM(valor),0) AS v FROM doacoes WHERE inscricao_id = ? AND status = 'ATIVO'").bind(insc.id).first(),
+    env.DB.prepare("SELECT COALESCE(SUM(valor),0) AS v FROM camisas WHERE inscricao_id = ? AND status IN ('PENDENTE','PAGO')").bind(insc.id).first(),
+    env.DB.prepare("SELECT COALESCE(SUM(valor),0) AS v FROM doacoes WHERE inscricao_id = ? AND status IN ('PENDENTE','PAGO')").bind(insc.id).first(),
     env.DB.prepare("SELECT COALESCE(SUM(valor),0) AS v FROM pagamentos WHERE inscricao_id = ? AND status = 'CONCLUIDA'").bind(insc.id).first(),
   ]);
   const esperado = Math.round((base + Number(camisas?.v || 0) + Number(doacoes?.v || 0)) * 100) / 100;
@@ -390,14 +388,14 @@ async function handleCancelarPendente(request, env, inscricaoId) {
   ).bind(inscricaoId).run();
   // Cancela todos os itens ativos (camisas e doações) da inscrição.
   await env.DB.prepare(
-    "UPDATE camisas SET status = 'CANCELADO', cancelado_em = datetime('now') WHERE inscricao_id = ? AND status = 'ATIVO'"
+    "UPDATE camisas SET status = 'CANCELADO', cancelado_em = datetime('now') WHERE inscricao_id = ? AND status = 'PENDENTE'"
   ).bind(inscricaoId).run();
   await env.DB.prepare(
-    "UPDATE doacoes SET status = 'CANCELADO', cancelado_em = datetime('now') WHERE inscricao_id = ? AND status = 'ATIVO'"
+    "UPDATE doacoes SET status = 'CANCELADO', cancelado_em = datetime('now') WHERE inscricao_id = ? AND status = 'PENDENTE'"
   ).bind(inscricaoId).run();
-  // Retrocompat: também zera flags antigas na inscrição.
+  // Sincroniza flag rápida da inscrição.
   await env.DB.prepare(
-    "UPDATE inscricoes SET quer_camiseta = 0, tamanho_camiseta = NULL, doacao_valor = NULL WHERE id = ?"
+    "UPDATE inscricoes SET quer_camiseta = 0 WHERE id = ?"
   ).bind(inscricaoId).run();
 
   if (patchErrors.length) console.error("Cancelar: falhas no PATCH Sicredi:", patchErrors);
@@ -470,16 +468,16 @@ async function handleVerificarCpf(request, env) {
   if (!cpf || !validaCpf(cpf)) return json({ ok: false, mensagem: "CPF inválido." }, 400);
 
   const existente = await env.DB.prepare(
-    "SELECT id, nome, quer_camiseta, tamanho_camiseta FROM inscricoes WHERE cpf = ? LIMIT 1"
+    "SELECT id, nome, quer_camiseta FROM inscricoes WHERE cpf = ? LIMIT 1"
   ).bind(cpf).first();
 
   if (!existente) return json({ ok: true, existe: false });
 
   const pendente = await buscarPagamentoPendente(env, existente.id);
-  const inscCompleta = await env.DB.prepare(
-    "SELECT id, quer_camiseta, doacao_valor FROM inscricoes WHERE id = ?"
+  const { residual } = await calcularResidual(env, { id: existente.id });
+  const primeiraCamisa = await env.DB.prepare(
+    "SELECT tamanho FROM camisas WHERE inscricao_id = ? AND status IN ('PENDENTE','PAGO') ORDER BY criado_em LIMIT 1"
   ).bind(existente.id).first();
-  const { residual } = await calcularResidual(env, inscCompleta);
 
   return json({
     ok: true,
@@ -487,8 +485,8 @@ async function handleVerificarCpf(request, env) {
     inscricao: {
       id: existente.id,
       nome: existente.nome,
-      tem_camiseta: !!existente.quer_camiseta,
-      tamanho_camiseta: existente.tamanho_camiseta,
+      tem_camiseta: !!primeiraCamisa,
+      tamanho_camiseta: primeiraCamisa?.tamanho || null,
     },
     pagamento_pendente: pendente,
     pode_renovar: !pendente && residual > 0,
@@ -521,11 +519,11 @@ async function handleComprarCamisa(request, env, inscricaoId, ctx) {
   // por retrocompat (filtros antigos ainda dependem).
   if (!insc.quer_camiseta) {
     await env.DB.prepare(
-      "UPDATE inscricoes SET quer_camiseta = 1, tamanho_camiseta = ? WHERE id = ?"
-    ).bind(tamanho, inscricaoId).run();
+      "UPDATE inscricoes SET quer_camiseta = 1 WHERE id = ?"
+    ).bind(inscricaoId).run();
   }
   await env.DB.prepare(
-    "INSERT INTO camisas (inscricao_id, tamanho, valor, status) VALUES (?, ?, ?, 'ATIVO')"
+    "INSERT INTO camisas (inscricao_id, tamanho, valor, status) VALUES (?, ?, ?, 'PENDENTE')"
   ).bind(inscricaoId, tamanho, Number(env.CAMISA_VALOR || 40)).run();
 
   const valor = Number(env.CAMISA_VALOR || "40");
@@ -639,6 +637,18 @@ async function handleWebhookPix(request, env, ctx) {
     // Dispara CONFIRMADO só se acabamos de marcar (era diferente de CONCLUIDA)
     // e a atualização de fato tocou 1 linha (idempotência do webhook).
     if (upd.meta?.changes && existente.status !== "CONCLUIDA") {
+      // Se o total pago já cobre o total devido ativo, marca camisas e
+      // doações PENDENTE como PAGO. Se pagou parcial, mantém PENDENTE.
+      const inscBase = { id: existente.inscricao_id };
+      const { esperado, pago } = await calcularResidual(env, inscBase);
+      if (esperado > 0 && pago >= esperado) {
+        await env.DB.prepare(
+          "UPDATE camisas SET status = 'PAGO' WHERE inscricao_id = ? AND status = 'PENDENTE'"
+        ).bind(existente.inscricao_id).run();
+        await env.DB.prepare(
+          "UPDATE doacoes SET status = 'PAGO' WHERE inscricao_id = ? AND status = 'PENDENTE'"
+        ).bind(existente.inscricao_id).run();
+      }
       const insc = await env.DB.prepare(
         "SELECT id, nome, email FROM inscricoes WHERE id = ?"
       ).bind(existente.inscricao_id).first();
@@ -741,7 +751,10 @@ async function handleListar(request, env) {
       COALESCE(p.qtd_pagas, 0)      AS qtd_pagas,
       COALESCE(p.total_cobrado, 0)  AS total_cobrado,
       COALESCE(p.total_pago, 0)     AS total_pago,
-      p.ultimo_pago_em              AS ultimo_pago_em
+      p.ultimo_pago_em              AS ultimo_pago_em,
+      COALESCE(cam.qtd_camisas, 0)  AS qtd_camisas,
+      COALESCE(cam.tamanhos, '')    AS tamanhos_camisa,
+      COALESCE(don.doacao_total, 0) AS doacao_total
     FROM inscricoes i
     LEFT JOIN (
       SELECT
@@ -754,6 +767,16 @@ async function handleListar(request, env) {
       FROM pagamentos
       GROUP BY inscricao_id
     ) p ON p.inscricao_id = i.id
+    LEFT JOIN (
+      SELECT inscricao_id, COUNT(*) AS qtd_camisas, GROUP_CONCAT(tamanho, ', ') AS tamanhos
+        FROM camisas WHERE status IN ('PENDENTE','PAGO')
+       GROUP BY inscricao_id
+    ) cam ON cam.inscricao_id = i.id
+    LEFT JOIN (
+      SELECT inscricao_id, SUM(valor) AS doacao_total
+        FROM doacoes WHERE status IN ('PENDENTE','PAGO')
+       GROUP BY inscricao_id
+    ) don ON don.inscricao_id = i.id
     ORDER BY i.created_at DESC
     LIMIT 500
   `).all();
@@ -771,36 +794,44 @@ const TIPOS_EMAIL_MANUAL = new Set(["PENDENTE", "OFERTA_CAMISA", "AVISO_GERAL"])
 async function listarAtletasParaEmail(env, filtro) {
   const { results } = await env.DB.prepare(`
     SELECT
-      i.id, i.nome, i.email, i.cpf, i.modalidade,
-      i.quer_camiseta, i.tamanho_camiseta, i.doacao_valor, i.created_at,
-      COALESCE(pagos.total_pago, 0)                                        AS total_pago,
-      COALESCE(pagos.qtd_pagas, 0)                                         AS qtd_pagas,
+      i.id, i.nome, i.email, i.cpf, i.modalidade, i.created_at,
+      COALESCE(pagos.total_pago, 0)   AS total_pago,
+      COALESCE(cam.total, 0)          AS total_camisas,
+      COALESCE(cam.qtd, 0)            AS qtd_camisas,
+      COALESCE(cam.tamanhos, '')      AS tamanhos_camisa,
+      COALESCE(don.total, 0)          AS total_doacoes,
       (SELECT MAX(criado_em) FROM emails_enviados e
-        WHERE e.inscricao_id = i.id AND e.tipo = 'PENDENTE')               AS ultimo_pendente_em,
+        WHERE e.inscricao_id = i.id AND e.tipo = 'PENDENTE')       AS ultimo_pendente_em,
       (SELECT MAX(criado_em) FROM emails_enviados e
-        WHERE e.inscricao_id = i.id AND e.tipo = 'OFERTA_CAMISA')          AS ultimo_oferta_em
+        WHERE e.inscricao_id = i.id AND e.tipo = 'OFERTA_CAMISA')  AS ultimo_oferta_em
     FROM inscricoes i
     LEFT JOIN (
-      SELECT
-        inscricao_id,
-        SUM(CASE WHEN status = 'CONCLUIDA' THEN valor ELSE 0 END) AS total_pago,
-        SUM(CASE WHEN status = 'CONCLUIDA' THEN 1 ELSE 0 END)     AS qtd_pagas
-      FROM pagamentos GROUP BY inscricao_id
+      SELECT inscricao_id,
+             SUM(CASE WHEN status = 'CONCLUIDA' THEN valor ELSE 0 END) AS total_pago
+        FROM pagamentos GROUP BY inscricao_id
     ) pagos ON pagos.inscricao_id = i.id
+    LEFT JOIN (
+      SELECT inscricao_id, COUNT(*) AS qtd, SUM(valor) AS total,
+             GROUP_CONCAT(tamanho, ', ') AS tamanhos
+        FROM camisas WHERE status IN ('PENDENTE','PAGO')
+       GROUP BY inscricao_id
+    ) cam ON cam.inscricao_id = i.id
+    LEFT JOIN (
+      SELECT inscricao_id, SUM(valor) AS total
+        FROM doacoes WHERE status IN ('PENDENTE','PAGO')
+       GROUP BY inscricao_id
+    ) don ON don.inscricao_id = i.id
     WHERE i.email IS NOT NULL AND i.email <> ''
       AND i.email_invalido = 0 AND i.email_complained = 0
     ORDER BY i.created_at DESC
   `).all();
 
   const base = Number(env.SICREDI_VALOR_INSCRICAO || 0);
-  const camisaVal = Number(env.CAMISA_VALOR || 40);
   const agora = Date.now();
   const _48hAtras = agora - 48 * 60 * 60 * 1000;
 
   const enriquecidos = (results || []).map((r) => {
-    const camisa = r.quer_camiseta ? camisaVal : 0;
-    const doacao = Number(r.doacao_valor || 0);
-    const esperado = Math.round((base + camisa + doacao) * 100) / 100;
+    const esperado = Math.round((base + Number(r.total_camisas || 0) + Number(r.total_doacoes || 0)) * 100) / 100;
     const pago = Math.round(Number(r.total_pago || 0) * 100) / 100;
     const residual = Math.max(0, Math.round((esperado - pago) * 100) / 100);
     return {
@@ -809,9 +840,9 @@ async function listarAtletasParaEmail(env, filtro) {
       email: r.email,
       cpf: r.cpf,
       modalidade: r.modalidade,
-      quer_camiseta: !!r.quer_camiseta,
-      tamanho_camiseta: r.tamanho_camiseta,
-      doacao_valor: doacao,
+      quer_camiseta: Number(r.qtd_camisas) > 0,
+      tamanho_camiseta: r.tamanhos_camisa || null,
+      doacao_valor: Number(r.total_doacoes || 0),
       valor_esperado: esperado,
       valor_pago: pago,
       valor_residual: residual,
@@ -875,10 +906,15 @@ async function handleEnviarEmails(request, env, ctx) {
   const placeholders = ids.map(() => "?").join(",");
   const { results } = await env.DB.prepare(`
     SELECT i.id, i.nome, i.email, i.cpf, i.modalidade,
-           i.quer_camiseta, i.tamanho_camiseta, i.doacao_valor,
-           COALESCE(pagos.total_pago, 0) AS total_pago
+           COALESCE(pagos.total_pago, 0)   AS total_pago,
+           COALESCE(cam.total, 0)          AS total_camisas,
+           COALESCE(cam.qtd, 0)            AS qtd_camisas,
+           COALESCE(cam.tamanhos, '')      AS tamanhos_camisa,
+           COALESCE(don.total, 0)          AS total_doacoes
       FROM inscricoes i
       LEFT JOIN (SELECT inscricao_id, SUM(CASE WHEN status='CONCLUIDA' THEN valor ELSE 0 END) AS total_pago FROM pagamentos GROUP BY inscricao_id) pagos ON pagos.inscricao_id = i.id
+      LEFT JOIN (SELECT inscricao_id, COUNT(*) AS qtd, SUM(valor) AS total, GROUP_CONCAT(tamanho, ', ') AS tamanhos FROM camisas WHERE status IN ('PENDENTE','PAGO') GROUP BY inscricao_id) cam ON cam.inscricao_id = i.id
+      LEFT JOIN (SELECT inscricao_id, SUM(valor) AS total FROM doacoes WHERE status IN ('PENDENTE','PAGO') GROUP BY inscricao_id) don ON don.inscricao_id = i.id
      WHERE i.id IN (${placeholders})
        AND i.email IS NOT NULL AND i.email <> ''
        AND i.email_invalido = 0 AND i.email_complained = 0
@@ -897,9 +933,9 @@ async function handleEnviarEmails(request, env, ctx) {
       resumo.detalhes.push({ id: r.id, status: "IGNORADO_COTA" });
       continue;
     }
-    const camisa = r.quer_camiseta ? camisaVal : 0;
-    const doacao = Number(r.doacao_valor || 0);
-    const esperado = Math.round((base + camisa + doacao) * 100) / 100;
+    const totalCamisas = Number(r.total_camisas || 0);
+    const totalDoacoes = Number(r.total_doacoes || 0);
+    const esperado = Math.round((base + totalCamisas + totalDoacoes) * 100) / 100;
     const pago = Math.round(Number(r.total_pago || 0) * 100) / 100;
     const residual = Math.max(0, Math.round((esperado - pago) * 100) / 100);
 
@@ -909,8 +945,8 @@ async function handleEnviarEmails(request, env, ctx) {
         tpl = pagamentoPendente({
           nome: r.nome, cpf: r.cpf, numero_inscricao: r.id, categoria: r.modalidade,
           valor_residual: residual,
-          quer_camiseta: !!r.quer_camiseta, tamanho_camiseta: r.tamanho_camiseta,
-          valor_camiseta: camisa, valor_doacao: doacao,
+          quer_camiseta: Number(r.qtd_camisas) > 0, tamanho_camiseta: r.tamanhos_camisa || null,
+          valor_camiseta: totalCamisas, valor_doacao: totalDoacoes,
         });
       } else if (tipo === "OFERTA_CAMISA") {
         tpl = ofertaCamisa({
