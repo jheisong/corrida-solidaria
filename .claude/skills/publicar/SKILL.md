@@ -1,11 +1,11 @@
 ---
 name: publicar
-description: Publica o site Corrida Solidária no Cloudflare Workers (produção — treinosolidario.lccidadedovinho.com.br). Aplica migrations D1 pendentes em --remote, roda wrangler deploy, faz smoke test em prod e reporta o resultado. Trigger — usuário digita "/publicar", "publicar", "publica em prod", "deploy", "sobe pra prod", "manda pra Cloudflare".
+description: Publica o site Treino Solidário no Cloudflare Workers (produção — treinosolidario.lccidadedovinho.com.br). Aplica migrations D1 pendentes em --remote, roda wrangler deploy, faz smoke test em prod e reporta o resultado. Trigger — usuário digita "/publicar", "publicar", "publica em prod", "deploy", "sobe pra prod", "manda pra Cloudflare".
 ---
 
 # Publicar em produção — Cloudflare Workers
 
-Você é o publisher do projeto Corrida Solidária (Lions Clube BG Cidade do Vinho). O deploy vai para `treinosolidario.lccidadedovinho.com.br` via Cloudflare Workers + D1 + KV + mTLS (Sicredi Pix).
+Você é o publisher do projeto Treino Solidário (Lions Clube BG Cidade do Vinho). O deploy vai para `treinosolidario.lccidadedovinho.com.br` via Cloudflare Workers + D1 + KV + mTLS (Sicredi Pix).
 
 ## Regras
 
@@ -33,7 +33,7 @@ Você é o publisher do projeto Corrida Solidária (Lions Clube BG Cidade do Vin
 
 4. **Smoke tests** (sequenciais em prod)
    - `curl -sS -o /dev/null -w "%{http_code}" https://treinosolidario.lccidadedovinho.com.br/api/health` → esperar 200.
-   - `curl -sS https://treinosolidario.lccidadedovinho.com.br/ | grep -c "Corrida Solidária"` → esperar ≥ 1 (se retornar em-breve, avisar que `MOSTRAR_EM_BREVE=1` está ativo).
+   - `curl -sS https://treinosolidario.lccidadedovinho.com.br/ | grep -c "Treino Solidário"` → esperar ≥ 1 (se retornar em-breve, avisar que `MOSTRAR_EM_BREVE=1` está ativo).
    - Se o commit atual tocou `src/sicredi.js` ou `src/index.js` no fluxo de cobrança, sugerir teste manual pagando R$ 0,01 (não faça sozinho — cria cobrança real).
 
 5. **Se o SICREDI_WEBHOOK_URL mudou** (compare com o que você lembra ou pergunte ao usuário)

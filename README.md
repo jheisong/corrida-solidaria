@@ -1,6 +1,6 @@
-# Corrida Solidária de Prevenção à Saúde
+# Treino Solidário Contra o Diabetes
 
-Site de inscrições da **Corrida Solidária de Prevenção à Saúde** do
+Site de inscrições do **Treino Solidário Contra o Diabetes** do
 **Lions Clube Bento Gonçalves Cidade do Vinho**.
 
 - **Data:** 08 de novembro de 2026 (domingo)

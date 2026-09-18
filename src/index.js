@@ -1,5 +1,5 @@
 /**
- * Corrida Solidária de Prevenção à Saúde
+ * Treino Solidário Contra o Diabetes
  * Lions Clube Bento Gonçalves Cidade do Vinho
  * Worker: rotas /api/* + assets estáticos em /public
  */
@@ -611,7 +611,7 @@ async function criarECadastrarCobranca(env, inscricaoId, dados, valor, tipo = "I
     chavePix: env.SICREDI_CHAVE_PIX,
     cpf: dados.cpf,
     nome: dados.nome,
-    solicitacao: `${rotulo} - Corrida Solidária`,
+    solicitacao: `${rotulo} - Treino Solidário`,
     expiracao: 48 * 60 * 60,
     infoAdicionais: [
       { nome: "Inscricao", valor: String(inscricaoId) },
@@ -1088,7 +1088,7 @@ export default {
       if (m && request.method === "GET") return handleDetalhe(request, env, Number(m[1]));
     }
     if (url.pathname === "/api/health") {
-      return json({ ok: true, evento: "Corrida Solidária", data: "2026-11-08" });
+      return json({ ok: true, evento: "Treino Solidário", data: "2026-11-08" });
     }
     // Sicredi pode postar em <url_cadastrada> ou <url_cadastrada>/pix.
     // Cadastre SICREDI_WEBHOOK_URL como "https://.../api/webhook".
