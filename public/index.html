@@ -860,25 +860,29 @@ function renderResumoAtleta(itens, totais) {
   const cams = (itens && itens.camisas) || [];
   const dons = (itens && itens.doacoes) || [];
   if (!cams.length && !dons.length) { el.style.display = "none"; el.innerHTML = ""; return; }
-  const linhaStatus = (s) => s === "PAGO"
-    ? `<span style="background:#E7F6EC;color:#1F6E1F;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:700;">PAGO</span>`
-    : `<span style="background:#FFF6E3;color:#B57100;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:700;">PENDENTE</span>`;
-  const linha = (rotulo, valor, status) =>
+
+  const pendentes = { cams: cams.filter(c => c.status !== "PAGO"), dons: dons.filter(d => d.status !== "PAGO") };
+  const pagos = { cams: cams.filter(c => c.status === "PAGO"), dons: dons.filter(d => d.status === "PAGO") };
+  const temPendente = pendentes.cams.length || pendentes.dons.length;
+  const alvo = temPendente ? pendentes : pagos;
+
+  const linha = (rotulo, valor) =>
     `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-       <span>${rotulo} ${linhaStatus(status)}</span>
-       <strong style="color:#16357F;">${fmt(Number(valor))}</strong>
+       <span>${rotulo}</span>
+       <strong style="color:${temPendente ? "#B57100" : "#1F6E1F"};">${fmt(Number(valor))}</strong>
      </div>`;
   const html = [
-    ...cams.map(c => linha(`Camisa (${c.tamanho || "?"})`, c.valor, c.status)),
-    ...dons.map(d => linha("Doação solidária", d.valor, d.status)),
+    `<div style="font-size:12px;font-weight:700;color:${temPendente ? "#B57100" : "#1F6E1F"};text-transform:uppercase;letter-spacing:0.04em;">${temPendente ? "Pendente" : "Já pago"}</div>`,
+    ...alvo.cams.map(c => linha(`Camisa (${c.tamanho || "?"})`, c.valor)),
+    ...alvo.dons.map(d => linha("Doação solidária", d.valor)),
   ];
   if (totais) {
     const pago = Number(totais.pago || 0);
-    const esperado = Number(totais.esperado || 0);
     const residual = Number(totais.residual || 0);
     html.push(`<div style="border-top:1px solid #E3E9F4;margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;font-size:13px;color:#6B7A99;">
-      <span>Pago ${fmt(pago)} · Devido ${fmt(esperado)}</span>
-      ${residual > 0 ? `<strong style="color:#B57100;">Pendente ${fmt(residual)}</strong>` : `<strong style="color:#1F6E1F;">Tudo pago 🎉</strong>`}
+      ${temPendente
+        ? `<span>Total pendente</span><strong style="color:#B57100;">${fmt(residual)}</strong>`
+        : `<span>Total pago</span><strong style="color:#1F6E1F;">${fmt(pago)} 🎉</strong>`}
     </div>`);
   }
   el.innerHTML = html.join("");
