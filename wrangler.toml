@@ -1,6 +1,7 @@
 name = "corrida-solidaria"
 main = "src/index.js"
 compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
 
 routes = [
   { pattern = "treinosolidario.lccidadedovinho.com.br", custom_domain = true },
@@ -35,6 +36,9 @@ enabled = true
 
 [vars]
 SICREDI_AMBIENTE = "producao"
+RESEND_FROM_EMAIL = "inscricoes@treinosolidario.lccidadedovinho.com.br"
+RESEND_FROM_NAME  = "Treino Solidário"
+RESEND_REPLY_TO   = "lionsclubebgcidadedovinho@gmail.com"
 
 # Secrets em prod (definir com `wrangler secret put NOME`):
 #   PAINEL_SENHA

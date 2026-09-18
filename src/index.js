@@ -5,6 +5,7 @@
  */
 
 import { gerarTxid, criarCobranca, cadastrarWebhook, revisarCobrancaExpiracao } from "./sicredi.js";
+import { enviarEregistrar, confirmacaoInscricao, pagamentoConfirmado } from "./emails.js";
 
 const MODALIDADES = new Set(["corrida-5km", "caminhada-5km", "kids-250m"]);
 const TAMANHOS = new Set(["PP", "P", "M", "G", "GG", "XG", "INFANTIL"]);
@@ -138,7 +139,36 @@ function autorizado(request, env) {
   return m[1] === env.PAINEL_SENHA;
 }
 
-async function handleInscricao(request, env) {
+function disparaConfirmacao(env, ctx, { inscricao_id, nome, email, cpf, categoria, quer_camiseta, tamanho_camiseta, doacao_valor, valor_total, pix_copia_cola }) {
+  if (!ctx || !env.RESEND_API_KEY || !email) return;
+  ctx.waitUntil((async () => {
+    try {
+      const tpl = await confirmacaoInscricao({
+        nome,
+        email,
+        cpf,
+        numero_inscricao: inscricao_id,
+        categoria,
+        quer_camiseta: !!quer_camiseta,
+        tamanho_camiseta,
+        valor_camiseta: quer_camiseta ? Number(env.CAMISA_VALOR || 40) : 0,
+        valor_doacao: Number(doacao_valor || 0),
+        valor_total: Number(valor_total || 0),
+        pix_copia_cola,
+      });
+      await enviarEregistrar(env, {
+        inscricao_id,
+        tipo: "CONFIRMACAO",
+        to: email,
+        subject: tpl.subject,
+        html: tpl.html,
+        text: tpl.text,
+      });
+    } catch (e) { console.error("Falha CONFIRMACAO", String(e?.message || e)); }
+  })());
+}
+
+async function handleInscricao(request, env, ctx) {
   let body;
   try {
     body = await request.json();
@@ -187,6 +217,15 @@ async function handleInscricao(request, env) {
   const valor = calcularValor(env, dados);
   const podeCobrar = env.SICREDI_MOCK === "1" || !!env.SICREDI;
   if (valor <= 0 || !podeCobrar || !env.SICREDI_CHAVE_PIX) {
+    disparaConfirmacao(env, ctx, {
+      inscricao_id: id,
+      nome: dados.nome, email: dados.email, cpf: dados.cpf,
+      categoria: dados.modalidade,
+      quer_camiseta: dados.quer_camiseta,
+      tamanho_camiseta: dados.tamanho_camiseta,
+      doacao_valor: dados.doacao_valor,
+      valor_total: valor,
+    });
     return json({
       ok: true, id, valor,
       mensagem: "Inscrição registrada com sucesso! Você receberá a confirmação por e-mail.",
@@ -202,6 +241,16 @@ async function handleInscricao(request, env) {
     else if (temCamisa && !temInscricao && !temDoacao) tipo = "CAMISA";
     else if (temDoacao && !temInscricao && !temCamisa) tipo = "DOACAO";
     const cob = await criarECadastrarCobranca(env, id, dados, valor, tipo);
+    disparaConfirmacao(env, ctx, {
+      inscricao_id: id,
+      nome: dados.nome, email: dados.email, cpf: dados.cpf,
+      categoria: dados.modalidade,
+      quer_camiseta: dados.quer_camiseta,
+      tamanho_camiseta: dados.tamanho_camiseta,
+      doacao_valor: dados.doacao_valor,
+      valor_total: valor,
+      pix_copia_cola: cob?.pixCopiaECola,
+    });
     return json({
       ok: true, id, valor,
       pagamento: cob,
@@ -209,6 +258,15 @@ async function handleInscricao(request, env) {
     }, 201);
   } catch (e) {
     console.error("Erro criar cobrança:", e);
+    disparaConfirmacao(env, ctx, {
+      inscricao_id: id,
+      nome: dados.nome, email: dados.email, cpf: dados.cpf,
+      categoria: dados.modalidade,
+      quer_camiseta: dados.quer_camiseta,
+      tamanho_camiseta: dados.tamanho_camiseta,
+      doacao_valor: dados.doacao_valor,
+      valor_total: valor,
+    });
     return json({
       ok: true, id, valor,
       mensagem: "Inscrição registrada, mas não conseguimos gerar o Pix agora. Entraremos em contato.",
@@ -216,7 +274,7 @@ async function handleInscricao(request, env) {
   }
 }
 
-async function handleDoacaoAvulsa(request, env, inscricaoId) {
+async function handleDoacaoAvulsa(request, env, inscricaoId, ctx) {
   let body;
   try { body = await request.json(); } catch {
     return json({ ok: false, mensagem: "JSON inválido" }, 400);
@@ -226,7 +284,7 @@ async function handleDoacaoAvulsa(request, env, inscricaoId) {
   if (!cpfDigitos || !validaCpf(cpfDigitos)) return json({ ok: false, mensagem: "CPF inválido." }, 400);
   if (!Number.isFinite(valor) || valor <= 0) return json({ ok: false, mensagem: "Valor inválido." }, 400);
 
-  const insc = await env.DB.prepare("SELECT id, nome, cpf FROM inscricoes WHERE id = ?").bind(inscricaoId).first();
+  const insc = await env.DB.prepare("SELECT id, nome, email, cpf, modalidade FROM inscricoes WHERE id = ?").bind(inscricaoId).first();
   if (!insc) return json({ ok: false, mensagem: "Inscrição não encontrada." }, 404);
   if (insc.cpf !== cpfDigitos) return json({ ok: false, mensagem: "CPF não confere com a inscrição." }, 403);
 
@@ -237,6 +295,12 @@ async function handleDoacaoAvulsa(request, env, inscricaoId) {
 
   try {
     const cob = await criarECadastrarCobranca(env, inscricaoId, { cpf: cpfDigitos, nome: insc.nome, modalidade: "doacao" }, Math.round(valor * 100) / 100, "DOACAO");
+    disparaConfirmacao(env, ctx, {
+      inscricao_id: inscricaoId, nome: insc.nome, email: insc.email, cpf: insc.cpf,
+      categoria: insc.modalidade, quer_camiseta: false,
+      doacao_valor: valor, valor_total: valor,
+      pix_copia_cola: cob?.pixCopiaECola,
+    });
     return json({ ok: true, id: inscricaoId, valor, pagamento: cob, mensagem: "Pague o Pix da doação." }, 201);
   } catch (e) {
     console.error("Erro cobrança doação:", e);
@@ -405,7 +469,7 @@ async function handleVerificarCpf(request, env) {
   });
 }
 
-async function handleComprarCamisa(request, env, inscricaoId) {
+async function handleComprarCamisa(request, env, inscricaoId, ctx) {
   let body;
   try { body = await request.json(); } catch {
     return json({ ok: false, mensagem: "JSON inválido" }, 400);
@@ -420,7 +484,7 @@ async function handleComprarCamisa(request, env, inscricaoId) {
   }
 
   const insc = await env.DB.prepare(
-    "SELECT id, nome, cpf, quer_camiseta FROM inscricoes WHERE id = ?"
+    "SELECT id, nome, email, cpf, modalidade, quer_camiseta FROM inscricoes WHERE id = ?"
   ).bind(inscricaoId).first();
   if (!insc) return json({ ok: false, mensagem: "Inscrição não encontrada." }, 404);
   if (insc.cpf !== cpfDigitos) return json({ ok: false, mensagem: "CPF não confere com a inscrição." }, 403);
@@ -441,6 +505,12 @@ async function handleComprarCamisa(request, env, inscricaoId) {
 
   try {
     const cob = await criarECadastrarCobranca(env, inscricaoId, { cpf: cpfDigitos, nome: insc.nome, modalidade: "camisa" }, valor, "CAMISA");
+    disparaConfirmacao(env, ctx, {
+      inscricao_id: inscricaoId, nome: insc.nome, email: insc.email, cpf: insc.cpf,
+      categoria: insc.modalidade, quer_camiseta: true, tamanho_camiseta: tamanho,
+      valor_total: valor,
+      pix_copia_cola: cob?.pixCopiaECola,
+    });
     return json({ ok: true, id: inscricaoId, valor, pagamento: cob, mensagem: "Pague o Pix da camiseta." }, 201);
   } catch (e) {
     console.error("Erro cobrança camisa:", e);
@@ -488,7 +558,7 @@ async function criarECadastrarCobranca(env, inscricaoId, dados, valor, tipo = "I
   return { txid, valor, status: cob.status || "ATIVA", pixCopiaECola: pixCopiaCola, tipo };
 }
 
-async function handleWebhookPix(request, env) {
+async function handleWebhookPix(request, env, ctx) {
   let payload;
   try { payload = await request.json(); } catch {
     return json({ ok: false, mensagem: "JSON inválido" }, 400);
@@ -503,13 +573,15 @@ async function handleWebhookPix(request, env) {
     const valor = Number(ev.valor);
     if (!txid) continue;
 
-    const existente = await env.DB.prepare("SELECT txid FROM pagamentos WHERE txid = ?").bind(txid).first();
+    const existente = await env.DB.prepare(
+      "SELECT txid, status, tipo, valor, inscricao_id FROM pagamentos WHERE txid = ?"
+    ).bind(txid).first();
     if (!existente) {
       console.warn("Webhook Pix para txid desconhecido:", txid);
       continue;
     }
 
-    await env.DB.prepare(`
+    const upd = await env.DB.prepare(`
       UPDATE pagamentos
          SET status = 'CONCLUIDA',
              e2eid = ?,
@@ -527,10 +599,58 @@ async function handleWebhookPix(request, env) {
     ).run();
 
     if (Number.isFinite(valor)) {
-      // Validação simples: valor pago não pode ser menor que cobrado.
       const cob = await env.DB.prepare("SELECT valor FROM pagamentos WHERE txid = ?").bind(txid).first();
       if (cob && valor + 0.001 < Number(cob.valor)) {
         console.warn("Pagamento com valor menor que cobrado", { txid, valor, cobrado: cob.valor });
+      }
+    }
+
+    // Dispara CONFIRMADO só se acabamos de marcar (era diferente de CONCLUIDA)
+    // e a atualização de fato tocou 1 linha (idempotência do webhook).
+    if (upd.meta?.changes && existente.status !== "CONCLUIDA") {
+      const insc = await env.DB.prepare(
+        "SELECT id, nome, email FROM inscricoes WHERE id = ?"
+      ).bind(existente.inscricao_id).first();
+      if (insc?.email && ctx) {
+        const tpl = pagamentoConfirmado({
+          nome: insc.nome,
+          numero_inscricao: insc.id,
+          tipo: existente.tipo || "INSCRICAO",
+          valor_pago: Number.isFinite(valor) ? valor : Number(existente.valor),
+          e2eid,
+          data_pagamento: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+        });
+        ctx.waitUntil(
+          enviarEregistrar(env, {
+            inscricao_id: insc.id,
+            tipo: "CONFIRMADO",
+            to: insc.email,
+            subject: tpl.subject,
+            html: tpl.html,
+            text: tpl.text,
+          }).catch((e) => console.error("Falha CONFIRMADO", String(e?.message || e)))
+        );
+      }
+
+      // Alerta interno: pagamento entrou depois do cancelamento.
+      if (existente.status === "REMOVIDA_PELO_USUARIO_RECEBEDOR" && ctx) {
+        ctx.waitUntil(
+          enviarEregistrar(env, {
+            inscricao_id: existente.inscricao_id,
+            tipo: "ALERTA_INTERNO",
+            to: "lionsclubebgcidadedovinho@gmail.com",
+            subject: `[Atenção] Pagamento após cancelamento — inscrição #${existente.inscricao_id}`,
+            html: `<p>Pagamento recebido em cobrança já cancelada pelo usuário.</p>
+                   <ul>
+                     <li>Inscrição: #${existente.inscricao_id}</li>
+                     <li>txid: ${txid}</li>
+                     <li>e2eid: ${e2eid || "-"}</li>
+                     <li>valor: R$ ${Number(valor || existente.valor).toFixed(2)}</li>
+                   </ul>
+                   <p>Necessária ação manual: reativar camisa/doação OU fazer devolução via API Sicredi.</p>`,
+            text: `Pagamento após cancelamento. Inscrição #${existente.inscricao_id}, txid ${txid}, e2eid ${e2eid || "-"}, valor R$ ${Number(valor || existente.valor).toFixed(2)}. Ação manual necessária.`,
+          }).catch((e) => console.error("Falha ALERTA_INTERNO", String(e?.message || e)))
+        );
       }
     }
   }
@@ -546,7 +666,7 @@ async function handlePagamentoStatus(request, env, txid) {
   return json({ ok: true, pagamento: row });
 }
 
-async function handleDevPagar(request, env, txid) {
+async function handleDevPagar(request, env, txid, ctx) {
   const cob = await env.DB.prepare("SELECT txid, valor, chave_pix FROM pagamentos WHERE txid = ?").bind(txid).first();
   if (!cob) return json({ ok: false, mensagem: "txid não encontrado" }, 404);
   const fake = {
@@ -564,7 +684,7 @@ async function handleDevPagar(request, env, txid) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(fake),
   });
-  return handleWebhookPix(req, env);
+  return handleWebhookPix(req, env, ctx);
 }
 
 async function handleCadastrarWebhook(request, env) {
@@ -628,7 +748,7 @@ export default {
     }
 
     if (url.pathname === "/api/inscricao" && request.method === "POST") {
-      return handleInscricao(request, env);
+      return handleInscricao(request, env, ctx);
     }
     if (url.pathname === "/api/inscricao/verificar-cpf" && request.method === "POST") {
       return handleVerificarCpf(request, env);
@@ -647,7 +767,7 @@ export default {
     // Cadastre SICREDI_WEBHOOK_URL como "https://.../api/webhook".
     if ((url.pathname === "/api/webhook" || url.pathname === "/api/webhook/pix")
         && request.method === "POST") {
-      return handleWebhookPix(request, env);
+      return handleWebhookPix(request, env, ctx);
     }
     if (url.pathname === "/api/webhook/pix/cadastrar" && request.method === "POST") {
       return handleCadastrarWebhook(request, env);
@@ -658,11 +778,11 @@ export default {
     }
     {
       const m = url.pathname.match(/^\/api\/inscricao\/(\d+)\/camisa$/);
-      if (m && request.method === "POST") return handleComprarCamisa(request, env, Number(m[1]));
+      if (m && request.method === "POST") return handleComprarCamisa(request, env, Number(m[1]), ctx);
     }
     {
       const m = url.pathname.match(/^\/api\/inscricao\/(\d+)\/doacao$/);
-      if (m && request.method === "POST") return handleDoacaoAvulsa(request, env, Number(m[1]));
+      if (m && request.method === "POST") return handleDoacaoAvulsa(request, env, Number(m[1]), ctx);
     }
     {
       const m = url.pathname.match(/^\/api\/inscricao\/(\d+)\/renovar$/);
@@ -674,7 +794,7 @@ export default {
     }
     if (env.SICREDI_MOCK === "1") {
       const m = url.pathname.match(/^\/api\/dev\/pagar\/([A-Za-z0-9]{26,35})$/);
-      if (m && request.method === "POST") return handleDevPagar(request, env, m[1]);
+      if (m && request.method === "POST") return handleDevPagar(request, env, m[1], ctx);
     }
 
     // /painel → serve painel.html (autenticação é feita no cliente via Bearer).

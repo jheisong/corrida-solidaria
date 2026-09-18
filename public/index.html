@@ -419,6 +419,26 @@ function pickDoacao(v) { estado.doacao = v; document.getElementById("f-outro").v
 })();
 renderChips();
 
+// Deep link do e-mail: /#retomar?cpf=XXXXXXXXXXX
+// Abre o modal, preenche CPF e dispara a verificação — se houver pagamento
+// pendente, mostra QR inline; se expirado, renova automaticamente.
+(function processarHashRetomar() {
+  const h = location.hash || "";
+  const m = h.match(/#retomar\?cpf=([\d.\-]+)/i);
+  if (!m) return;
+  const cpf = m[1].replace(/\D/g, "");
+  if (cpf.length !== 11) return;
+  // deixa a UI carregar antes de disparar
+  setTimeout(() => {
+    abrirForm();
+    const el = document.getElementById("f-cpf");
+    if (!el) return;
+    el.value = cpf;
+    mascaraCpf(el);      // aciona verificarCpfAuto → mostrarDuplicado
+    history.replaceState(null, "", location.pathname); // limpa hash da URL
+  }, 100);
+})();
+
 function irPara(n) {
   ["passo1", "passo2", "passo3", "passo4"].forEach((id, i) => {
     document.getElementById(id).style.display = i === n - 1 ? "flex" : "none";
