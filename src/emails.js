@@ -7,7 +7,7 @@ import QRCode from "qrcode";
 
 const ORGANIZADOR = "Lions Clube Bento Gonçalves — Cidade do Vinho";
 const EMAIL_CONTATO = "lionsclubebgcidadedovinho@gmail.com";
-const EVENTO = "Treino Solidário Contra o Diabetes";
+const EVENTO = "Treino Solidário de Prevenção à Diabetes";
 const DATA_EVENTO = "08/11/2026";
 const LOCAL_EVENTO = "Pista Atlética Municipal — Bento Gonçalves/RS";
 const CIDADE_UF = "Bento Gonçalves/RS";

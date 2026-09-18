@@ -1,6 +1,6 @@
-# Treino Solidário Contra o Diabetes
+# Treino Solidário de Prevenção à Diabetes
 
-Site de inscrições do **Treino Solidário Contra o Diabetes** do
+Site de inscrições do **Treino Solidário de Prevenção à Diabetes** do
 **Lions Clube Bento Gonçalves Cidade do Vinho**.
 
 - **Data:** 08 de novembro de 2026 (domingo)

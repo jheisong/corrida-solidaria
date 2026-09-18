@@ -1,5 +1,5 @@
 /**
- * Treino Solidário Contra o Diabetes
+ * Treino Solidário de Prevenção à Diabetes
  * Lions Clube Bento Gonçalves Cidade do Vinho
  * Worker: rotas /api/* + assets estáticos em /public
  */
