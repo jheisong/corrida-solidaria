@@ -637,7 +637,7 @@ function renderDrawer(i, pags, camisas, doacoes, resumo) {
 
   const camisasHtml = camisas.length
     ? camisas.map(c => {
-        const st = c.status_efetivo || (c.status === "CANCELADO" ? "CANCELADO" : "PENDENTE");
+        const st = c.status || "PENDENTE";
         return `<div class="cob-card" style="border-left-color:${bordaStatus(st)};">
           <div class="top">
             <div>
@@ -656,7 +656,7 @@ function renderDrawer(i, pags, camisas, doacoes, resumo) {
 
   const doacoesHtml = doacoes.length
     ? doacoes.map(d => {
-        const st = d.status_efetivo || (d.status === "CANCELADO" ? "CANCELADO" : "PENDENTE");
+        const st = d.status || "PENDENTE";
         return `<div class="cob-card" style="border-left-color:${bordaStatus(st)};">
           <div class="top">
             <div>
