@@ -228,6 +228,7 @@
           <option value="todos">Todos os inscritos</option>
         </select>
         <button id="em-listar">Listar</button>
+        <input id="em-busca" placeholder="Buscar por nome, e-mail, telefone, CPF..." style="min-width: 260px;">
         <div class="grow"></div>
         <span id="em-cota" style="font-size:13px;color:#5B6A87;"></span>
       </div>
@@ -761,6 +762,7 @@ function fmtDT(s) { return s ? String(s).replace("T", " ").replace("Z", "") : "â
 function modLabel(m) { return ({"corrida-5km":"Corrida 5 km","caminhada-5km":"Caminhada 5 km","kids-250m":"Kids 250 m"})[m] || m; }
 
 document.getElementById("em-listar").addEventListener("click", listarEmails);
+document.getElementById("em-busca").addEventListener("input", () => renderEmailTable());
 document.getElementById("em-check-all").addEventListener("change", (e) => {
   const on = e.target.checked;
   emSel.clear();
@@ -806,11 +808,17 @@ async function listarEmails() {
 
 function renderEmailTable() {
   const tbody = document.getElementById("em-tbody");
-  if (!emAtletas.length) {
-    tbody.innerHTML = '<tr><td colspan="10" class="vazio">Nenhum atleta encontrado com esse filtro.</td></tr>';
+  const q = (document.getElementById("em-busca")?.value || "").trim().toLowerCase();
+  const filtrados = q
+    ? emAtletas.filter(a => [a.nome, a.email, a.telefone, a.cpf, a.modalidade].some(v => String(v || "").toLowerCase().includes(q)))
+    : emAtletas;
+  document.getElementById("em-info").textContent =
+    q ? `${filtrados.length} de ${emAtletas.length} atleta(s).` : `${emAtletas.length} atleta(s).`;
+  if (!filtrados.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="vazio">Nenhum atleta encontrado.</td></tr>';
     return;
   }
-  tbody.innerHTML = emAtletas.map((a) => `
+  tbody.innerHTML = filtrados.map((a) => `
     <tr>
       <td class="row-check"><input type="checkbox" data-id="${a.id}" ${emSel.has(a.id) ? "checked" : ""}></td>
       <td>#${a.id}</td>

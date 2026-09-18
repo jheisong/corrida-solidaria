@@ -454,7 +454,7 @@ function mostrarDuplicado(insc, pagamentoPendente, extras) {
   renderResumoAtleta(extras.itens, extras.totais);
   document.getElementById("dup-cta-camisa").textContent = temCamisa
     ? "Quer pedir outra camisa? Escolha o tamanho e pague por Pix:"
-    : "Ainda não pediu a camisa oficial? Peça agora:";
+    : "Ainda adquiriu a camisa? Peça agora:";
   document.getElementById("dup-btn-camisa").textContent = temCamisa ? "Comprar outra camisa" : "Comprar camisa";
 
   estado.pagamentoPendente = pagamentoPendente || null;

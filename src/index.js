@@ -838,7 +838,7 @@ const TIPOS_EMAIL_MANUAL = new Set(["CONFIRMACAO", "PENDENTE", "OFERTA_CAMISA", 
 async function listarAtletasParaEmail(env, filtro) {
   const { results } = await env.DB.prepare(`
     SELECT
-      i.id, i.nome, i.email, i.cpf, i.modalidade, i.created_at,
+      i.id, i.nome, i.email, i.telefone, i.cpf, i.modalidade, i.created_at,
       COALESCE(pagos.total_pago, 0)   AS total_pago,
       COALESCE(cam.total, 0)          AS total_camisas,
       COALESCE(cam.qtd, 0)            AS qtd_camisas,
@@ -882,6 +882,7 @@ async function listarAtletasParaEmail(env, filtro) {
       id: r.id,
       nome: r.nome,
       email: r.email,
+      telefone: r.telefone,
       cpf: r.cpf,
       modalidade: r.modalidade,
       quer_camiseta: Number(r.qtd_camisas) > 0,
