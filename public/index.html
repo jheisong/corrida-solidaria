@@ -308,9 +308,8 @@
       <p style="margin: 0; font-size: 16px;">Nos vemos na largada, <strong style="color: #16357F;" id="r-nome"></strong>. Retire sua pulseira a partir das <strong style="color: #16357F;">07h00</strong> do dia 8/11, levando <strong style="color: #16357F;">1 kg de alimento não perecível</strong> — ela garante sua medalha de participação.</p>
       <div style="width: 100%; background: #F6F8FC; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 15px;">
         <div style="display: flex; justify-content: space-between;"><span>Nº de inscrição</span><strong style="color: #16357F;" id="r-num"></strong></div>
-        <div style="display: flex; justify-content: space-between;"><span>Inscrição</span><strong style="color: #1E8A46;">Gratuita</strong></div>
-        <div id="r-pendencias" style="display: none; flex-direction: column; gap: 6px; border-top: 1px solid #E3E9F4; padding-top: 8px; margin-top: 4px;">
-          <span style="font-weight: 700; color: #16357F; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em;">Pendente</span>
+        <div style="display: flex; justify-content: space-between;"><span>Modalidade</span><strong style="color: #16357F;" id="r-modalidade"></strong></div>
+        <div id="r-pendencias" style="display: none; flex-direction: column; gap: 4px; border-top: 1px solid #E3E9F4; padding-top: 8px; margin-top: 4px;">
           <div id="r-pend-lista" style="display: flex; flex-direction: column; gap: 4px;"></div>
         </div>
         <div style="display: flex; justify-content: space-between; border-top: 1px solid #E3E9F4; padding-top: 8px; margin-top: 4px;"><span style="font-weight: 700; color: #16357F;">Total a pagar</span><strong style="color: #16357F;" id="r-total"></strong></div>
@@ -794,6 +793,7 @@ async function concluir(pular) {
 
   document.getElementById("r-nome").textContent = val("f-nome").split(" ")[0];
   document.getElementById("r-num").textContent = "#" + numInscricao;
+  document.getElementById("r-modalidade").textContent = labelModalidade(estado.modalidade.api);
   renderPendencias([
     estado.camisa ? { rotulo: "Camisa (" + estado.tamanho + ")", valor: PRECO_CAMISA } : null,
     doacao ? { rotulo: "Doação solidária", valor: doacao } : null,
@@ -845,6 +845,7 @@ async function concluirSomenteDoacao(pular) {
     const totalCobranca = Number(data.valor || doacao);
     document.getElementById("r-nome").textContent = (val("f-nome") || "Você").split(" ")[0];
     document.getElementById("r-num").textContent = "#" + estado.dupInscricaoId;
+    document.getElementById("r-modalidade").textContent = labelModalidade(data.modalidade);
     renderPendenciasDoBackend(data.pendencias);
     document.getElementById("r-total").textContent = fmt(totalCobranca);
     montaBlocoPix(totalCobranca);
@@ -853,6 +854,10 @@ async function concluirSomenteDoacao(pular) {
     mostraErro("erro3", "Falha de conexão. Tente novamente.");
     btn.disabled = false; btn.textContent = "Concluir inscrição";
   }
+}
+
+function labelModalidade(m) {
+  return ({"corrida-5km":"Corrida 5 km","caminhada-5km":"Caminhada 5 km","kids-250m":"Corrida Kids · 250 m"})[m] || (m || "-");
 }
 
 function renderPendencias(itens) {
@@ -928,6 +933,7 @@ async function concluirSomenteCamisa() {
     const totalCobranca = Number(data.valor || PRECO_CAMISA);
     document.getElementById("r-nome").textContent = (val("f-nome") || "Você").split(" ")[0];
     document.getElementById("r-num").textContent = "#" + inscId;
+    document.getElementById("r-modalidade").textContent = labelModalidade(data.modalidade);
     renderPendenciasDoBackend(data.pendencias);
     document.getElementById("r-total").textContent = fmt(totalCobranca);
 

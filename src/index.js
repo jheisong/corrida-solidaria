@@ -318,7 +318,7 @@ async function handleDoacaoAvulsa(request, env, inscricaoId, ctx) {
       pix_copia_cola: cob?.pixCopiaECola,
     });
     const pendencias = await resumoPendencias(env, inscricaoId);
-    return json({ ok: true, id: inscricaoId, valor: valorCob, pagamento: cob, pendencias, mensagem: "Pague o Pix da doação." }, 201);
+    return json({ ok: true, id: inscricaoId, valor: valorCob, pagamento: cob, pendencias, modalidade: insc.modalidade, mensagem: "Pague o Pix da doação." }, 201);
   } catch (e) {
     console.error("Erro cobrança doação:", e);
     return json({ ok: false, mensagem: "Não conseguimos gerar o Pix agora." }, 502);
@@ -574,7 +574,7 @@ async function handleComprarCamisa(request, env, inscricaoId, ctx) {
       pix_copia_cola: cob?.pixCopiaECola,
     });
     const pendencias = await resumoPendencias(env, inscricaoId);
-    return json({ ok: true, id: inscricaoId, valor, pagamento: cob, pendencias, mensagem: "Pague o Pix da camiseta." }, 201);
+    return json({ ok: true, id: inscricaoId, valor, pagamento: cob, pendencias, modalidade: insc.modalidade, mensagem: "Pague o Pix da camiseta." }, 201);
   } catch (e) {
     console.error("Erro cobrança camisa:", e);
     return json({ ok: true, id: inscricaoId, mensagem: "Camiseta registrada. Pix indisponível agora." }, 201);
