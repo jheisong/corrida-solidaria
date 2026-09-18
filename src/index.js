@@ -996,11 +996,11 @@ async function handleEnviarEmails(request, env, ctx) {
           valor_total: residual,   // 0 se já quitou → template vira "confirmada sem pendência"
         });
       } else if (tipo === "PENDENTE") {
+        const pendentes = await resumoPendencias(env, r.id);
         tpl = pagamentoPendente({
           nome: r.nome, cpf: r.cpf, numero_inscricao: r.id, categoria: r.modalidade,
           valor_residual: residual,
-          quer_camiseta: Number(r.qtd_camisas) > 0, tamanho_camiseta: r.tamanhos_camisa || null,
-          valor_camiseta: totalCamisas, valor_doacao: totalDoacoes,
+          pendentes: { camisas: pendentes.camisas, doacoes: pendentes.doacoes },
         });
       } else if (tipo === "OFERTA_CAMISA") {
         tpl = ofertaCamisa({

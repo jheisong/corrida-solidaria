@@ -371,24 +371,23 @@ export async function confirmacaoInscricao(dados) {
 /**
  * Lembrete de pagamento para atletas com valor residual em aberto.
  * dados: { nome, cpf, numero_inscricao, categoria, valor_residual,
- *          quer_camiseta, tamanho_camiseta, valor_camiseta,
- *          valor_doacao }
+ *          pendentes: { camisas: [{tamanho, valor}], doacoes: [{valor}] } }
  */
 export function pagamentoPendente(dados) {
   const nome = primeiroNome(dados.nome);
   const modalidade = labelModalidade(dados.categoria);
   const linkRetomar = deepLinkRetomar(dados.cpf);
-  const itens = [];
-  if (dados.quer_camiseta) itens.push(`camisa ${dados.tamanho_camiseta || ""}`.trim());
-  if (Number(dados.valor_doacao || 0) > 0) itens.push(`doação ${brl(dados.valor_doacao)}`);
-  const descItens = itens.length ? itens.join(" + ") : "camisa/doação";
+  const pcams = (dados.pendentes && dados.pendentes.camisas) || [];
+  const pdons = (dados.pendentes && dados.pendentes.doacoes) || [];
 
-  const tabela = tabelaKV([
+  const linhas = [
     ["Nº de inscrição", `#${esc(dados.numero_inscricao)}`],
     ["Modalidade", esc(modalidade)],
-    ["Pedido em aberto", esc(descItens)],
-    ["Valor pendente", brl(dados.valor_residual), { corValor: COR_AMBAR_FG }],
-  ]);
+    ...pcams.map(c => [`Camisa (${esc(c.tamanho || "?")})`, brl(c.valor), { corValor: COR_AMBAR_FG }]),
+    ...pdons.map(d => ["Doação solidária", brl(d.valor), { corValor: COR_AMBAR_FG }]),
+    ["Valor pendente total", brl(dados.valor_residual), { corValor: COR_AMBAR_FG }],
+  ];
+  const tabela = tabelaKV(linhas);
 
   const blocos = [
     `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Oi, <strong style="color:${COR_PRIMARIA};">${esc(nome)}</strong>! Vimos que ainda tem <strong>${brl(dados.valor_residual)}</strong> em aberto do seu pedido no <strong>${esc(EVENTO)}</strong>. 💛</p>`,
@@ -413,7 +412,11 @@ export function pagamentoPendente(dados) {
       `Ainda tem ${brl(dados.valor_residual)} em aberto do seu pedido no ${EVENTO}.`,
       `Nº de inscrição: #${dados.numero_inscricao}`,
       `Modalidade: ${modalidade}`,
-      `Pedido em aberto: ${descItens}`,
+      ``,
+      `Itens pendentes:`,
+      ...pcams.map(c => `  - Camisa (${c.tamanho || "?"}) — ${brl(c.valor)}`),
+      ...pdons.map(d => `  - Doação solidária — ${brl(d.valor)}`),
+      `  Total pendente: ${brl(dados.valor_residual)}`,
       ``,
       `Sua inscrição está garantida — clique no link pra pagar o Pix (se o código anterior expirou, geramos um novo automaticamente):`,
       linkRetomar,
