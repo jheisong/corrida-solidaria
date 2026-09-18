@@ -316,7 +316,7 @@
       </div>
       <div id="bloco-pix" style="display: none; width: 100%; background: #F6F8FC; border-radius: 12px; padding: 14px; flex-direction: column; align-items: center; gap: 10px;">
         <strong style="color: #16357F; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase;">Pague com Pix</strong>
-        <span style="font-size: 13px; text-align: center;">Copie o código ou escaneie o QR e pague <strong style="color: #16357F;" id="r-total-pix"></strong>. Expira em 30 min.</span>
+        <span style="font-size: 13px; text-align: center;">Copie o código ou escaneie o QR e pague <strong style="color: #16357F;" id="r-total-pix"></strong>. Válido por 48h.</span>
         <div style="width: 100%; display: flex; align-items: center; gap: 8px;">
           <button id="btn-copiar" type="button" class="btn" style="background: #16357F; color: #FFFFFF; padding: 8px 14px; font-size: 14px; white-space: nowrap;" onclick="copiarPix()">Copiar código</button>
           <code id="pix-preview" style="flex: 1; font-family: monospace; font-size: 12px; color: #6B7A99; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: #FFFFFF; border: 1px solid #D6DFEF; border-radius: 6px; padding: 6px 8px;"></code>
@@ -840,13 +840,14 @@ async function concluirSomenteDoacao(pular) {
     }
     window.__pagamento = data.pagamento || null;
     btn.disabled = false; btn.textContent = "Concluir inscrição";
+    const totalCobranca = Number(data.valor || doacao);
     document.getElementById("r-nome").textContent = (val("f-nome") || "Você").split(" ")[0];
     document.getElementById("r-num").textContent = "#" + estado.dupInscricaoId;
     document.getElementById("r-modalidade").textContent = "Doação solidária";
     document.getElementById("r-camisa").textContent = "Não";
-    document.getElementById("r-doacao").textContent = fmt(doacao);
-    document.getElementById("r-total").textContent = fmt(doacao);
-    montaBlocoPix(doacao);
+    document.getElementById("r-doacao").textContent = fmt(doacao) + (totalCobranca > doacao ? " (nova)" : "");
+    document.getElementById("r-total").textContent = fmt(totalCobranca) + (totalCobranca > doacao ? " (inclui pendências)" : "");
+    montaBlocoPix(totalCobranca);
     irPara(4);
   } catch {
     mostraErro("erro3", "Falha de conexão. Tente novamente.");
@@ -894,12 +895,13 @@ async function concluirSomenteCamisa() {
     window.__pagamento = data.pagamento || null;
     btn.disabled = false; btn.textContent = "Concluir inscrição";
 
+    const totalCobranca = Number(data.valor || PRECO_CAMISA);
     document.getElementById("r-nome").textContent = (val("f-nome") || "Você").split(" ")[0];
     document.getElementById("r-num").textContent = "#" + inscId;
     document.getElementById("r-modalidade").textContent = "Camiseta oficial";
     document.getElementById("r-camisa").textContent = "Tamanho " + estado.tamanho + " · " + fmt(PRECO_CAMISA);
     document.getElementById("r-doacao").textContent = "Não";
-    document.getElementById("r-total").textContent = fmt(PRECO_CAMISA);
+    document.getElementById("r-total").textContent = fmt(totalCobranca) + (totalCobranca > PRECO_CAMISA ? " (inclui pendências)" : "");
 
     const blocoPix = document.getElementById("bloco-pix");
     const pag = window.__pagamento;
@@ -908,7 +910,7 @@ async function concluirSomenteCamisa() {
       qr.addData(pag.pixCopiaECola, "Byte");
       qr.make();
       document.getElementById("qr-img").src = qr.createDataURL(6, 8);
-      document.getElementById("r-total-pix").textContent = fmt(PRECO_CAMISA);
+      document.getElementById("r-total-pix").textContent = fmt(totalCobranca);
       const cc = document.getElementById("pix-copia-cola");
       if (cc) cc.value = pag.pixCopiaECola;
       const preview = document.getElementById("pix-preview");
