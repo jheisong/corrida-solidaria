@@ -397,8 +397,8 @@ export function ofertaCamisa(dados) {
   const valor = Number(dados.valor_camiseta || 40);
 
   const blocos = [
-    `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Oi, <strong style="color:${COR_PRIMARIA};">${esc(nome)}</strong>! Que tal levar a <strong>camisa oficial</strong> do <strong>${esc(EVENTO)}</strong> pra casa? 💙</p>`,
-    `<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Além de ficar lindo(a) na largada, cada camisa ajuda a levar prevenção ao diabetes para mais pessoas.</p>`,
+    `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Oi, <strong style="color:${COR_PRIMARIA};">${esc(nome)}</strong>! Sua inscrição no <strong>${esc(EVENTO)}</strong> já está confirmada — nos vemos na largada em <strong>${esc(DATA_EVENTO)}</strong>. 🎉</p>`,
+    `<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Mas que tal levar também a <strong>camisa oficial</strong> pra casa? 💙 Além de ficar lindo(a) no dia, cada camisa ajuda a levar prevenção ao diabetes para mais pessoas.</p>`,
     tabelaKV([
       ["Nº de inscrição", `#${esc(dados.numero_inscricao)}`],
       ["Modalidade", esc(modalidade)],
@@ -420,8 +420,10 @@ export function ofertaCamisa(dados) {
     text: [
       `Oi, ${nome}!`,
       ``,
-      `Que tal levar a camisa oficial do ${EVENTO} pra casa?`,
-      `Valor: ${brl(valor)}. Cada camisa ajuda a levar prevenção ao diabetes para mais pessoas.`,
+      `Sua inscrição no ${EVENTO} já está confirmada — nos vemos na largada em ${DATA_EVENTO}.`,
+      ``,
+      `Mas que tal levar também a camisa oficial pra casa? Valor: ${brl(valor)}.`,
+      `Cada camisa ajuda a levar prevenção ao diabetes para mais pessoas.`,
       ``,
       `Nº de inscrição: #${dados.numero_inscricao}`,
       `Modalidade: ${modalidade}`,
