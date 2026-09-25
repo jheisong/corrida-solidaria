@@ -84,10 +84,19 @@ export async function enviarEregistrar(env, { inscricao_id, tipo, to, subject, h
   } catch (e) {
     const msg = String(e?.message || e).slice(0, 500);
     console.error("Erro sendEmail", { tipo, to, msg });
+    // Erro 422 = e-mail malformado (validation_error). Marca inscrição como
+    // e-mail inválido para o cron não reprocessar em loop.
+    const ehValidacao = /Resend 422/.test(msg) && /validation_error/.test(msg);
+    const status = ehValidacao ? "BLOQUEADO" : "FALHOU";
     await env.DB.prepare(
       `INSERT INTO emails_enviados (inscricao_id, tipo, destinatario, assunto, status, ultimo_erro)
-       VALUES (?, ?, ?, ?, 'FALHOU', ?)`
-    ).bind(inscricao_id, tipo, to, subject, msg).run();
+       VALUES (?, ?, ?, ?, ?, ?)`
+    ).bind(inscricao_id, tipo, to, subject, status, msg).run();
+    if (ehValidacao) {
+      await env.DB.prepare(
+        "UPDATE inscricoes SET email_invalido = 1 WHERE email = ?"
+      ).bind(to).run();
+    }
     return { ok: false, motivo: msg };
   }
 }
@@ -292,7 +301,7 @@ export async function confirmacaoInscricao(dados) {
   // 1c — pagou tudo (camisa/doação confirmadas)
   if (temContribuicao) {
     const blocos = [
-      `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Muito obrigado, <strong style="color:${COR_PRIMARIA};">${esc(nome)}</strong>! Sua inscrição no <strong>${esc(EVENTO)}</strong> está confirmada e sua contribuição já foi paga. 💙</p>`,
+      `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Muito obrigado, <strong style="color:${COR_PRIMARIA};">${esc(nome)}</strong>! Sua inscrição no <strong>${esc(EVENTO)}</strong> está confirmada e sua contribuição já foi paga. 💙 De coração, <strong>obrigado por abraçar essa causa com a gente</strong> — cada gesto assim ajuda a levar prevenção ao diabetes para mais gente da nossa comunidade. Você faz parte disso. 🙌</p>`,
       `<p style="margin:0 0 16px;font-size:15px;line-height:1.55;">Nos vemos na largada em <strong>${esc(DATA_EVENTO)}</strong>, na ${esc(LOCAL_EVENTO)}.</p>`,
       tabela,
       blocoAlimento,

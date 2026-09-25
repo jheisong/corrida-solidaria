@@ -34,6 +34,10 @@ certificate_id = "e53450f5-0151-4938-abc5-96e2b47e6c8e"
 [observability]
 enabled = true
 
+# Cron: a cada 1min processa e-mails de confirmação diferidos (>=5min desde a inscrição).
+[triggers]
+crons = ["*/1 * * * *"]
+
 [vars]
 SICREDI_AMBIENTE = "producao"
 RESEND_FROM_EMAIL = "inscricoes@treinosolidario.lccidadedovinho.com.br"

@@ -249,6 +249,8 @@
                 <th>Camisa</th>
                 <th>Doação</th>
                 <th>Pendente</th>
+                <th>Confirmação enviada</th>
+                <th>Pagamento confirmado</th>
                 <th>Último PENDENTE</th>
                 <th>Última OFERTA</th>
               </tr>
@@ -815,7 +817,7 @@ function renderEmailTable() {
   document.getElementById("em-info").textContent =
     q ? `${filtrados.length} de ${emAtletas.length} atleta(s).` : `${emAtletas.length} atleta(s).`;
   if (!filtrados.length) {
-    tbody.innerHTML = '<tr><td colspan="10" class="vazio">Nenhum atleta encontrado.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="12" class="vazio">Nenhum atleta encontrado.</td></tr>';
     return;
   }
   tbody.innerHTML = filtrados.map((a) => `
@@ -828,6 +830,8 @@ function renderEmailTable() {
       <td>${a.quer_camiseta ? "Sim · " + (a.tamanho_camiseta || "") : "—"}</td>
       <td>${Number(a.doacao_valor) > 0 ? fmtBRL(a.doacao_valor) : "—"}</td>
       <td>${a.valor_residual > 0 ? "<strong style='color:#B8860B;'>" + fmtBRL(a.valor_residual) + "</strong>" : "—"}</td>
+      <td>${fmtDT(a.ultimo_confirmacao_em)}</td>
+      <td>${fmtDT(a.ultimo_confirmado_em)}</td>
       <td>${fmtDT(a.ultimo_pendente_em)}</td>
       <td>${fmtDT(a.ultimo_oferta_em)}</td>
     </tr>`).join("");

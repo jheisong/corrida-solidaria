@@ -60,7 +60,11 @@ function validaCpf(cpf) {
 }
 
 function validaEmail(s) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+  if (typeof s !== "string") return false;
+  if (s.length > 254) return false;
+  if (s.includes("..")) return false;
+  // local@dominio.tld — dominio sem ponto inicial/final; tld 2+ letras.
+  return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*\.[A-Za-z]{2,}$/.test(s);
 }
 
 function validaData(s) {
@@ -139,6 +143,10 @@ function autorizado(request, env) {
 
 function disparaConfirmacao(env, ctx, { inscricao_id, nome, email, cpf, categoria, quer_camiseta, tamanho_camiseta, doacao_valor, valor_total, pix_copia_cola }) {
   if (!ctx || !env.RESEND_API_KEY || !email) return;
+  // Envio imediato só para inscrições sem valor pendente (grátis).
+  // Com valor pendente, o envio é deferido para o cron (scheduled), que
+  // aguarda 5 min para consolidar pagamento e enviar um único e-mail.
+  if (Number(valor_total || 0) > 0) return;
   ctx.waitUntil((async () => {
     try {
       const tpl = await confirmacaoInscricao({
@@ -694,9 +702,21 @@ async function handleWebhookPix(request, env, ctx) {
         ).bind(existente.inscricao_id).run();
       }
       const insc = await env.DB.prepare(
-        "SELECT id, nome, email FROM inscricoes WHERE id = ?"
+        "SELECT id, nome, email, created_at FROM inscricoes WHERE id = ?"
       ).bind(existente.inscricao_id).first();
-      if (insc?.email && ctx) {
+      // Se a inscrição tem <5min e ainda não recebeu CONFIRMACAO, o cron
+      // (scheduled) vai mandar UM único e-mail combinado (inscrição + agradecimento).
+      // Nesse caso, o webhook NÃO envia CONFIRMADO para evitar duplicidade.
+      let jaTemConfirmacao = false;
+      if (insc) {
+        const rowConf = await env.DB.prepare(
+          "SELECT 1 FROM emails_enviados WHERE inscricao_id = ? AND tipo = 'CONFIRMACAO' AND status IN ('ENVIADO','BLOQUEADO') LIMIT 1"
+        ).bind(existente.inscricao_id).first();
+        jaTemConfirmacao = !!rowConf;
+      }
+      const idadeMs = insc?.created_at ? (Date.now() - new Date(insc.created_at.replace(" ", "T") + "Z").getTime()) : Infinity;
+      const inscricaoRecente = idadeMs < 5 * 60 * 1000;
+      if (insc?.email && ctx && (!inscricaoRecente || jaTemConfirmacao)) {
         const tpl = pagamentoConfirmado({
           nome: insc.nome,
           numero_inscricao: insc.id,
@@ -845,9 +865,13 @@ async function listarAtletasParaEmail(env, filtro) {
       COALESCE(cam.tamanhos, '')      AS tamanhos_camisa,
       COALESCE(don.total, 0)          AS total_doacoes,
       (SELECT MAX(criado_em) FROM emails_enviados e
-        WHERE e.inscricao_id = i.id AND e.tipo = 'PENDENTE')       AS ultimo_pendente_em,
+        WHERE e.inscricao_id = i.id AND e.tipo = 'PENDENTE'    AND e.status = 'ENVIADO') AS ultimo_pendente_em,
       (SELECT MAX(criado_em) FROM emails_enviados e
-        WHERE e.inscricao_id = i.id AND e.tipo = 'OFERTA_CAMISA')  AS ultimo_oferta_em
+        WHERE e.inscricao_id = i.id AND e.tipo = 'OFERTA_CAMISA' AND e.status = 'ENVIADO') AS ultimo_oferta_em,
+      (SELECT MAX(criado_em) FROM emails_enviados e
+        WHERE e.inscricao_id = i.id AND e.tipo = 'CONFIRMACAO' AND e.status = 'ENVIADO') AS ultimo_confirmacao_em,
+      (SELECT MAX(criado_em) FROM emails_enviados e
+        WHERE e.inscricao_id = i.id AND e.tipo = 'CONFIRMADO'  AND e.status = 'ENVIADO') AS ultimo_confirmado_em
     FROM inscricoes i
     LEFT JOIN (
       SELECT inscricao_id,
@@ -893,6 +917,8 @@ async function listarAtletasParaEmail(env, filtro) {
       valor_residual: residual,
       ultimo_pendente_em: r.ultimo_pendente_em,
       ultimo_oferta_em: r.ultimo_oferta_em,
+      ultimo_confirmacao_em: r.ultimo_confirmacao_em,
+      ultimo_confirmado_em: r.ultimo_confirmado_em,
       created_at: r.created_at,
     };
   });
@@ -1066,7 +1092,69 @@ async function handleDetalhe(request, env, id) {
   });
 }
 
+// -------- confirmação diferida (cron) -----------------------------------
+
+async function enviarConfirmacaoDiferida(env, inscricaoId) {
+  const insc = await env.DB.prepare(
+    "SELECT id, nome, email, cpf, modalidade FROM inscricoes WHERE id = ?"
+  ).bind(inscricaoId).first();
+  if (!insc || !insc.email) return;
+  const { residual } = await calcularResidual(env, { id: inscricaoId });
+  const itens = await listaItens(env, inscricaoId);
+  const primeiraCamisa = (itens.camisas || [])[0] || null;
+  const valorDoacao = (itens.doacoes || []).reduce((s, d) => s + Number(d.valor || 0), 0);
+  const valorCamiseta = primeiraCamisa ? Number(primeiraCamisa.valor || 0) : 0;
+  const pend = await buscarPagamentoPendente(env, inscricaoId);
+  const tpl = await confirmacaoInscricao({
+    nome: insc.nome,
+    email: insc.email,
+    cpf: insc.cpf,
+    numero_inscricao: inscricaoId,
+    categoria: insc.modalidade,
+    quer_camiseta: !!primeiraCamisa,
+    tamanho_camiseta: primeiraCamisa?.tamanho || null,
+    valor_camiseta: valorCamiseta,
+    valor_doacao: valorDoacao,
+    valor_total: residual,
+    pix_copia_cola: pend?.pix_copia_cola,
+  });
+  await enviarEregistrar(env, {
+    inscricao_id: inscricaoId,
+    tipo: "CONFIRMACAO",
+    to: insc.email,
+    subject: tpl.subject,
+    html: tpl.html,
+    text: tpl.text,
+  });
+}
+
+async function processarConfirmacoesDiferidas(env) {
+  const { results } = await env.DB.prepare(`
+    SELECT i.id FROM inscricoes i
+    WHERE i.created_at <= datetime('now','-5 minutes')
+      AND i.email IS NOT NULL AND i.email <> ''
+      AND i.email_invalido = 0 AND i.email_complained = 0
+      AND NOT EXISTS (
+        SELECT 1 FROM emails_enviados e
+         WHERE e.inscricao_id = i.id
+           AND e.tipo = 'CONFIRMACAO'
+           AND e.status IN ('ENVIADO','BLOQUEADO')
+      )
+    ORDER BY i.created_at
+    LIMIT 50
+  `).all();
+  for (const { id } of results || []) {
+    try { await enviarConfirmacaoDiferida(env, id); }
+    catch (e) { console.error("scheduled CONFIRMACAO", id, String(e?.message || e)); }
+  }
+  return (results || []).length;
+}
+
 export default {
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(processarConfirmacoesDiferidas(env));
+  },
+
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
