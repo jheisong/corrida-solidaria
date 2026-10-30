@@ -43,6 +43,8 @@ SICREDI_AMBIENTE = "producao"
 RESEND_FROM_EMAIL = "inscricoes@treinosolidario.lccidadedovinho.com.br"
 RESEND_FROM_NAME  = "Treino Solidário"
 RESEND_REPLY_TO   = "lionsclubebgcidadedovinho@gmail.com"
+# "1" bloqueia aquisição de camisa (frontend oculta passos; backend ignora quer_camiseta e barra /camisa).
+CAMISA_ENCERRADA  = "1"
 
 # Secrets em prod (definir com `wrangler secret put NOME`):
 #   PAINEL_SENHA

@@ -28,6 +28,11 @@ function json(data, status = 200, extraHeaders = {}) {
   });
 }
 
+function camisaEncerrada(env) {
+  const v = env?.CAMISA_ENCERRADA;
+  return v === "1" || v === 1 || v === true || v === "true";
+}
+
 function strOrNull(v, max = 500) {
   if (v === undefined || v === null) return null;
   const s = String(v).trim();
@@ -185,6 +190,10 @@ async function handleInscricao(request, env, ctx) {
   const { erros, dados } = parseInscricao(body);
   if (erros.length) {
     return json({ ok: false, mensagem: erros[0].msg, erros }, 400);
+  }
+  if (camisaEncerrada(env)) {
+    dados.quer_camiseta = false;
+    dados.tamanho_camiseta = null;
   }
 
   const existente = await env.DB.prepare(
@@ -551,6 +560,9 @@ async function handleVerificarCpf(request, env) {
 }
 
 async function handleComprarCamisa(request, env, inscricaoId, ctx) {
+  if (camisaEncerrada(env)) {
+    return json({ ok: false, mensagem: "Período de aquisição de camisas encerrado. Você ainda pode contribuir com uma doação." }, 410);
+  }
   let body;
   try { body = await request.json(); } catch {
     return json({ ok: false, mensagem: "JSON inválido" }, 400);
@@ -1177,6 +1189,9 @@ export default {
     }
     if (url.pathname === "/api/health") {
       return json({ ok: true, evento: "Treino Solidário", data: "2026-11-08" });
+    }
+    if (url.pathname === "/api/config" && request.method === "GET") {
+      return json({ ok: true, camisa_encerrada: camisaEncerrada(env) });
     }
     // Sicredi pode postar em <url_cadastrada> ou <url_cadastrada>/pix.
     // Cadastre SICREDI_WEBHOOK_URL como "https://.../api/webhook".
