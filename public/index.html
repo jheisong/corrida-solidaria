@@ -58,7 +58,7 @@
     <a href="#cronograma" style="color: #33415E;">Cronograma</a>
     <a href="#regulamento" style="color: #33415E;">Regulamento</a>
     <a href="#patrocinadores" style="color: #33415E;">Patrocinadores</a>
-    <button class="btn" style="padding: 10px 20px; font-size: 17px;" onclick="abrirForm()">Inscreva-se</button>
+    <button class="btn" style="padding: 10px 20px; font-size: 17px;" onclick="abrirFormOuConsulta()">Inscreva-se</button>
   </div>
 </nav>
 
@@ -66,6 +66,7 @@
   <div class="wrap grid2" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 48px; align-items: center;">
     <div style="display: flex; flex-direction: column; gap: 20px;">
       <span class="kicker" style="color: #F5A800; font-size: 18px;">Lions Clube BG Cidade do Vinho · Prefeitura de Bento Gonçalves</span>
+      <div id="banner-encerradas" style="display: none; background: #FFF6E3; color: #6B4A00; border: 1.5px solid #E8B437; border-radius: 10px; padding: 12px 16px; font-size: 14px; line-height: 1.45;"><strong>Inscrições encerradas em 05/11.</strong> Se você já se inscreveu, informe seu CPF em "Consultar inscrição" para ver seus dados e pagar pendências.</div>
       <h1 style="color: #FFFFFF; font-weight: 800; font-size: clamp(40px, 8vw, 64px); line-height: 1.0;">Treino Solidário<br><span style="color: #3FA9F5;">de Prevenção à Diabetes</span></h1>
       <p style="margin: 0; font-size: 20px; color: #C9D6F0; max-width: 46ch;">Cada passo faz a diferença. Evento comunitário e sem caráter competitivo, com medalha de participação e ações de saúde para toda a comunidade.</p>
       <div style="display: flex; flex-wrap: wrap; gap: 10px;">
@@ -74,7 +75,7 @@
         <span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px;">Corrida Kids · 250 m</span>
       </div>
       <div style="display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap;">
-        <button class="btn" style="font-size: 22px; padding: 16px 32px;" onclick="abrirForm()">Inscrição gratuita</button>
+        <button class="btn" style="font-size: 22px; padding: 16px 32px;" onclick="abrirFormOuConsulta()">Inscrição gratuita</button>
         <span style="color: #C9D6F0; font-size: 15px;"><strong style="color: #FFFFFF;">8 de novembro de 2026 (domingo)</strong> · Pista atlética municipal · Bento Gonçalves/RS</span>
       </div>
     </div>
@@ -148,7 +149,6 @@
       <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_vetsaofrancisco.png" alt="Vet São Francisco" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
       <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_lirkult.png" alt="Lirkult" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
       <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/fundaparque_logo.png" alt="Fundaparque" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_n7.png" alt="N7" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
       <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_newshape.png" alt="New Shape" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
       <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_as.jpeg" alt="AS Treinamento Físico" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
       <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_nutrittiva.png" alt="Nutrittiva" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
@@ -158,6 +158,7 @@
       <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_trimod.png" alt="Trimod" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
       <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_icomp.jpeg" alt="ICOMP" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
       <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_cardiologic.jpeg" alt="Cardio Logic" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
+      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_suvalan.png" alt="Suvalan" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
     </div>
     <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
       <span class="kicker" style="color: #F5A800;">Patrocínio Master</span>
@@ -178,8 +179,11 @@
       </div>
       <div style="display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center;">
         <span class="kicker">Apoio</span>
-        <div style="height: 190px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 18px; width: 100%; max-width: 500px;"><img src="img/logo_bento.png" alt="Prefeitura de Bento Gonçalves" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-        <span style="font-size: 14px; color: #33415E; font-weight: 600;">Prefeitura Municipal de Bento Gonçalves</span>
+        <div style="height: 190px; display: flex; align-items: center; justify-content: center; gap: 18px; background: #FFFFFF; border-radius: 12px; padding: 18px; width: 100%; max-width: 500px;">
+          <img src="img/logo_bento.png" alt="Prefeitura de Bento Gonçalves" style="flex: 1.4; min-width: 0; max-height: 100%; object-fit: contain;">
+          <img src="img/logo_n7.png" alt="N7" style="flex: 1; min-width: 0; max-height: 75%; object-fit: contain;">
+        </div>
+        <span style="font-size: 14px; color: #33415E; font-weight: 600;">Prefeitura Municipal de Bento Gonçalves · N7</span>
       </div>
     </div>
     <span style="font-size: 15px; color: #6B7A99;">Quer apoiar a Treino Solidário? Fale com o Lions Clube Bento Gonçalves Cidade do Vinho: <a href="mailto:lionsclubebgcidadedovinho@gmail.com" style="color: #16357F; font-weight: 700;">lionsclubebgcidadedovinho@gmail.com</a><button type="button" class="btn-copiar-email" onclick="copiarEmail(this)" title="Copiar e-mail" aria-label="Copiar e-mail">📋</button>.</span>
@@ -195,7 +199,7 @@
         <span style="font-size: 14px;">Lions Clube Bento Gonçalves Cidade do Vinho · Prefeitura Municipal de Bento Gonçalves · AL 2026/2027</span>
       </div>
     </div>
-    <button class="btn" style="background: transparent; color: #F5A800; border: 1.5px solid #F5A800; padding: 10px 22px; font-size: 17px;" onclick="abrirForm()">Inscreva-se</button>
+    <button class="btn" style="background: transparent; color: #F5A800; border: 1.5px solid #F5A800; padding: 10px 22px; font-size: 17px;" onclick="abrirFormOuConsulta()">Inscreva-se</button>
   </div>
 </footer>
 
@@ -203,6 +207,16 @@
 <div id="modal" style="display: none; position: fixed; inset: 0; z-index: 100; background: rgba(10,22,52,0.6); align-items: center; justify-content: center; padding: 20px;">
   <div style="background: #FFFFFF; border-radius: 16px; width: 100%; max-width: 720px; max-height: 92vh; overflow: auto; padding: 28px 32px; position: relative; display: flex; flex-direction: column; gap: 20px;">
     <button onclick="fecharForm()" aria-label="Fechar" style="position: absolute; top: 14px; right: 14px; background: #F6F8FC; border: none; border-radius: 8px; width: 32px; height: 32px; font-size: 16px; color: #33415E; cursor: pointer;">✕</button>
+
+    <div id="passo1-consulta" style="display: none; flex-direction: column; gap: 16px;">
+      <span class="kicker" style="font-size: 15px;">Consulta de inscrição</span>
+      <h3 style="font-size: 30px;">Localize sua inscrição</h3>
+      <p style="margin: 0; font-size: 15px; color: #33415E; line-height: 1.5;">As inscrições foram encerradas em <strong>05/11</strong>. Se você já se inscreveu, informe seu CPF abaixo pra ver os dados, baixar comprovante ou pagar pendências.</p>
+      <label class="field"><span>CPF<span class="req" title="Campo obrigatório">*</span></span><input id="f-cpf-consulta" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" oninput="mascaraCpf(this)"></label>
+      <span id="erro-consulta" style="display: none; color: #C22B2B; font-size: 14px; font-weight: 600;"></span>
+      <button class="btn" onclick="consultarInscricaoPorCpf()">Consultar inscrição</button>
+      <button class="btn-ghost" onclick="fecharForm()">Fechar</button>
+    </div>
 
     <div id="passo1" style="display: flex; flex-direction: column; gap: 12px;">
       <span class="kicker" style="font-size: 15px;">Passo 1 de 3 · Inscrição gratuita</span>
@@ -429,14 +443,69 @@ function pickDoacao(v) { estado.doacao = v; document.getElementById("f-outro").v
 renderChips();
 
 window.__camisaEncerrada = false;
+window.__inscricoesEncerradas = false;
 (async function carregarConfig() {
   try {
     const r = await fetch("/api/config");
     const d = await r.json();
     window.__camisaEncerrada = !!d.camisa_encerrada;
+    window.__inscricoesEncerradas = !!d.inscricoes_encerradas;
     if (window.__camisaEncerrada) aplicarCamisaEncerrada();
-  } catch { /* se falhar, segue com camisa habilitada */ }
+    if (window.__inscricoesEncerradas) aplicarInscricoesEncerradas();
+  } catch { /* se falhar, segue com estado padrão */ }
 })();
+
+function aplicarInscricoesEncerradas() {
+  const banner = document.getElementById("banner-encerradas");
+  if (banner) banner.style.display = "block";
+  document.querySelectorAll('button[onclick="abrirFormOuConsulta()"]').forEach((b) => {
+    const t = b.textContent.trim().toLowerCase();
+    if (t.includes("inscrição") || t.includes("inscreva") || t.includes("inscricao")) {
+      b.textContent = "Consultar inscrição";
+    }
+  });
+}
+
+function abrirFormOuConsulta() {
+  if (window.__inscricoesEncerradas) return abrirConsulta();
+  return abrirForm();
+}
+
+function abrirConsulta() {
+  resetForm();
+  ["passo1","passo2","passo3","passo4","passo-duplicado"].forEach((id) => {
+    const el = document.getElementById(id); if (el) el.style.display = "none";
+  });
+  const p = document.getElementById("passo1-consulta");
+  if (p) p.style.display = "flex";
+  mostraErro("erro-consulta", "");
+  document.getElementById("modal").style.display = "flex";
+}
+
+async function consultarInscricaoPorCpf() {
+  const cpfRaw = document.getElementById("f-cpf-consulta").value;
+  const cpf = (cpfRaw || "").replace(/\D/g, "");
+  if (cpf.length !== 11 || !validaCpfFront(cpf)) {
+    return mostraErro("erro-consulta", "Informe um CPF válido (11 dígitos).");
+  }
+  mostraErro("erro-consulta", "");
+  try {
+    const r = await fetch("/api/inscricao/verificar-cpf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cpf }),
+    });
+    const d = await r.json();
+    if (d.ok && d.existe) {
+      document.getElementById("f-cpf").value = cpfRaw;
+      mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente, { pode_renovar: d.pode_renovar, valor_residual: d.valor_residual, itens: d.itens, totais: d.totais });
+      return;
+    }
+    mostraErro("erro-consulta", "Não encontramos inscrição para este CPF. As inscrições foram encerradas em 05/11.");
+  } catch (e) {
+    mostraErro("erro-consulta", "Erro ao consultar. Tente novamente em instantes.");
+  }
+}
 
 function aplicarCamisaEncerrada() {
   const aviso = document.getElementById("aviso-camisa-encerrada");
@@ -463,11 +532,17 @@ function aplicarCamisaEncerrada() {
   if (cpf.length !== 11) return;
   // deixa a UI carregar antes de disparar
   setTimeout(() => {
-    abrirForm();
-    const el = document.getElementById("f-cpf");
-    if (!el) return;
-    el.value = cpf;
-    mascaraCpf(el);      // aciona verificarCpfAuto → mostrarDuplicado
+    if (window.__inscricoesEncerradas) {
+      abrirConsulta();
+      const el = document.getElementById("f-cpf-consulta");
+      if (el) { el.value = cpf; mascaraCpf(el); consultarInscricaoPorCpf(); }
+    } else {
+      abrirForm();
+      const el = document.getElementById("f-cpf");
+      if (!el) return;
+      el.value = cpf;
+      mascaraCpf(el);      // aciona verificarCpfAuto → mostrarDuplicado
+    }
     history.replaceState(null, "", location.pathname); // limpa hash da URL
   }, 100);
 })();

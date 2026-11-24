@@ -30,11 +30,17 @@ const LEMBRETE_ALIMENTO =
 
 // -------- envio bruto ----------------------------------------------------
 
-export async function sendEmail(env, { to, subject, html, text, replyTo }) {
+export async function sendEmail(env, { to, subject, html, text, replyTo, provider }) {
+  const prov = (provider || env.EMAIL_PROVIDER || "resend").toLowerCase();
+  if (prov === "brevo") return sendEmailBrevo(env, { to, subject, html, text, replyTo });
+  return sendEmailResend(env, { to, subject, html, text, replyTo });
+}
+
+async function sendEmailResend(env, { to, subject, html, text, replyTo }) {
   if (!env.RESEND_API_KEY) throw new Error("RESEND_API_KEY não configurada.");
   if (!env.RESEND_FROM_EMAIL) throw new Error("RESEND_FROM_EMAIL não configurado.");
   if (env.EMAIL_DRY_RUN === "1") {
-    console.log("EMAIL_DRY_RUN", { to, subject, snippet: (text || "").slice(0, 120) });
+    console.log("EMAIL_DRY_RUN resend", { to, subject, snippet: (text || "").slice(0, 120) });
     return { id: "dry-run-" + Date.now() };
   }
   const from = `${env.RESEND_FROM_NAME || "Treino Solidário"} <${env.RESEND_FROM_EMAIL}>`;
@@ -61,9 +67,44 @@ export async function sendEmail(env, { to, subject, html, text, replyTo }) {
   return json;
 }
 
+async function sendEmailBrevo(env, { to, subject, html, text, replyTo }) {
+  if (!env.BREVO_API_KEY) throw new Error("BREVO_API_KEY não configurada.");
+  if (!env.RESEND_FROM_EMAIL) throw new Error("RESEND_FROM_EMAIL não configurado.");
+  if (env.EMAIL_DRY_RUN === "1") {
+    console.log("EMAIL_DRY_RUN brevo", { to, subject, snippet: (text || "").slice(0, 120) });
+    return { id: "dry-run-" + Date.now() };
+  }
+  const dest = Array.isArray(to) ? to : [to];
+  const body = {
+    sender: {
+      name: env.RESEND_FROM_NAME || "Treino Solidário",
+      email: env.RESEND_FROM_EMAIL,
+    },
+    to: dest.map((e) => ({ email: e })),
+    replyTo: { email: replyTo || env.RESEND_REPLY_TO || env.RESEND_FROM_EMAIL },
+    subject,
+    htmlContent: html,
+    textContent: text,
+  };
+  const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "api-key": env.BREVO_API_KEY,
+      "content-type": "application/json",
+      accept: "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  const t = await r.text();
+  let json = null;
+  try { json = t ? JSON.parse(t) : null; } catch { /* ignora */ }
+  if (!r.ok) throw new Error(`Brevo ${r.status}: ${t.slice(0, 500)}`);
+  return { id: json?.messageId || null };
+}
+
 // -------- envio + gravação ----------------------------------------------
 
-export async function enviarEregistrar(env, { inscricao_id, tipo, to, subject, html, text, replyTo }) {
+export async function enviarEregistrar(env, { inscricao_id, tipo, to, subject, html, text, replyTo, provider }) {
   const queimado = await env.DB.prepare(
     "SELECT 1 FROM inscricoes WHERE email = ? AND (email_invalido = 1 OR email_complained = 1) LIMIT 1"
   ).bind(to).first();
@@ -75,7 +116,7 @@ export async function enviarEregistrar(env, { inscricao_id, tipo, to, subject, h
     return { ok: false, motivo: "endereço queimado" };
   }
   try {
-    const r = await sendEmail(env, { to, subject, html, text, replyTo });
+    const r = await sendEmail(env, { to, subject, html, text, replyTo, provider });
     await env.DB.prepare(
       `INSERT INTO emails_enviados (inscricao_id, tipo, destinatario, assunto, resend_id, status)
        VALUES (?, ?, ?, ?, ?, 'ENVIADO')`
@@ -86,7 +127,7 @@ export async function enviarEregistrar(env, { inscricao_id, tipo, to, subject, h
     console.error("Erro sendEmail", { tipo, to, msg });
     // Erro 422 = e-mail malformado (validation_error). Marca inscrição como
     // e-mail inválido para o cron não reprocessar em loop.
-    const ehValidacao = /Resend 422/.test(msg) && /validation_error/.test(msg);
+    const ehValidacao = /(Resend 422|Brevo 400).*validation|invalid|malformed/i.test(msg);
     const status = ehValidacao ? "BLOQUEADO" : "FALHOU";
     await env.DB.prepare(
       `INSERT INTO emails_enviados (inscricao_id, tipo, destinatario, assunto, status, ultimo_erro)
@@ -491,6 +532,51 @@ export function ofertaCamisa(dados) {
       LEMBRETE_ALIMENTO,
       ``,
       `Dúvidas? ${EMAIL_CONTATO}`,
+      `— ${ORGANIZADOR}`,
+    ].join("\n"),
+  };
+}
+
+// -------- template: CONVITE_AMIGOS -------------------------------------
+
+/**
+ * dados: { nome }
+ * Mensagem de meia-semana: reforça preparação e convida a trazer amigos.
+ */
+export function conviteAmigos(dados) {
+  const nome = primeiroNome(dados.nome);
+
+  const blocos = [
+    `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Olá, <strong style="color:${COR_PRIMARIA};">${esc(nome)}</strong>!</p>`,
+    `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Domingo (<strong>${esc(DATA_EVENTO)}</strong>) é o nosso <strong>${esc(EVENTO)}</strong> — e <strong>você já faz parte dessa corrente</strong>. 💙</p>`,
+    `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;"><strong>Essa semana é de preparo.</strong> <strong>Hidrate-se bem</strong>, cuide da alimentação e <strong>descanse na véspera</strong> — chegar inteiro na largada vale mais que qualquer tempo no relógio.</p>`,
+    `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;"><strong>Cada passo faz a diferença.</strong> Que tal convidar um amigo pra correr/caminhar junto? Quanto mais gente na largada, mais ações a gente consegue levar pra nossa comunidade.</p>`,
+    `<p style="margin:0 0 12px;font-size:15px;line-height:1.55;">Infelizmente a aquisição das camisas do evento já está encerrada, mas <strong>as inscrições para participação seguem abertas até quarta-feira (05/11)</strong>.</p>`,
+    `<p style="margin:16px 0 0;font-size:15px;line-height:1.55;">Obrigado por abraçar a causa com a gente — nos vemos na largada 💙🦁</p>`,
+  ];
+
+  return {
+    subject: `Treino Solidário é domingo — cuide do corpo essa semana 💙`,
+    html: layout({
+      titulo: `Faltam poucos dias, ${esc(nome)} 💙`,
+      preheader: `Cada passo faz a diferença · Convide um amigo · Inscrições até quarta`,
+      blocos,
+      ctaTexto: "Convide um amigo",
+      ctaHref: `${LINK_SITE}/`,
+    }),
+    text: [
+      `Olá, ${nome}!`,
+      ``,
+      `Domingo (${DATA_EVENTO}) é o nosso ${EVENTO} — e você já faz parte dessa corrente.`,
+      ``,
+      `Essa semana é de preparo. Hidrate-se bem, cuide da alimentação e descanse na véspera — chegar inteiro na largada vale mais que qualquer tempo no relógio.`,
+      ``,
+      `Cada passo faz a diferença. Que tal convidar um amigo pra correr/caminhar junto? Quanto mais gente na largada, mais ações a gente consegue levar pra nossa comunidade.`,
+      ``,
+      `Infelizmente a aquisição das camisas do evento já está encerrada, mas as inscrições para participação seguem abertas até quarta-feira (05/11) em ${LINK_SITE}.`,
+      ``,
+      `Obrigado por abraçar a causa com a gente — nos vemos na largada.`,
+      ``,
       `— ${ORGANIZADOR}`,
     ].join("\n"),
   };

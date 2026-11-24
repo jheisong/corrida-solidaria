@@ -5,7 +5,7 @@
  */
 
 import { gerarTxid, criarCobranca, cadastrarWebhook, revisarCobrancaExpiracao } from "./sicredi.js";
-import { enviarEregistrar, confirmacaoInscricao, pagamentoConfirmado, pagamentoPendente, ofertaCamisa, avisoGeral } from "./emails.js";
+import { enviarEregistrar, confirmacaoInscricao, pagamentoConfirmado, pagamentoPendente, ofertaCamisa, avisoGeral, conviteAmigos } from "./emails.js";
 
 const MODALIDADES = new Set(["corrida-5km", "caminhada-5km", "kids-250m"]);
 const TAMANHOS = new Set(["PP", "P", "M", "G", "GG", "XG", "INFANTIL"]);
@@ -30,6 +30,11 @@ function json(data, status = 200, extraHeaders = {}) {
 
 function camisaEncerrada(env) {
   const v = env?.CAMISA_ENCERRADA;
+  return v === "1" || v === 1 || v === true || v === "true";
+}
+
+function inscricoesEncerradas(env) {
+  const v = env?.INSCRICOES_ENCERRADAS;
   return v === "1" || v === 1 || v === true || v === "true";
 }
 
@@ -180,6 +185,9 @@ function disparaConfirmacao(env, ctx, { inscricao_id, nome, email, cpf, categori
 }
 
 async function handleInscricao(request, env, ctx) {
+  if (inscricoesEncerradas(env)) {
+    return json({ ok: false, mensagem: "Inscrições encerradas em 05/11. Se você já se inscreveu, consulte sua inscrição informando o CPF." }, 410);
+  }
   let body;
   try {
     body = await request.json();
@@ -863,9 +871,9 @@ async function handleListar(request, env) {
 
 const FILTROS_EMAIL = new Set([
   "todos", "pendentes", "pendentes_sem_email", "pendentes_email_antigo_48h",
-  "sem_camisa", "sem_camisa_sem_oferta", "pagos_confirmados",
+  "sem_camisa", "sem_camisa_sem_oferta", "pagos_confirmados", "sem_convite_amigos",
 ]);
-const TIPOS_EMAIL_MANUAL = new Set(["CONFIRMACAO", "PENDENTE", "OFERTA_CAMISA", "AVISO_GERAL"]);
+const TIPOS_EMAIL_MANUAL = new Set(["CONFIRMACAO", "PENDENTE", "OFERTA_CAMISA", "AVISO_GERAL", "CONVITE_AMIGOS"]);
 
 async function listarAtletasParaEmail(env, filtro) {
   const { results } = await env.DB.prepare(`
@@ -883,7 +891,9 @@ async function listarAtletasParaEmail(env, filtro) {
       (SELECT MAX(criado_em) FROM emails_enviados e
         WHERE e.inscricao_id = i.id AND e.tipo = 'CONFIRMACAO' AND e.status = 'ENVIADO') AS ultimo_confirmacao_em,
       (SELECT MAX(criado_em) FROM emails_enviados e
-        WHERE e.inscricao_id = i.id AND e.tipo = 'CONFIRMADO'  AND e.status = 'ENVIADO') AS ultimo_confirmado_em
+        WHERE e.inscricao_id = i.id AND e.tipo = 'CONFIRMADO'  AND e.status = 'ENVIADO') AS ultimo_confirmado_em,
+      (SELECT MAX(criado_em) FROM emails_enviados e
+        WHERE e.inscricao_id = i.id AND e.tipo = 'CONVITE_AMIGOS' AND e.status = 'ENVIADO') AS ultimo_convite_em
     FROM inscricoes i
     LEFT JOIN (
       SELECT inscricao_id,
@@ -931,6 +941,7 @@ async function listarAtletasParaEmail(env, filtro) {
       ultimo_oferta_em: r.ultimo_oferta_em,
       ultimo_confirmacao_em: r.ultimo_confirmacao_em,
       ultimo_confirmado_em: r.ultimo_confirmado_em,
+      ultimo_convite_em: r.ultimo_convite_em,
       created_at: r.created_at,
     };
   });
@@ -947,13 +958,18 @@ async function listarAtletasParaEmail(env, filtro) {
       case "sem_camisa_sem_oferta": return !r.quer_camiseta && !r.ultimo_oferta_em;
       case "pagos_confirmados":
         return r.valor_esperado > 0 && r.valor_residual === 0;
+      case "sem_convite_amigos": return !r.ultimo_convite_em;
       default: return true;
     }
   });
 }
 
-async function cotaHoje(env) {
-  const limite = Number(env.EMAIL_LIMITE_DIARIO || 100);
+async function cotaHoje(env, provider) {
+  // Resend free = 100/dia · Brevo free = 300/dia.
+  // Como emails_enviados não guarda provider, uma mudança para brevo libera o teto maior,
+  // mas o contador segue global (Resend disparado por cron ainda conta).
+  const limiteDefault = Number(env.EMAIL_LIMITE_DIARIO || 100);
+  const limite = provider === "brevo" ? Math.max(limiteDefault, 300) : limiteDefault;
   const row = await env.DB.prepare(
     "SELECT COUNT(*) n FROM emails_enviados WHERE status = 'ENVIADO' AND date(criado_em) = date('now')"
   ).first();
@@ -978,6 +994,10 @@ async function handleEnviarEmails(request, env, ctx) {
   const tipo = String(body.tipo || "");
   if (!ids.length) return json({ ok: false, mensagem: "Selecione ao menos um atleta." }, 400);
   if (!TIPOS_EMAIL_MANUAL.has(tipo)) return json({ ok: false, mensagem: "Tipo inválido." }, 400);
+  const provider = String(body.provider || "").toLowerCase();
+  if (provider && !["resend", "brevo"].includes(provider)) {
+    return json({ ok: false, mensagem: "Provider inválido (use resend ou brevo)." }, 400);
+  }
 
   const extraAssunto = String(body.extra?.assunto || "").slice(0, 200);
   const extraCorpo = String(body.extra?.corpo_html || "").slice(0, 30000);
@@ -1006,7 +1026,7 @@ async function handleEnviarEmails(request, env, ctx) {
   const base = Number(env.SICREDI_VALOR_INSCRICAO || 0);
   const camisaVal = Number(env.CAMISA_VALOR || 40);
 
-  const cota = await cotaHoje(env);
+  const cota = await cotaHoje(env, provider);
   let restante = cota.restante;
   const resumo = { total: results.length, enviados: 0, falhou: 0, ignorados_cota: 0, detalhes: [] };
 
@@ -1050,6 +1070,8 @@ async function handleEnviarEmails(request, env, ctx) {
           nome: r.nome, categoria: r.modalidade,
           assunto: extraAssunto, corpo_html: extraCorpo,
         });
+      } else if (tipo === "CONVITE_AMIGOS") {
+        tpl = conviteAmigos({ nome: r.nome });
       }
     } catch (e) {
       resumo.falhou++;
@@ -1064,6 +1086,7 @@ async function handleEnviarEmails(request, env, ctx) {
       subject: tpl.subject,
       html: tpl.html,
       text: tpl.text,
+      provider: provider || undefined,
     });
     if (res.ok) {
       resumo.enviados++;
@@ -1191,7 +1214,11 @@ export default {
       return json({ ok: true, evento: "Treino Solidário", data: "2026-11-08" });
     }
     if (url.pathname === "/api/config" && request.method === "GET") {
-      return json({ ok: true, camisa_encerrada: camisaEncerrada(env) });
+      return json({
+        ok: true,
+        camisa_encerrada: camisaEncerrada(env),
+        inscricoes_encerradas: inscricoesEncerradas(env),
+      });
     }
     // Sicredi pode postar em <url_cadastrada> ou <url_cadastrada>/pix.
     // Cadastre SICREDI_WEBHOOK_URL como "https://.../api/webhook".

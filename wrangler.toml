@@ -45,6 +45,8 @@ RESEND_FROM_NAME  = "Treino Solidário"
 RESEND_REPLY_TO   = "lionsclubebgcidadedovinho@gmail.com"
 # "1" bloqueia aquisição de camisa (frontend oculta passos; backend ignora quer_camiseta e barra /camisa).
 CAMISA_ENCERRADA  = "1"
+# "1" bloqueia novas inscrições (frontend mostra banner + modo consulta; backend barra POST /api/inscricao).
+INSCRICOES_ENCERRADAS = "1"
 
 # Secrets em prod (definir com `wrangler secret put NOME`):
 #   PAINEL_SENHA

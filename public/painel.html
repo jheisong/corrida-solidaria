@@ -225,6 +225,7 @@
           <option value="sem_camisa_sem_oferta">Sem camisa · sem oferta enviada</option>
           <option value="sem_camisa">Todos sem camisa</option>
           <option value="pagos_confirmados">Pagos confirmados</option>
+          <option value="sem_convite_amigos">Sem convite amigos enviado</option>
           <option value="todos">Todos os inscritos</option>
         </select>
         <button id="em-listar">Listar</button>
@@ -253,6 +254,7 @@
                 <th>Pagamento confirmado</th>
                 <th>Último PENDENTE</th>
                 <th>Última OFERTA</th>
+                <th>Convite amigos</th>
               </tr>
             </thead>
             <tbody id="em-tbody"></tbody>
@@ -268,7 +270,12 @@
           <option value="CONFIRMACAO">CONFIRMACAO — reenviar confirmação de inscrição</option>
           <option value="PENDENTE">PENDENTE — cobrar valor em aberto</option>
           <option value="OFERTA_CAMISA">OFERTA_CAMISA — convite pra camisa</option>
+          <option value="CONVITE_AMIGOS">CONVITE_AMIGOS — chama um amigo + lembrete semana</option>
           <option value="AVISO_GERAL">AVISO_GERAL — corpo livre</option>
+        </select>
+        <select id="em-provider" title="Provedor de envio">
+          <option value="resend">Resend (default · 100/dia)</option>
+          <option value="brevo">Brevo (300/dia)</option>
         </select>
         <span id="em-sel-contagem" style="font-size:13px;color:#5B6A87;">0 selecionados</span>
         <div class="grow"></div>
@@ -537,6 +544,16 @@ function renderCards() {
     else qtdSem++;
   });
   const pendenteValor = Math.max(0, totalCobrado - totalPago);
+  const totalCamisas = Object.values(porTam).reduce((s, n) => s + n, 0);
+  const ordemTam = ["PP", "P", "M", "G", "GG", "XG", "INFANTIL"];
+  const tamsOrdenados = Object.keys(porTam).sort((a, b) => {
+    const ia = ordemTam.indexOf(a);
+    const ib = ordemTam.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b);
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
   el("cards").innerHTML = `
     <div class="card">
       <div class="lbl">Total inscritos</div>
@@ -558,8 +575,9 @@ function renderCards() {
     </div>
     <div class="card ouro">
       <div class="lbl">Camisetas pedidas</div>
-      <div class="val">${comCamisa}</div>
-      <ul>${Object.keys(porTam).sort().map(t => `<li>${esc(t)} <strong>${porTam[t]}</strong></li>`).join("")}</ul>
+      <div class="val">${totalCamisas}</div>
+      <div style="font-size:12px;color:#5B6A87;margin-top:-4px;">de ${comCamisa} pessoa${comCamisa === 1 ? "" : "s"}</div>
+      <ul>${tamsOrdenados.map(t => `<li>${esc(t)} <strong>${porTam[t]}</strong></li>`).join("")}</ul>
     </div>
     <div class="card ouro">
       <div class="lbl">Arrecadado (pago)</div>
@@ -817,7 +835,7 @@ function renderEmailTable() {
   document.getElementById("em-info").textContent =
     q ? `${filtrados.length} de ${emAtletas.length} atleta(s).` : `${emAtletas.length} atleta(s).`;
   if (!filtrados.length) {
-    tbody.innerHTML = '<tr><td colspan="12" class="vazio">Nenhum atleta encontrado.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="13" class="vazio">Nenhum atleta encontrado.</td></tr>';
     return;
   }
   tbody.innerHTML = filtrados.map((a) => `
@@ -834,6 +852,7 @@ function renderEmailTable() {
       <td>${fmtDT(a.ultimo_confirmado_em)}</td>
       <td>${fmtDT(a.ultimo_pendente_em)}</td>
       <td>${fmtDT(a.ultimo_oferta_em)}</td>
+      <td>${fmtDT(a.ultimo_convite_em)}</td>
     </tr>`).join("");
   tbody.querySelectorAll("input[type=checkbox]").forEach((c) => {
     c.addEventListener("change", (e) => {
@@ -885,7 +904,8 @@ async function enviarSelecionados() {
     extra.corpo_html = document.getElementById("em-corpo").value.trim();
     if (!extra.assunto || !extra.corpo_html) { emErr("Preencha assunto e corpo do aviso."); return; }
   }
-  if (!confirm(`Enviar ${ids.length} e-mail(s) do tipo ${tipo}?`)) return;
+  const provider = document.getElementById("em-provider").value;
+  if (!confirm(`Enviar ${ids.length} e-mail(s) do tipo ${tipo} via ${provider.toUpperCase()}?`)) return;
   const btn = document.getElementById("em-enviar");
   btn.disabled = true; btn.textContent = "Enviando…";
   emErr(""); emOk("");
@@ -893,7 +913,7 @@ async function enviarSelecionados() {
     const r = await fetch("/api/painel/emails/enviar", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem(KEY) },
-      body: JSON.stringify({ ids, tipo, extra }),
+      body: JSON.stringify({ ids, tipo, extra, provider }),
     });
     if (r.status === 401) { localStorage.removeItem(KEY); return mostrarLogin(); }
     const d = await r.json();
