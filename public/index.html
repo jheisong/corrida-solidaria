@@ -10,7 +10,31 @@
 <meta property="og:image" content="img/fotos/gmotta-0069.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js');</script>
 <style>
+
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.marquee{animation:marquee 38s linear infinite}
+@keyframes cair{0%{transform:translateY(-40px) rotate(0deg)}100%{transform:translateY(900px) rotate(720deg)}}
+.confete{position:absolute;top:-20px;animation-name:cair;animation-timing-function:linear;animation-iteration-count:infinite}
+@keyframes flutua{0%,100%{transform:translateY(0) rotate(var(--r))}50%{transform:translateY(-12px) rotate(var(--r))}}
+.polaroid{transform:rotate(var(--r));animation:flutua 5s ease-in-out infinite}
+@keyframes sobe{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.rise{animation:sobe .8s cubic-bezier(.2,.7,.2,1) both}
+@keyframes entra{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.pop{animation:entra 1s cubic-bezier(.2,.7,.2,1) both}
+@keyframes aceno{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(-4deg)}20%,40%{transform:rotate(4deg)}}
+.wave{transform-origin:20% 80%;animation:sobe .8s cubic-bezier(.2,.7,.2,1) both,aceno 4s ease-in-out 1.2s infinite}
+@keyframes volta{to{stroke-dashoffset:-1200}}
+.lane{animation:volta 4.5s linear infinite}.lane2{animation-duration:6s;animation-delay:-2s}
+@keyframes pulsa{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.pulse{animation:pulsa 2.4s ease-in-out infinite}
+.foto img{transition:transform .6s cubic-bezier(.2,.7,.2,1)}.foto:hover img{transform:scale(1.06)}
+.logo-card{transition:transform .25s,box-shadow .25s,opacity .7s}.logo-card:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(22,53,127,.12)}
+html.js .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+html.js .reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important}html.js .reveal{opacity:1;transform:none}.confete{display:none}}
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; }
@@ -40,76 +64,136 @@ h1, h2, h3, h4 { font-family: 'Barlow Condensed', sans-serif; text-transform: up
 </div>
 </nav>
 
-<header id="topo" style="background: #16357F; color: #FFFFFF; padding: 72px 24px 80px">
-<div class="grid2" style="max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center">
+<header id="topo" style="position: relative; overflow: hidden; background: #16357F; color: #FFFFFF; padding: 72px 24px 96px">
+<div aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none">
+<span class="confete" style="left: 32.4%; width: 6px; height: 6px; background: #F5A800; animation-duration: 8.1s; animation-delay: -9.1s; border-radius: 2px; opacity: 0.85"></span>
+<span class="confete" style="left: 58.3%; width: 6px; height: 14px; background: #FFB81F; animation-duration: 13.4s; animation-delay: -3.0s; border-radius: 0px; opacity: 0.85"></span>
+<span class="confete" style="left: 24.1%; width: 10px; height: 10px; background: #3FA9F5; animation-duration: 10.9s; animation-delay: -0.8s; border-radius: 999px; opacity: 0.85"></span>
+<span class="confete" style="left: 62.7%; width: 8px; height: 10px; background: #3FA9F5; animation-duration: 13.6s; animation-delay: -8.1s; border-radius: 0px; opacity: 0.85"></span>
+<span class="confete" style="left: 55.7%; width: 10px; height: 10px; background: #8CCBF7; animation-duration: 7.9s; animation-delay: -5.9s; border-radius: 2px; opacity: 0.85"></span>
+<span class="confete" style="left: 56.0%; width: 10px; height: 6px; background: #3FA9F5; animation-duration: 11.8s; animation-delay: -1.4s; border-radius: 2px; opacity: 0.85"></span>
+<span class="confete" style="left: 9.7%; width: 10px; height: 10px; background: #FFB81F; animation-duration: 12.0s; animation-delay: -7.9s; border-radius: 999px; opacity: 0.85"></span>
+<span class="confete" style="left: 53.2%; width: 8px; height: 14px; background: #FFFFFF; animation-duration: 12.4s; animation-delay: -6.5s; border-radius: 0px; opacity: 0.85"></span>
+<span class="confete" style="left: 79.4%; width: 10px; height: 14px; background: #8CCBF7; animation-duration: 11.9s; animation-delay: -3.4s; border-radius: 2px; opacity: 0.85"></span>
+<span class="confete" style="left: 87.5%; width: 6px; height: 10px; background: #8CCBF7; animation-duration: 12.1s; animation-delay: -4.0s; border-radius: 2px; opacity: 0.85"></span>
+<span class="confete" style="left: 16.5%; width: 8px; height: 10px; background: #F5A800; animation-duration: 9.4s; animation-delay: -13.1s; border-radius: 999px; opacity: 0.85"></span>
+<span class="confete" style="left: 57.3%; width: 10px; height: 14px; background: #8CCBF7; animation-duration: 13.1s; animation-delay: -4.4s; border-radius: 2px; opacity: 0.85"></span>
+<span class="confete" style="left: 58.0%; width: 8px; height: 14px; background: #F5A800; animation-duration: 10.2s; animation-delay: -11.8s; border-radius: 0px; opacity: 0.85"></span>
+<span class="confete" style="left: 73.1%; width: 10px; height: 14px; background: #FFFFFF; animation-duration: 9.2s; animation-delay: -8.1s; border-radius: 999px; opacity: 0.85"></span>
+<span class="confete" style="left: 38.6%; width: 8px; height: 14px; background: #3FA9F5; animation-duration: 11.7s; animation-delay: -0.3s; border-radius: 999px; opacity: 0.85"></span>
+<span class="confete" style="left: 11.7%; width: 6px; height: 6px; background: #3FA9F5; animation-duration: 7.4s; animation-delay: -10.8s; border-radius: 2px; opacity: 0.85"></span>
+<span class="confete" style="left: 39.1%; width: 8px; height: 14px; background: #8CCBF7; animation-duration: 13.1s; animation-delay: -1.1s; border-radius: 2px; opacity: 0.85"></span>
+<span class="confete" style="left: 88.3%; width: 8px; height: 6px; background: #FFB81F; animation-duration: 12.7s; animation-delay: -12.1s; border-radius: 2px; opacity: 0.85"></span>
+<span class="confete" style="left: 68.3%; width: 6px; height: 10px; background: #3FA9F5; animation-duration: 9.7s; animation-delay: -3.2s; border-radius: 0px; opacity: 0.85"></span>
+<span class="confete" style="left: 65.9%; width: 6px; height: 14px; background: #FFFFFF; animation-duration: 7.1s; animation-delay: -11.6s; border-radius: 0px; opacity: 0.85"></span>
+<span class="confete" style="left: 14.6%; width: 8px; height: 10px; background: #8CCBF7; animation-duration: 10.7s; animation-delay: -8.5s; border-radius: 999px; opacity: 0.85"></span>
+<span class="confete" style="left: 65.5%; width: 10px; height: 6px; background: #FFB81F; animation-duration: 12.2s; animation-delay: -6.4s; border-radius: 2px; opacity: 0.85"></span>
+<span class="confete" style="left: 39.9%; width: 6px; height: 10px; background: #F5A800; animation-duration: 7.7s; animation-delay: -8.9s; border-radius: 0px; opacity: 0.85"></span>
+<span class="confete" style="left: 44.1%; width: 6px; height: 10px; background: #8CCBF7; animation-duration: 7.8s; animation-delay: -8.4s; border-radius: 0px; opacity: 0.85"></span>
+<span class="confete" style="left: 53.7%; width: 6px; height: 10px; background: #8CCBF7; animation-duration: 13.6s; animation-delay: -8.6s; border-radius: 2px; opacity: 0.85"></span>
+<span class="confete" style="left: 14.9%; width: 8px; height: 14px; background: #F5A800; animation-duration: 8.8s; animation-delay: -4.9s; border-radius: 0px; opacity: 0.85"></span>
+</div>
+<div class="grid2" style="max-width: 1080px; margin: 0 auto; position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center">
 <div style="display: flex; flex-direction: column; gap: 20px">
-<span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; color: #F5A800; font-size: 18px">8 de novembro de 2026 · Bento Gonçalves/RS</span>
-<h1 style="color: #FFFFFF; font-weight: 800; font-size: 72px; line-height: 0.95">Obrigado!<br><span style="color: #3FA9F5">Cada passo fez a diferença</span></h1>
-<p style="margin: 0; font-size: 20px; color: #C9D6F0; max-width: 46ch; line-height: 1.45">O Treino Solidário de Prevenção à Diabetes foi um sucesso graças a cada pessoa que correu, caminhou, doou alimentos, trabalhou como voluntária ou simplesmente veio torcer. Muito obrigado por fazer parte desta corrente pela saúde da nossa comunidade.</p>
-<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<span class="rise" style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; color: #F5A800; font-size: 18px; animation-delay: 0s">8 de novembro de 2026 · Bento Gonçalves/RS</span>
+<h1 style="color: #FFFFFF; font-weight: 800; font-size: 72px; line-height: 0.95"><span class="rise wave" style="display: inline-block; animation-delay: 0.1s">Obrigado!</span><br><span class="rise" style="display: inline-block; color: #3FA9F5; animation-delay: 0.3s">Cada passo fez a diferença</span></h1>
+<p class="rise" style="margin: 0; font-size: 20px; color: #C9D6F0; max-width: 46ch; line-height: 1.45; animation-delay: 0.5s">O Treino Solidário de Prevenção à Diabetes foi um sucesso graças a cada pessoa que correu, caminhou, doou alimentos, trabalhou como voluntária ou simplesmente veio torcer. Muito obrigado por fazer parte desta corrente pela saúde da nossa comunidade.</p>
+<div class="rise" style="display: flex; flex-wrap: wrap; gap: 12px; animation-delay: 0.7s">
 <a href="#fotos" style="display: block; text-align: center; background: #F5A800; color: #16357F; border: none; border-radius: 10px; padding: 14px 28px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; font-size: 20px; padding: 14px 28px">Ver as fotos</a>
 <a href="#patrocinadores" style="display: block; text-align: center; background: #F5A800; color: #16357F; border: none; border-radius: 10px; padding: 14px 28px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; background: transparent; color: #FFFFFF; border: 1.5px solid #3FA9F5; font-size: 20px; padding: 14px 28px">Patrocinadores</a>
 </div>
 </div>
-<img src="img/fotos/gmotta-0069.jpg" alt="Equipe do Lions Clube e voluntários com o mascote no dia do evento" style="display: block; width: 100%; height: auto; border-radius: 16px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25)">
+<div style="position: relative; padding: 28px 20px">
+<img class="pop" src="img/fotos/gmotta-0069.jpg" alt="Equipe do Lions Clube e voluntários com o mascote no dia do evento" style="display: block; width: 100%; height: auto; border-radius: 16px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3); animation-delay: 0.2s">
+<img class="polaroid" src="img/fotos/gmotta-0737.jpg" alt="Participante mostrando a medalha" style="--r: -7deg; position: absolute; left: -12px; bottom: -36px; width: 30%; aspect-ratio: 2 / 3; object-fit: cover; border: 6px solid #FFFFFF; border-radius: 6px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35); animation-delay: 0s">
+<img class="polaroid" src="img/fotos/treino-822.jpg" alt="Participantes correndo de mãos dadas" style="--r: 6deg; position: absolute; right: -8px; top: -8px; width: 26%; aspect-ratio: 2 / 3; object-fit: cover; border: 6px solid #FFFFFF; border-radius: 6px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35); animation-delay: 1.4s">
+</div>
 </div>
 </header>
 
+<div aria-hidden="true" style="overflow: hidden; padding: 0 0 18px; margin-top: -14px; position: relative; z-index: 2"><div style="background: #F5A800; color: #16357F; overflow: hidden; padding: 16px 0; border-top: 4px solid #16357F; border-bottom: 4px solid #16357F; transform: rotate(-1.2deg); margin: 0 -20px">
+<div class="marquee" style="display: flex; width: max-content; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 28px; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap">
+<div style="display: flex"><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Obrigado<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Cada passo fez a diferença<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Corrida 5 km<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Caminhada 5 km<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Corrida Kids<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Prevenção à Diabetes<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Lions Clube BG Cidade do Vinho<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Até 2027<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span></div><div style="display: flex"><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Obrigado<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Cada passo fez a diferença<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Corrida 5 km<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Caminhada 5 km<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Corrida Kids<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Prevenção à Diabetes<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Lions Clube BG Cidade do Vinho<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span><span style="display: inline-flex; align-items: center; gap: 28px; padding-right: 28px">Até 2027<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="flex: none"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" fill="#16357F"></path></svg></span></div>
+</div>
+</div>
+</div>
+
+<section style="padding: 72px 24px 8px; background: #FFFFFF">
+<div style="max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px">
+<div class="reveal" style="transition-delay: 0.0s; display: flex; flex-direction: column; gap: 6px; padding: 24px; background: #FFFFFF; border-radius: 16px; border: 1.5px solid #E3E9F4">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 56px; line-height: 1; color: #16357F"><span class="count" data-to="5.09" data-dec="2">5,09</span><span style="font-size: 28px; color: #3FA9F5; margin-left: 4px">km</span></span>
+<span style="font-size: 15px; color: #6B7A99">de percurso pelas ruas de Bento</span>
+</div>
+<div class="reveal" style="transition-delay: 0.1s; display: flex; flex-direction: column; gap: 6px; padding: 24px; background: #FFFFFF; border-radius: 16px; border: 1.5px solid #E3E9F4">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 56px; line-height: 1; color: #16357F"><span class="count" data-to="3" data-dec="0">3</span><span style="font-size: 28px; color: #3FA9F5; margin-left: 4px"></span></span>
+<span style="font-size: 15px; color: #6B7A99">modalidades: corrida, caminhada e kids</span>
+</div>
+<div class="reveal" style="transition-delay: 0.2s; display: flex; flex-direction: column; gap: 6px; padding: 24px; background: #FFFFFF; border-radius: 16px; border: 1.5px solid #E3E9F4">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 56px; line-height: 1; color: #16357F"><span class="count" data-to="250" data-dec="0">250</span><span style="font-size: 28px; color: #3FA9F5; margin-left: 4px">m</span></span>
+<span style="font-size: 15px; color: #6B7A99">de alegria na Corrida Kids</span>
+</div>
+<div class="reveal" style="transition-delay: 0.3s; display: flex; flex-direction: column; gap: 6px; padding: 24px; background: #FFFFFF; border-radius: 16px; border: 1.5px solid #E3E9F4">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 56px; line-height: 1; color: #16357F"><span class="count" data-to="15" data-dec="0">15</span><span style="font-size: 28px; color: #3FA9F5; margin-left: 4px"></span></span>
+<span style="font-size: 15px; color: #6B7A99">patrocinadores que abraçaram a causa</span>
+</div>
+</div>
+</section>
+
 <section id="fotos" style="padding: 80px 24px; background: #FFFFFF">
 <div style="max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px">
-<div style="display: flex; flex-direction: column; gap: 8px">
+<div class="reveal" style="display: flex; flex-direction: column; gap: 8px">
 <span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; font-size: 17px">Galeria</span>
 <h2 style="font-size: 40px">Como foi o nosso dia</h2>
 <span style="font-size: 16px; color: #6B7A99">Mesmo com o tempo nublado, a pista se encheu de energia. Clique numa foto para ver em tamanho maior.</span>
 </div>
 <div class="galeria" style="column-count: 3; column-gap: 16px">
-<a href="img/fotos/gmotta-0521.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-0521.jpg" alt="Banner Obrigado pela presença com os estandartes do Lions e do Leo Clube" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/treino-822.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/treino-822.jpg" alt="Participantes correndo de mãos dadas" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/gmotta-0737.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-0737.jpg" alt="Participante mostrando a medalha" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/treino-185.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/treino-185.jpg" alt="Mascote leão com a camisa do evento" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/gmotta-0633.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-0633.jpg" alt="Participante comemorando na largada" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/gmotta-0787.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-0787.jpg" alt="Participante fazendo selfie na chegada" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/treino-140.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/treino-140.jpg" alt="Crianças na Corrida Kids na pista atlética" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/gmotta-0533.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-0533.jpg" alt="Grupo de corredores com medalhas" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/gmotta-0910.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-0910.jpg" alt="Participante comemorando com o punho erguido" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/treino-68.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/treino-68.jpg" alt="Participante recebendo atendimento na tenda" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/gmotta-1748.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-1748.jpg" alt="Pórtico de largada na pista" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/gmotta-1096.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-1096.jpg" alt="Voluntário com camiseta LCIF Latino" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/gmotta-1105.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-1105.jpg" alt="Caixas de maçãs para os participantes" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/gmotta-1107.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-1107.jpg" alt="Bananas na mesa de hidratação" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/gmotta-1112.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-1112.jpg" alt="Copos de água no gelo" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
-<a href="img/fotos/gmotta-1114.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-1114.jpg" alt="Bebidas no gelo" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a class="foto reveal" data-i="0" href="img/fotos/gmotta-0521.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.00s"><img src="img/fotos/gmotta-0521.jpg" alt="Banner Obrigado pela presença com os estandartes do Lions e do Leo Clube" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="1" href="img/fotos/treino-822.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.08s"><img src="img/fotos/treino-822.jpg" alt="Participantes correndo de mãos dadas" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="2" href="img/fotos/gmotta-0737.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.16s"><img src="img/fotos/gmotta-0737.jpg" alt="Participante mostrando a medalha" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="3" href="img/fotos/treino-185.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.00s"><img src="img/fotos/treino-185.jpg" alt="Mascote leão com a camisa do evento" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="4" href="img/fotos/gmotta-0633.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.08s"><img src="img/fotos/gmotta-0633.jpg" alt="Participante comemorando na largada" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="5" href="img/fotos/gmotta-0787.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.16s"><img src="img/fotos/gmotta-0787.jpg" alt="Participante fazendo selfie na chegada" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="6" href="img/fotos/treino-140.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.00s"><img src="img/fotos/treino-140.jpg" alt="Crianças na Corrida Kids na pista atlética" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="7" href="img/fotos/gmotta-0533.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.08s"><img src="img/fotos/gmotta-0533.jpg" alt="Grupo de corredores com medalhas" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="8" href="img/fotos/gmotta-0910.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.16s"><img src="img/fotos/gmotta-0910.jpg" alt="Participante comemorando com o punho erguido" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="9" href="img/fotos/treino-68.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.00s"><img src="img/fotos/treino-68.jpg" alt="Participante recebendo atendimento na tenda" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="10" href="img/fotos/gmotta-1748.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.08s"><img src="img/fotos/gmotta-1748.jpg" alt="Pórtico de largada na pista" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="11" href="img/fotos/gmotta-1096.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.16s"><img src="img/fotos/gmotta-1096.jpg" alt="Voluntário com camiseta LCIF Latino" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="12" href="img/fotos/gmotta-1105.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.00s"><img src="img/fotos/gmotta-1105.jpg" alt="Caixas de maçãs para os participantes" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="13" href="img/fotos/gmotta-1107.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.08s"><img src="img/fotos/gmotta-1107.jpg" alt="Bananas na mesa de hidratação" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="14" href="img/fotos/gmotta-1112.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.16s"><img src="img/fotos/gmotta-1112.jpg" alt="Copos de água no gelo" loading="lazy" style="display: block; width: 100%; height: auto"></a>
+<a class="foto reveal" data-i="15" href="img/fotos/gmotta-1114.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px; overflow: hidden; border-radius: 12px; transition-delay: 0.00s"><img src="img/fotos/gmotta-1114.jpg" alt="Bebidas no gelo" loading="lazy" style="display: block; width: 100%; height: auto"></a>
 </div>
 </div>
 </section>
 
 <section id="patrocinadores" style="padding: 80px 24px; background: #F6F8FC">
 <div style="max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px">
-<div style="display: flex; flex-direction: column; gap: 8px">
+<div class="reveal" style="display: flex; flex-direction: column; gap: 8px">
 <span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; font-size: 17px">Muito obrigado</span>
 <h2 style="font-size: 40px">A quem tornou tudo possível</h2>
 <span style="font-size: 16px; color: #6B7A99; max-width: 70ch">Nosso agradecimento especial aos patrocinadores, parceiros e apoiadores que acreditaram na causa e ajudaram a levar prevenção e saúde para a comunidade de Bento Gonçalves.</span>
 </div>
 <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px"><span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; font-size: 17px; color: #B57100">Patrocínio Master</span><h3 style="font-size: 30px">Patrocinadores Master</h3></div>
 <div class="grid2" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
-<div style="height: 170px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 14px; border: 2px solid #F5A800; padding: 20px; box-shadow: 0 4px 16px rgba(245, 168, 0, 0.15)"><img src="img/logo_caita.jpeg" alt="Caita" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
-<div style="height: 170px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 14px; border: 2px solid #F5A800; padding: 20px; box-shadow: 0 4px 16px rgba(245, 168, 0, 0.15)"><img src="img/graficabento_logo.png" alt="Gráfica Bento" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="height: 170px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 14px; border: 2px solid #F5A800; padding: 20px; box-shadow: 0 4px 16px rgba(245, 168, 0, 0.15)"><img src="img/logo_caita.jpeg" alt="Caita" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="height: 170px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 14px; border: 2px solid #F5A800; padding: 20px; box-shadow: 0 4px 16px rgba(245, 168, 0, 0.15)"><img src="img/graficabento_logo.png" alt="Gráfica Bento" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
 </div>
 <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px"><span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; font-size: 17px">Patrocínio</span><h3 style="font-size: 30px">Patrocinadores</h3></div>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px">
-<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_vetsaofrancisco.png" alt="Vet São Francisco" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
-<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_lirkult.png" alt="Lirkult" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
-<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/fundaparque_logo.png" alt="Fundaparque" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
-<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_newshape.png" alt="New Shape" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
-<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_as.jpeg" alt="AS Treinamento Físico" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
-<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_nutrittiva.png" alt="Nutrittiva" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
-<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_tacchimed.jpeg" alt="Tacchimed" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
-<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_padelpro.png" alt="Padel Pro" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
-<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_contacerta.png" alt="Conta Certa" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
-<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_trimod.png" alt="Trimod" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
-<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_icomp.jpeg" alt="ICOMP" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
-<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_cardiologic.jpeg" alt="Cardio Logic" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
-<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_suvalan.png" alt="Suvalan" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="transition-delay: 0.00s; height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_vetsaofrancisco.png" alt="Vet São Francisco" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="transition-delay: 0.05s; height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_lirkult.png" alt="Lirkult" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="transition-delay: 0.10s; height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/fundaparque_logo.png" alt="Fundaparque" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="transition-delay: 0.15s; height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_newshape.png" alt="New Shape" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="transition-delay: 0.20s; height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_as.jpeg" alt="AS Treinamento Físico" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="transition-delay: 0.25s; height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_nutrittiva.png" alt="Nutrittiva" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="transition-delay: 0.00s; height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_tacchimed.jpeg" alt="Tacchimed" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="transition-delay: 0.05s; height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_padelpro.png" alt="Padel Pro" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="transition-delay: 0.10s; height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_contacerta.png" alt="Conta Certa" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="transition-delay: 0.15s; height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_trimod.png" alt="Trimod" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="transition-delay: 0.20s; height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_icomp.jpeg" alt="ICOMP" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="transition-delay: 0.25s; height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_cardiologic.jpeg" alt="Cardio Logic" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div class="logo-card reveal" style="transition-delay: 0.00s; height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_suvalan.png" alt="Suvalan" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
 </div>
 <div class="grid2" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 16px">
 <div style="display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center">
@@ -132,12 +216,21 @@ h1, h2, h3, h4 { font-family: 'Barlow Condensed', sans-serif; text-transform: up
 </div>
 </section>
 
+<div aria-hidden="true" style="height: 92px; overflow: hidden; background: #B8432F">
+<svg width="100%" height="92" preserveAspectRatio="none" viewBox="0 0 1200 92" style="display: block">
+<line x1="0" y1="23" x2="1200" y2="23" stroke="#FFFFFF" stroke-width="2" opacity="0.7"></line>
+<line x1="0" y1="46" x2="1200" y2="46" stroke="#FFFFFF" stroke-width="2" opacity="0.7"></line>
+<line x1="0" y1="69" x2="1200" y2="69" stroke="#FFFFFF" stroke-width="2" opacity="0.7"></line>
+<line class="lane" x1="0" y1="34" x2="1200" y2="34" stroke="#F5A800" stroke-width="5" stroke-linecap="round" stroke-dasharray="60 1140"></line>
+<line class="lane lane2" x1="0" y1="57" x2="1200" y2="57" stroke="#3FA9F5" stroke-width="5" stroke-linecap="round" stroke-dasharray="60 1140"></line>
+</svg>
+</div>
 <section id="ate-2027" style="padding: 0; background: #16357F; color: #FFFFFF">
 <div class="grid2" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch">
 <img src="img/fotos/gmotta-1748.jpg" alt="Pórtico de largada na pista atlética" style="display: block; width: 100%; height: 100%; min-height: 360px; max-height: 560px; object-fit: cover">
 <div style="display: flex; flex-direction: column; justify-content: center; gap: 20px; padding: 64px 48px">
 <span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; color: #F5A800; font-size: 18px">Até a próxima</span>
-<h2 style="color: #FFFFFF; font-size: 80px; font-weight: 800; line-height: 0.95">Nos vemos<br><span style="color: #3FA9F5">em 2027!</span></h2>
+<h2 class="reveal" style="color: #FFFFFF; font-size: 80px; font-weight: 800; line-height: 0.95">Nos vemos<br><span style="color: #3FA9F5">em <span class="pulse" style="display: inline-block; color: #F5A800">2027</span>!</span></h2>
 <p style="margin: 0; font-size: 18px; color: #C9D6F0; line-height: 1.5; max-width: 42ch">A próxima edição já está nos nossos planos. Até lá, siga se cuidando: movimente-se, alimente-se bem e faça seus exames em dia.</p>
 <span style="font-size: 15px; color: #C9D6F0">Quer apoiar a edição 2027? Fale com a gente: <a href="mailto:lionsclubebgcidadedovinho@gmail.com" style="color: #F5A800; font-weight: 700">lionsclubebgcidadedovinho@gmail.com</a></span>
 </div>
@@ -156,5 +249,61 @@ h1, h2, h3, h4 { font-family: 'Barlow Condensed', sans-serif; text-transform: up
 </div>
 </footer>
 </div>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Foto ampliada" style="display: none; position: fixed; inset: 0; z-index: 100; background: rgba(8, 18, 44, 0.92); align-items: center; justify-content: center; padding: 24px">
+<img id="lb-img" alt="" style="max-width: 100%; max-height: 88vh; border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,.5)">
+<button id="lb-x" aria-label="Fechar" style="position: absolute; top: 16px; right: 16px; width: 48px; height: 48px; border-radius: 50%; border: none; background: #FFFFFF; color: #16357F; cursor: pointer"><svg width="18" height="18" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+<button id="lb-p" aria-label="Foto anterior" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 52px; height: 52px; border-radius: 50%; border: none; background: #F5A800; color: #16357F; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+<button id="lb-n" aria-label="Próxima foto" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); width: 52px; height: 52px; border-radius: 50%; border: none; background: #F5A800; color: #16357F; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+</div>
+<script>
+(function () {
+  var reduz = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Revelar ao rolar
+  var els = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+    els.forEach(function (el) { io.observe(el); });
+  } else { els.forEach(function (el) { el.classList.add("in"); }); }
+  // Contadores
+  var fmt = function (v, d) { return v.toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d }); };
+  var cs = document.querySelectorAll(".count");
+  var cio = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      cio.unobserve(e.target);
+      var el = e.target, alvo = parseFloat(el.dataset.to), d = +el.dataset.dec || 0;
+      if (reduz) { el.textContent = fmt(alvo, d); return; }
+      var t0 = null, dur = 1400;
+      function passo(t) {
+        if (!t0) t0 = t;
+        var p = Math.min((t - t0) / dur, 1), ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmt(alvo * ease, d);
+        if (p < 1) requestAnimationFrame(passo);
+      }
+      requestAnimationFrame(passo);
+    });
+  }, { threshold: 0.5 });
+  cs.forEach(function (c) { cio.observe(c); });
+  // Lightbox da galeria
+  var fotos = Array.prototype.slice.call(document.querySelectorAll(".foto"));
+  var lb = document.getElementById("lb"), img = document.getElementById("lb-img"), atual = 0;
+  function abrir(i) { atual = (i + fotos.length) % fotos.length; var f = fotos[atual]; img.src = f.href; img.alt = f.querySelector("img").alt; lb.style.display = "flex"; document.body.style.overflow = "hidden"; }
+  function fechar() { lb.style.display = "none"; document.body.style.overflow = ""; }
+  fotos.forEach(function (f, i) { f.addEventListener("click", function (ev) { ev.preventDefault(); abrir(i); }); });
+  document.getElementById("lb-x").onclick = fechar;
+  document.getElementById("lb-p").onclick = function () { abrir(atual - 1); };
+  document.getElementById("lb-n").onclick = function () { abrir(atual + 1); };
+  lb.addEventListener("click", function (ev) { if (ev.target === lb) fechar(); });
+  document.addEventListener("keydown", function (ev) {
+    if (lb.style.display !== "flex") return;
+    if (ev.key === "Escape") fechar();
+    if (ev.key === "ArrowLeft") abrir(atual - 1);
+    if (ev.key === "ArrowRight") abrir(atual + 1);
+  });
+})();
+</script>
 </body>
 </html>
