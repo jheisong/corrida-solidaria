@@ -3,1145 +3,158 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Treino Solidário de Prevenção à Diabetes — Lions Clube BG Cidade do Vinho</title>
+<title>Obrigado! — Treino Solidário de Prevenção à Diabetes · Lions Clube BG Cidade do Vinho</title>
+<meta name="description" content="Obrigado a todos que participaram do Treino Solidário de Prevenção à Diabetes em Bento Gonçalves. Veja as fotos e nos vemos em 2027!">
+<meta property="og:title" content="Obrigado! Treino Solidário de Prevenção à Diabetes">
+<meta property="og:description" content="Veja as fotos do evento e o agradecimento aos patrocinadores. Nos vemos em 2027!">
+<meta property="og:image" content="img/fotos/gmotta-0069.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <style>
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body { margin: 0; font-family: 'Barlow', sans-serif; color: #33415E; background: #F6F8FC; }
-  a { color: #16357F; text-decoration: none; }
-  a:hover { color: #F5A800; }
-  input:focus, select:focus { outline: 2px solid #3FA9F5; outline-offset: 1px; }
-  h1, h2, h3 { font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; color: #16357F; margin: 0; }
-  .kicker { color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 17px; text-transform: uppercase; letter-spacing: 0.14em; }
-  .btn { background: #F5A800; color: #16357F; border: none; border-radius: 10px; padding: 14px 28px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; }
-  .btn:hover { background: #FFB81F; }
-  .btn-ghost { background: transparent; color: #6B7A99; border: none; padding: 4px; font-size: 15px; font-weight: 600; font-family: 'Barlow', sans-serif; cursor: pointer; text-decoration: underline; }
-  .field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14px; color: #16357F; }
-  .field input, .field select { border: 1.5px solid #D6DFEF; border-radius: 8px; padding: 10px 12px; font-size: 16px; font-family: 'Barlow', sans-serif; width: 100%; background: #FFFFFF; color: #33415E; }
-  .field select { -webkit-appearance: none; appearance: none; padding-right: 36px; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='none' stroke='%2316357F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M1 1l5 5 5-5'/></svg>"); background-repeat: no-repeat; background-position: right 14px center; cursor: pointer; }
-  .field select:hover { border-color: #16357F; }
-  .field input[type=date] { padding-right: 12px; }
-  .field input[type=date]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.7; filter: invert(15%) sepia(60%) saturate(1400%) hue-rotate(210deg); }
-  .field input[type=date]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
-  .chip { border: 1.5px solid #D6DFEF; background: #FFFFFF; color: #33415E; border-radius: 999px; padding: 9px 18px; font-weight: 600; font-size: 15px; font-family: 'Barlow', sans-serif; cursor: pointer; }
-  .chip.on { border-color: #16357F; background: #16357F; color: #FFFFFF; }
-  .sq { border: 1.5px solid #D6DFEF; background: #FFFFFF; color: #33415E; border-radius: 8px; padding: 9px 14px; min-width: 44px; font-weight: 600; font-size: 15px; font-family: 'Barlow', sans-serif; cursor: pointer; }
-  .sq.on { border-color: #16357F; background: #16357F; color: #FFFFFF; }
-  .card { background: #F6F8FC; border-radius: 12px; padding: 20px; }
-  .placeholder { display: flex; align-items: center; justify-content: center; color: #6B7A99; font-size: 14px; font-weight: 600; background: repeating-linear-gradient(45deg, #EDF1F9, #EDF1F9 12px, #F6F8FC 12px, #F6F8FC 24px); border-radius: 12px; height: 100%; text-align: center; padding: 12px; }
-  .req { color: #D93B3B; font-weight: 700; margin-left: 4px; }
-  .btn-link-cancelar { background: transparent; border: none; color: #A03030; font-size: 13px; text-decoration: underline; cursor: pointer; padding: 4px 6px; font-weight: 500; font-family: 'Barlow', sans-serif; }
-  .btn-link-cancelar:hover { color: #C22B2B; }
-  .btn-copiar-email { display: inline-flex; align-items: center; justify-content: center; margin-left: 6px; width: 26px; height: 26px; padding: 0; border: 1px solid #D6DFEF; background: #FFFFFF; border-radius: 6px; font-size: 13px; line-height: 1; cursor: pointer; color: #16357F; vertical-align: middle; }
-  .btn-copiar-email:hover { border-color: #16357F; background: #F6F8FC; }
-  .opt { color: #6B7A99; font-weight: 400; margin-left: 4px; font-size: 13px; }
-  section { padding: 72px 24px; }
-  .wrap { max-width: 1080px; margin: 0 auto; }
-  @media (max-width: 900px) {
-    .grid2 { grid-template-columns: 1fr !important; }
-    #nav-links a { display: none; }
-  }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; }
+a { color: #16357F; text-decoration: none; }
+a:hover { color: #F5A800; }
+h1, h2, h3, h4 { font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; color: #16357F; margin: 0; }
+@media (max-width: 900px) {
+  .grid2 { grid-template-columns: 1fr !important; }
+  .nav-link { display: none !important; }
+  .galeria { column-count: 2 !important; }
+  h1 { font-size: 52px !important; }
+  #ate-2027 h2 { font-size: 56px !important; }
+}
 </style>
 </head>
 <body>
-
-<nav style="position: sticky; top: 0; z-index: 50; background: #FFFFFF; border-bottom: 1px solid #E3E9F4; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 24px;">
-  <a href="#topo" style="display: flex; align-items: center; gap: 10px;">
-    <img src="img/logo.jpeg" alt="Treino Solidário" style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px;">
-    <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; color: #16357F; text-transform: uppercase;">Treino Solidário</span>
-  </a>
-  <div id="nav-links" style="display: flex; align-items: center; gap: 20px; font-weight: 600; font-size: 15px;">
-    <a href="#percurso" style="color: #33415E;">Percurso</a>
-    <a href="#cronograma" style="color: #33415E;">Cronograma</a>
-    <a href="#regulamento" style="color: #33415E;">Regulamento</a>
-    <a href="#patrocinadores" style="color: #33415E;">Patrocinadores</a>
-    <button class="btn" style="padding: 10px 20px; font-size: 17px;" onclick="abrirFormOuConsulta()">Inscreva-se</button>
-  </div>
+<div style="width: 100%; font-family: 'Barlow', sans-serif; color: #33415E; background: #F6F8FC">
+<nav style="position: sticky; top: 0; z-index: 50; background: #FFFFFF; border-bottom: 1px solid #E3E9F4; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 24px">
+<a href="#topo" style="display: flex; align-items: center; gap: 10px">
+<img src="img/logo.jpeg" alt="Treino Solidário" style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px">
+<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; color: #16357F; text-transform: uppercase">Treino Solidário</span>
+</a>
+<div style="display: flex; align-items: center; gap: 20px; font-weight: 600; font-size: 15px">
+<a class="nav-link" href="#fotos" style="color: #33415E">Fotos</a>
+<a class="nav-link" href="#patrocinadores" style="color: #33415E">Patrocinadores</a>
+<a href="#ate-2027" style="display: block; text-align: center; background: #F5A800; color: #16357F; border: none; border-radius: 10px; padding: 14px 28px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; padding: 10px 20px; font-size: 17px">Até 2027</a>
+</div>
 </nav>
 
-<header id="topo" style="background: #16357F; color: #FFFFFF; padding: 72px 24px 80px;">
-  <div class="wrap grid2" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 48px; align-items: center;">
-    <div style="display: flex; flex-direction: column; gap: 20px;">
-      <span class="kicker" style="color: #F5A800; font-size: 18px;">Lions Clube BG Cidade do Vinho · Prefeitura de Bento Gonçalves</span>
-      <div id="banner-encerradas" style="display: none; background: #FFF6E3; color: #6B4A00; border: 1.5px solid #E8B437; border-radius: 10px; padding: 12px 16px; font-size: 14px; line-height: 1.45;"><strong>Inscrições encerradas em 05/11.</strong> Se você já se inscreveu, informe seu CPF em "Consultar inscrição" para ver seus dados e pagar pendências.</div>
-      <h1 style="color: #FFFFFF; font-weight: 800; font-size: clamp(40px, 8vw, 64px); line-height: 1.0;">Treino Solidário<br><span style="color: #3FA9F5;">de Prevenção à Diabetes</span></h1>
-      <p style="margin: 0; font-size: 20px; color: #C9D6F0; max-width: 46ch;">Cada passo faz a diferença. Evento comunitário e sem caráter competitivo, com medalha de participação e ações de saúde para toda a comunidade.</p>
-      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px;">Corrida 5 km</span>
-        <span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px;">Caminhada 5 km</span>
-        <span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px;">Corrida Kids · 250 m</span>
-      </div>
-      <div style="display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap;">
-        <button class="btn" style="font-size: 22px; padding: 16px 32px;" onclick="abrirFormOuConsulta()">Inscrição gratuita</button>
-        <span style="color: #C9D6F0; font-size: 15px;"><strong style="color: #FFFFFF;">8 de novembro de 2026 (domingo)</strong> · Pista atlética municipal · Bento Gonçalves/RS</span>
-      </div>
-    </div>
-    <div style="background: #FFFFFF; border-radius: 16px; padding: 20px; justify-self: center;">
-      <img src="img/logo.jpeg" alt="Cartaz Treino Solidário de Prevenção à Diabetes" style="display: block; width: 100%; max-width: 340px; border-radius: 8px;">
-    </div>
-  </div>
+<header id="topo" style="background: #16357F; color: #FFFFFF; padding: 72px 24px 80px">
+<div class="grid2" style="max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center">
+<div style="display: flex; flex-direction: column; gap: 20px">
+<span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; color: #F5A800; font-size: 18px">8 de novembro de 2026 · Bento Gonçalves/RS</span>
+<h1 style="color: #FFFFFF; font-weight: 800; font-size: 72px; line-height: 0.95">Obrigado!<br><span style="color: #3FA9F5">Cada passo fez a diferença</span></h1>
+<p style="margin: 0; font-size: 20px; color: #C9D6F0; max-width: 46ch; line-height: 1.45">O Treino Solidário de Prevenção à Diabetes foi um sucesso graças a cada pessoa que correu, caminhou, doou alimentos, trabalhou como voluntária ou simplesmente veio torcer. Muito obrigado por fazer parte desta corrente pela saúde da nossa comunidade.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<a href="#fotos" style="display: block; text-align: center; background: #F5A800; color: #16357F; border: none; border-radius: 10px; padding: 14px 28px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; font-size: 20px; padding: 14px 28px">Ver as fotos</a>
+<a href="#patrocinadores" style="display: block; text-align: center; background: #F5A800; color: #16357F; border: none; border-radius: 10px; padding: 14px 28px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; background: transparent; color: #FFFFFF; border: 1.5px solid #3FA9F5; font-size: 20px; padding: 14px 28px">Patrocinadores</a>
+</div>
+</div>
+<img src="img/fotos/gmotta-0069.jpg" alt="Equipe do Lions Clube e voluntários com o mascote no dia do evento" style="display: block; width: 100%; height: auto; border-radius: 16px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25)">
+</div>
 </header>
 
-<section id="percurso" style="background: #FFFFFF;">
-  <div class="wrap" style="display: flex; flex-direction: column; gap: 32px;">
-    <div style="display: flex; flex-direction: column; gap: 8px;">
-      <span class="kicker">Percurso</span>
-      <h2 style="font-size: 40px;">Por onde vamos correr</h2>
-    </div>
-    <div class="grid2" style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; align-items: start;">
-      <a href="/img/percurso.png" target="_blank" rel="noopener" style="display: block;">
-        <img src="/img/percurso.png" alt="Mapa do percurso da corrida" style="width: 100%; height: auto; border-radius: 12px; display: block;">
-      </a>
-      <div style="display: flex; flex-direction: column; gap: 16px;">
-        <div class="card" style="display: flex; flex-direction: column; gap: 4px;">
-          <strong style="color: #16357F; font-size: 17px;">Largada e chegada</strong>
-          <span>Pista atlética municipal de Bento Gonçalves — ponto central de apoio, concentração e ações de saúde.</span>
-        </div>
-        <div class="card" style="display: flex; flex-direction: column; gap: 4px;">
-          <strong style="color: #16357F; font-size: 17px;">Corrida e Caminhada 5 km</strong>
-          <span>Percurso urbano de 5,09 km nas vias próximas à pista, sinalizado e com apoio operacional. Água na chegada.</span>
-        </div>
-        <div class="card" style="display: flex; flex-direction: column; gap: 4px;">
-          <strong style="color: #16357F; font-size: 17px;">Corrida Kids · 250 m</strong>
-          <span>Circuito interno na pista atlética, sem uso de vias públicas, voltado ao público infantil.</span>
-        </div>
-      </div>
-    </div>
-  </div>
+<section id="fotos" style="padding: 80px 24px; background: #FFFFFF">
+<div style="max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; font-size: 17px">Galeria</span>
+<h2 style="font-size: 40px">Como foi o nosso dia</h2>
+<span style="font-size: 16px; color: #6B7A99">Mesmo com o tempo nublado, a pista se encheu de energia. Clique numa foto para ver em tamanho maior.</span>
+</div>
+<div class="galeria" style="column-count: 3; column-gap: 16px">
+<a href="img/fotos/gmotta-0521.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-0521.jpg" alt="Banner Obrigado pela presença com os estandartes do Lions e do Leo Clube" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/treino-822.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/treino-822.jpg" alt="Participantes correndo de mãos dadas" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/gmotta-0737.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-0737.jpg" alt="Participante mostrando a medalha" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/treino-185.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/treino-185.jpg" alt="Mascote leão com a camisa do evento" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/gmotta-0633.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-0633.jpg" alt="Participante comemorando na largada" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/gmotta-0787.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-0787.jpg" alt="Participante fazendo selfie na chegada" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/treino-140.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/treino-140.jpg" alt="Crianças na Corrida Kids na pista atlética" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/gmotta-0533.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-0533.jpg" alt="Grupo de corredores com medalhas" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/gmotta-0910.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-0910.jpg" alt="Participante comemorando com o punho erguido" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/treino-68.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/treino-68.jpg" alt="Participante recebendo atendimento na tenda" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/gmotta-1748.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-1748.jpg" alt="Pórtico de largada na pista" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/gmotta-1096.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-1096.jpg" alt="Voluntário com camiseta LCIF Latino" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/gmotta-1105.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-1105.jpg" alt="Caixas de maçãs para os participantes" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/gmotta-1107.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-1107.jpg" alt="Bananas na mesa de hidratação" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/gmotta-1112.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-1112.jpg" alt="Copos de água no gelo" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+<a href="img/fotos/gmotta-1114.jpg" target="_blank" rel="noopener" style="display: block; break-inside: avoid; margin: 0 0 16px"><img src="img/fotos/gmotta-1114.jpg" alt="Bebidas no gelo" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 12px"></a>
+</div>
+</div>
 </section>
 
-<section id="cronograma" style="background: #F6F8FC;">
-  <div style="max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px;">
-    <div style="display: flex; flex-direction: column; gap: 8px;">
-      <span class="kicker">Cronograma</span>
-      <h2 style="font-size: 40px;">Programação do dia</h2>
-      <span style="font-size: 15px; color: #6B7A99;">Domingo, 8 de novembro de 2026 · Em caso de mau tempo, data reserva em 15/11 com o mesmo cronograma.</span>
-    </div>
-    <div id="lista-cronograma"></div>
-  </div>
+<section id="patrocinadores" style="padding: 80px 24px; background: #F6F8FC">
+<div style="max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; font-size: 17px">Muito obrigado</span>
+<h2 style="font-size: 40px">A quem tornou tudo possível</h2>
+<span style="font-size: 16px; color: #6B7A99; max-width: 70ch">Nosso agradecimento especial aos patrocinadores, parceiros e apoiadores que acreditaram na causa e ajudaram a levar prevenção e saúde para a comunidade de Bento Gonçalves.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px"><span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; font-size: 17px; color: #B57100">Patrocínio Master</span><h3 style="font-size: 30px">Patrocinadores Master</h3></div>
+<div class="grid2" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+<div style="height: 170px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 14px; border: 2px solid #F5A800; padding: 20px; box-shadow: 0 4px 16px rgba(245, 168, 0, 0.15)"><img src="img/logo_caita.jpeg" alt="Caita" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div style="height: 170px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 14px; border: 2px solid #F5A800; padding: 20px; box-shadow: 0 4px 16px rgba(245, 168, 0, 0.15)"><img src="img/graficabento_logo.png" alt="Gráfica Bento" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px"><span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; font-size: 17px">Patrocínio</span><h3 style="font-size: 30px">Patrocinadores</h3></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px">
+<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_vetsaofrancisco.png" alt="Vet São Francisco" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_lirkult.png" alt="Lirkult" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/fundaparque_logo.png" alt="Fundaparque" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_newshape.png" alt="New Shape" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_as.jpeg" alt="AS Treinamento Físico" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_nutrittiva.png" alt="Nutrittiva" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_tacchimed.jpeg" alt="Tacchimed" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_padelpro.png" alt="Padel Pro" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_contacerta.png" alt="Conta Certa" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_trimod.png" alt="Trimod" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_icomp.jpeg" alt="ICOMP" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_cardiologic.jpeg" alt="Cardio Logic" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+<div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px"><img src="img/logo_suvalan.png" alt="Suvalan" style="max-width: 100%; max-height: 100%; object-fit: contain"></div>
+</div>
+<div class="grid2" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 16px">
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center">
+<span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; font-size: 17px">Realização</span>
+<div style="height: 190px; display: flex; align-items: center; justify-content: center; gap: 18px; background: #FFFFFF; border-radius: 12px; padding: 18px; width: 100%; max-width: 500px">
+<img src="img/logo_lions.png" alt="Lions Clube Bento Gonçalves Cidade do Vinho" style="flex: 2.6; min-width: 0; max-height: 100%; object-fit: contain">
+<img src="img/lions_internacional_logo.svg" alt="Lions Clubs International" style="flex: 1; min-width: 0; max-height: 70%; object-fit: contain">
+</div>
+<span style="font-size: 14px; color: #33415E; font-weight: 600">Lions Clube Bento Gonçalves Cidade do Vinho</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center">
+<span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; font-size: 17px">Apoio</span>
+<div style="height: 190px; display: flex; align-items: center; justify-content: center; gap: 18px; background: #FFFFFF; border-radius: 12px; padding: 18px; width: 100%; max-width: 500px">
+<img src="img/logo_bento.png" alt="Prefeitura de Bento Gonçalves" style="flex: 1.4; min-width: 0; max-height: 100%; object-fit: contain">
+<img src="img/logo_n7.png" alt="N7" style="flex: 1; min-width: 0; max-height: 75%; object-fit: contain">
+</div>
+<span style="font-size: 14px; color: #33415E; font-weight: 600">Prefeitura Municipal de Bento Gonçalves · N7</span>
+</div>
+</div>
+</div>
 </section>
 
-<section id="regulamento" style="background: #FFFFFF;">
-  <div class="wrap" style="display: flex; flex-direction: column; gap: 32px;">
-    <div style="display: flex; flex-direction: column; gap: 8px;">
-      <span class="kicker">Regulamento</span>
-      <h2 style="font-size: 40px;">Pontos principais</h2>
-    </div>
-    <div id="lista-regras" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;"></div>
-    <div style="background: #FFF6E3; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 6px;">
-      <strong style="color: #16357F; font-size: 17px;">Ações de saúde gratuitas no dia</strong>
-      <span style="font-size: 15px;">A partir das 07h30: aferição de pressão arterial, cálculo de IMC e orientação nutricional, em parceria com a Secretaria Municipal da Saúde e o ônibus da saúde.</span>
-    </div>
-    <span style="font-size: 15px; color: #6B7A99;">O regulamento completo em PDF será publicado nesta página.</span>
-  </div>
+<section id="ate-2027" style="padding: 0; background: #16357F; color: #FFFFFF">
+<div class="grid2" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch">
+<img src="img/fotos/gmotta-1748.jpg" alt="Pórtico de largada na pista atlética" style="display: block; width: 100%; height: 100%; min-height: 360px; max-height: 560px; object-fit: cover">
+<div style="display: flex; flex-direction: column; justify-content: center; gap: 20px; padding: 64px 48px">
+<span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; color: #F5A800; font-size: 18px">Até a próxima</span>
+<h2 style="color: #FFFFFF; font-size: 80px; font-weight: 800; line-height: 0.95">Nos vemos<br><span style="color: #3FA9F5">em 2027!</span></h2>
+<p style="margin: 0; font-size: 18px; color: #C9D6F0; line-height: 1.5; max-width: 42ch">A próxima edição já está nos nossos planos. Até lá, siga se cuidando: movimente-se, alimente-se bem e faça seus exames em dia.</p>
+<span style="font-size: 15px; color: #C9D6F0">Quer apoiar a edição 2027? Fale com a gente: <a href="mailto:lionsclubebgcidadedovinho@gmail.com" style="color: #F5A800; font-weight: 700">lionsclubebgcidadedovinho@gmail.com</a></span>
+</div>
+</div>
 </section>
 
-<section id="patrocinadores" style="background: #F6F8FC;">
-  <div class="wrap" style="display: flex; flex-direction: column; gap: 32px;">
-    <div style="display: flex; flex-direction: column; gap: 8px;">
-      <span class="kicker">Quem apoia</span>
-      <h2 style="font-size: 40px;">Patrocinadores</h2>
-    </div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_vetsaofrancisco.png" alt="Vet São Francisco" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_lirkult.png" alt="Lirkult" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/fundaparque_logo.png" alt="Fundaparque" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_newshape.png" alt="New Shape" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_as.jpeg" alt="AS Treinamento Físico" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_nutrittiva.png" alt="Nutrittiva" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_tacchimed.jpeg" alt="Tacchimed" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_padelpro.png" alt="Padel Pro" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_contacerta.png" alt="Conta Certa" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_trimod.png" alt="Trimod" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_icomp.jpeg" alt="ICOMP" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_cardiologic.jpeg" alt="Cardio Logic" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 12px; padding: 12px;"><img src="img/logo_suvalan.png" alt="Suvalan" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-    </div>
-    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
-      <span class="kicker" style="color: #F5A800;">Patrocínio Master</span>
-      <h2 style="font-size: 32px;">Patrocinadores Master</h2>
-    </div>
-    <div class="grid2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-      <div style="height: 170px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 14px; border: 2px solid #F5A800; padding: 20px; box-shadow: 0 4px 16px rgba(245, 168, 0, 0.15);"><img src="img/logo_caita.jpeg" alt="Caita" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-      <div style="height: 170px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-radius: 14px; border: 2px solid #F5A800; padding: 20px; box-shadow: 0 4px 16px rgba(245, 168, 0, 0.15);"><img src="img/graficabento_logo.png" alt="Gráfica Bento" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>
-    </div>
-    <div class="grid2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 8px;">
-      <div style="display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center;">
-        <span class="kicker">Realização</span>
-        <div style="height: 190px; display: flex; align-items: center; justify-content: center; gap: 18px; background: #FFFFFF; border-radius: 12px; padding: 18px; width: 100%; max-width: 500px;">
-          <img src="img/logo_lions.png" alt="Lions Clube Bento Gonçalves Cidade do Vinho" style="flex: 2.6; min-width: 0; max-height: 100%; object-fit: contain;">
-          <img src="img/lions_internacional_logo.svg" alt="Lions Clubs International" style="flex: 1; min-width: 0; max-height: 70%; object-fit: contain;">
-        </div>
-        <span style="font-size: 14px; color: #33415E; font-weight: 600;">Lions Clube Bento Gonçalves Cidade do Vinho</span>
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center;">
-        <span class="kicker">Apoio</span>
-        <div style="height: 190px; display: flex; align-items: center; justify-content: center; gap: 18px; background: #FFFFFF; border-radius: 12px; padding: 18px; width: 100%; max-width: 500px;">
-          <img src="img/logo_bento.png" alt="Prefeitura de Bento Gonçalves" style="flex: 1.4; min-width: 0; max-height: 100%; object-fit: contain;">
-          <img src="img/logo_n7.png" alt="N7" style="flex: 1; min-width: 0; max-height: 75%; object-fit: contain;">
-        </div>
-        <span style="font-size: 14px; color: #33415E; font-weight: 600;">Prefeitura Municipal de Bento Gonçalves · N7</span>
-      </div>
-    </div>
-    <span style="font-size: 15px; color: #6B7A99;">Quer apoiar a Treino Solidário? Fale com o Lions Clube Bento Gonçalves Cidade do Vinho: <a href="mailto:lionsclubebgcidadedovinho@gmail.com" style="color: #16357F; font-weight: 700;">lionsclubebgcidadedovinho@gmail.com</a><button type="button" class="btn-copiar-email" onclick="copiarEmail(this)" title="Copiar e-mail" aria-label="Copiar e-mail">📋</button>.</span>
-  </div>
-</section>
-
-<footer style="background: #16357F; color: #C9D6F0; padding: 40px 24px;">
-  <div class="wrap" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <img src="img/logo.jpeg" alt="" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;">
-      <div style="display: flex; flex-direction: column;">
-        <strong style="color: #FFFFFF; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase;">Treino Solidário de Prevenção à Diabetes</strong>
-        <span style="font-size: 14px;">Lions Clube Bento Gonçalves Cidade do Vinho · Prefeitura Municipal de Bento Gonçalves · AL 2026/2027</span>
-      </div>
-    </div>
-    <button class="btn" style="background: transparent; color: #F5A800; border: 1.5px solid #F5A800; padding: 10px 22px; font-size: 17px;" onclick="abrirFormOuConsulta()">Inscreva-se</button>
-  </div>
+<footer style="background: #0F2660; color: #C9D6F0; padding: 40px 24px">
+<div style="max-width: 1080px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap">
+<div style="display: flex; align-items: center; gap: 12px">
+<img src="img/logo.jpeg" alt="" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px">
+<div style="display: flex; flex-direction: column">
+<strong style="color: #FFFFFF; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase">Treino Solidário de Prevenção à Diabetes</strong>
+<span style="font-size: 14px">Lions Clube Bento Gonçalves Cidade do Vinho · Prefeitura Municipal de Bento Gonçalves · AL 2026/2027</span>
+</div>
+</div>
+</div>
 </footer>
-
-<!-- Modal de inscrição -->
-<div id="modal" style="display: none; position: fixed; inset: 0; z-index: 100; background: rgba(10,22,52,0.6); align-items: center; justify-content: center; padding: 20px;">
-  <div style="background: #FFFFFF; border-radius: 16px; width: 100%; max-width: 720px; max-height: 92vh; overflow: auto; padding: 28px 32px; position: relative; display: flex; flex-direction: column; gap: 20px;">
-    <button onclick="fecharForm()" aria-label="Fechar" style="position: absolute; top: 14px; right: 14px; background: #F6F8FC; border: none; border-radius: 8px; width: 32px; height: 32px; font-size: 16px; color: #33415E; cursor: pointer;">✕</button>
-
-    <div id="passo1-consulta" style="display: none; flex-direction: column; gap: 16px;">
-      <span class="kicker" style="font-size: 15px;">Consulta de inscrição</span>
-      <h3 style="font-size: 30px;">Localize sua inscrição</h3>
-      <p style="margin: 0; font-size: 15px; color: #33415E; line-height: 1.5;">As inscrições foram encerradas em <strong>05/11</strong>. Se você já se inscreveu, informe seu CPF abaixo pra ver os dados, baixar comprovante ou pagar pendências.</p>
-      <label class="field"><span>CPF<span class="req" title="Campo obrigatório">*</span></span><input id="f-cpf-consulta" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" oninput="mascaraCpf(this)"></label>
-      <span id="erro-consulta" style="display: none; color: #C22B2B; font-size: 14px; font-weight: 600;"></span>
-      <button class="btn" onclick="consultarInscricaoPorCpf()">Consultar inscrição</button>
-      <button class="btn-ghost" onclick="fecharForm()">Fechar</button>
-    </div>
-
-    <div id="passo1" style="display: flex; flex-direction: column; gap: 12px;">
-      <span class="kicker" style="font-size: 15px;">Passo 1 de 3 · Inscrição gratuita</span>
-      <h3 style="font-size: 30px;">Seus dados</h3>
-      <div class="grid2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <label class="field"><span>Nome completo<span class="req" title="Campo obrigatório">*</span></span><input id="f-nome" placeholder="Seu nome" required></label>
-        <label class="field"><span>CPF<span class="req" title="Campo obrigatório">*</span></span><input id="f-cpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" required oninput="mascaraCpf(this)"></label>
-        <label class="field"><span>E-mail<span class="req" title="Campo obrigatório">*</span></span><input id="f-email" type="email" placeholder="voce@email.com" required></label>
-        <label class="field"><span>WhatsApp<span class="req" title="Campo obrigatório">*</span></span><input id="f-fone" placeholder="(54) 9 9999-9999" required></label>
-        <label class="field">
-          <span>Nascimento<span class="req" title="Campo obrigatório">*</span></span>
-          <input id="f-nascimento" type="date" required placeholder="dd/mm/aaaa">
-        </label>
-        <label class="field">
-          <span>Sexo<span class="opt">— opcional</span></span>
-          <select id="f-sexo">
-            <option value="">Selecione…</option>
-            <option value="F">Feminino</option>
-            <option value="M">Masculino</option>
-            <option value="OUTRO">Outro</option>
-            <option value="PREFIRO_NAO_INFORMAR">Prefiro não informar</option>
-          </select>
-        </label>
-        <label class="field">Cidade<input id="f-cidade" placeholder="Bento Gonçalves" value="Bento Gonçalves"></label>
-        <label class="field">Equipe (opcional)<input id="f-equipe" placeholder="Nome da equipe ou assessoria"></label>
-      </div>
-      <label class="field"><span>Contato de emergência (nome e telefone)<span class="opt">— opcional</span></span><input id="f-emergencia" placeholder="Maria — (54) 9 9999-9999"></label>
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <span style="font-weight: 600; font-size: 14px; color: #16357F;">Modalidade</span>
-        <div id="chips-modalidade" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
-      </div>
-      <label style="display: flex; gap: 10px; align-items: flex-start; font-size: 14px; cursor: pointer;">
-        <input id="f-termo" type="checkbox" style="margin-top: 3px; width: 16px; height: 16px; accent-color: #16357F;">
-        <span>Li e aceito o <a href="termo/Termo_Responsabilidade_Treino_Solidario.pdf" target="_blank" rel="noopener" onclick="event.stopPropagation();" style="color: #16357F; font-weight: 700; text-decoration: underline;">termo de responsabilidade e declaração de saúde</a>. Recomenda-se avaliação médica prévia para participantes com condições de risco.</span>
-      </label>
-      <div style="background: #FFF6E3; border-radius: 10px; padding: 10px 14px; font-size: 13px;">Participação solidária: leve <strong style="color: #16357F;">1 kg de alimento não perecível</strong> no dia do evento para retirar sua pulseira de identificação.</div>
-      <span id="erro1" style="display: none; color: #C22B2B; font-size: 14px; font-weight: 600;"></span>
-      <button class="btn" onclick="submitDados()">Continuar</button>
-    </div>
-
-    <div id="passo-duplicado" style="display: none; flex-direction: column; gap: 16px;">
-      <span class="kicker" style="font-size: 15px; color: #F5A800;">CPF já cadastrado</span>
-      <h3 style="font-size: 30px;">Atleta já inscrito</h3>
-      <p style="font-size: 15px; color: #33415E;"><strong id="dup-nome" style="color: #16357F;"></strong> já está inscrito na Treino Solidário. Se este é você e precisa alterar algum dado, entre em contato pelo e-mail <a href="mailto:lionsclubebgcidadedovinho@gmail.com" style="color: #16357F; font-weight: 700;">lionsclubebgcidadedovinho@gmail.com</a><button type="button" class="btn-copiar-email" onclick="copiarEmail(this)" title="Copiar e-mail" aria-label="Copiar e-mail">📋</button>.</p>
-      <div id="dup-resumo" style="display: none; background: #F6F8FC; border: 1px solid #E3E9F4; border-radius: 12px; padding: 14px; flex-direction: column; gap: 6px; font-size: 14px;"></div>
-      <div id="dup-expirado" style="display: none; background: #FFF6E3; border: 1.5px solid #F5A800; border-radius: 12px; padding: 14px; flex-direction: column; align-items: center; gap: 10px;">
-        <strong style="color: #B57100; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase;">Pagamento em aberto</strong>
-        <span style="font-size: 14px; color: #33415E; text-align: center;">Ainda há <strong id="dup-exp-valor" style="color: #16357F;"></strong> pendente da sua inscrição. O Pix anterior expirou.</span>
-        <button class="btn" onclick="renovarPagamento()">Gerar novo Pix</button>
-        <button type="button" class="btn-link-cancelar" onclick="cancelarPedidoPendente()">Cancelar apenas camisa/doação</button>
-      </div>
-      <div id="dup-pendente" style="display: none; background: #FFF6E3; border: 1.5px solid #F5A800; border-radius: 12px; padding: 14px; flex-direction: column; align-items: center; gap: 10px;">
-        <strong style="color: #B57100; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase;">Pagamento pendente</strong>
-        <span style="font-size: 14px; color: #33415E; text-align: center;">Cobrança em aberto de <strong id="dup-pend-valor" style="color: #16357F;"></strong>. Pague o Pix abaixo para concluir.</span>
-        <div style="width: 100%; display: flex; align-items: center; gap: 8px;">
-          <button id="dup-btn-copiar" type="button" class="btn" style="background: #16357F; color: #FFFFFF; padding: 8px 14px; font-size: 14px; white-space: nowrap;" onclick="copiarPixPendente()">Copiar código</button>
-          <code id="dup-pend-preview" style="flex: 1; font-family: monospace; font-size: 12px; color: #6B7A99; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: #FFFFFF; border: 1px solid #D6DFEF; border-radius: 6px; padding: 6px 8px;"></code>
-        </div>
-        <input id="dup-pend-cc" type="hidden">
-        <div style="width: 160px; height: 160px; background: #FFFFFF; border-radius: 10px; padding: 6px; display: flex; align-items: center; justify-content: center;">
-          <img id="dup-pend-qr" alt="QR Code Pix" style="width: 100%; height: 100%; object-fit: contain;">
-        </div>
-        <span id="dup-pend-status" style="font-size: 12px; color: #6B7A99; text-align: center;">Aguardando confirmação do pagamento…</span>
-        <button type="button" class="btn-link-cancelar" onclick="cancelarPedidoPendente()">Cancelar apenas camisa/doação</button>
-      </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="grid2">
-        <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1.5px solid #D6DFEF; border-radius: 12px;">
-          <span style="font-weight: 700; color: #16357F;">Nova doação</span>
-          <span style="font-size: 13px; color: #6B7A99;">Contribua com um Pix voluntário para a causa.</span>
-          <button class="btn" style="background: #3FA9F5; color: #FFFFFF;" onclick="irParaDoacaoExistente()">Fazer doação</button>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1.5px solid #D6DFEF; border-radius: 12px;">
-          <span id="dup-cta-camisa" style="font-weight: 700; color: #16357F;">Camisa oficial</span>
-          <span style="font-size: 13px; color: #6B7A99;">R$ 40,00 · Ajude a causa levando a camisa.</span>
-          <button id="dup-btn-camisa" class="btn" onclick="irParaCamisaExistente()">Comprar camisa</button>
-        </div>
-      </div>
-      <button class="btn" style="background: #16357F; color: #FFFFFF;" onclick="fecharForm()">Fechar</button>
-    </div>
-
-    <div id="passo2" style="display: none; flex-direction: column; gap: 16px;">
-      <span class="kicker" style="font-size: 15px;">Passo 2 de 3 · Opcional</span>
-      <h3 style="font-size: 30px;">Leve a camisa oficial</h3>
-      <p style="margin: 0; font-size: 16px;">Garanta a camisa oficial do evento por <strong style="color: #16357F;">R$ 40,00</strong>. Todo o valor é revertido para a causa: ações de prevenção e conscientização sobre o diabetes na comunidade.</p>
-      <div style="display: flex; justify-content: center;">
-        <img src="img/camisa.png" alt="Camisa oficial do evento" style="max-width: 320px; width: 100%; height: auto; border-radius: 12px; object-fit: contain;">
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <span style="font-weight: 600; font-size: 14px; color: #16357F;">Tamanho</span>
-        <div id="chips-tamanho" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
-      </div>
-      <button class="btn" onclick="camisa(true)">Quero a camisa · R$ 40,00</button>
-      <button class="btn-ghost" onclick="camisa(false)">Seguir sem a camisa</button>
-    </div>
-
-    <div id="passo3" style="display: none; flex-direction: column; gap: 16px;">
-      <span class="kicker" style="font-size: 15px;">Passo 3 de 3 · Opcional</span>
-      <div id="aviso-camisa-encerrada" style="display: none; background: #FFF6E3; border: 1.5px solid #E8B437; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #6B4A00; line-height: 1.45;">
-        <strong>Período de aquisição de camisas encerrado.</strong> Mas você ainda pode contribuir com a causa fazendo uma doação 💙
-      </div>
-      <h3 style="font-size: 30px;">Depósito solidário</h3>
-      <p style="margin: 0; font-size: 16px;">Além do 1 kg de alimento entregue no dia, você pode fazer um depósito voluntário. Todo o valor doado é revertido para a causa, por meio da entidade assistencial indicada pela organização. O comprovante pode ser anexado à inscrição.</p>
-      <div id="chips-doacao" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;"></div>
-      <label class="field">Outro valor (R$)<input id="f-outro" type="number" min="1" placeholder="Ex.: 35"></label>
-      <span id="erro3" style="display: none; color: #C22B2B; font-size: 14px; font-weight: 600;"></span>
-      <button class="btn" id="btn-concluir" onclick="concluir(false)">Concluir inscrição</button>
-      <button class="btn-ghost" onclick="concluir(true)">Pular depósito</button>
-    </div>
-
-    <div id="passo4" style="display: none; flex-direction: column; gap: 16px; text-align: center; align-items: center;">
-      <span style="width: 64px; height: 64px; border-radius: 50%; background: #E7F6EC; color: #1E8A46; font-size: 30px; display: flex; align-items: center; justify-content: center;">✓</span>
-      <h3 style="font-size: 30px;">Inscrição confirmada!</h3>
-      <p style="margin: 0; font-size: 16px;">Nos vemos na largada, <strong style="color: #16357F;" id="r-nome"></strong>. Retire sua pulseira a partir das <strong style="color: #16357F;">07h00</strong> do dia 8/11, levando <strong style="color: #16357F;">1 kg de alimento não perecível</strong> — ela garante sua medalha de participação.</p>
-      <div style="width: 100%; background: #F6F8FC; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px; text-align: left; font-size: 15px;">
-        <div style="display: flex; justify-content: space-between;"><span>Inscrição</span><strong style="color: #16357F;"><span id="r-modalidade"></span> <span style="color: #6B7A99; font-weight: 500;">(Nº <span id="r-num"></span>)</span></strong></div>
-        <div id="r-pendencias" style="display: none; flex-direction: column; gap: 4px; border-top: 1px solid #E3E9F4; padding-top: 8px; margin-top: 4px;">
-          <div id="r-pend-lista" style="display: flex; flex-direction: column; gap: 4px;"></div>
-        </div>
-        <div style="display: flex; justify-content: space-between; border-top: 1px solid #E3E9F4; padding-top: 8px; margin-top: 4px;"><span style="font-weight: 700; color: #16357F;">Total a pagar</span><strong style="color: #16357F;" id="r-total"></strong></div>
-      </div>
-      <div id="bloco-pix" style="display: none; width: 100%; background: #F6F8FC; border-radius: 12px; padding: 14px; flex-direction: column; align-items: center; gap: 10px;">
-        <strong style="color: #16357F; font-family: 'Barlow Condensed', sans-serif; font-size: 18px; text-transform: uppercase;">Pague com Pix</strong>
-        <span style="font-size: 13px; text-align: center;">Copie o código ou escaneie o QR e pague <strong style="color: #16357F;" id="r-total-pix"></strong>. Válido por 48h.</span>
-        <div style="width: 100%; display: flex; align-items: center; gap: 8px;">
-          <button id="btn-copiar" type="button" class="btn" style="background: #16357F; color: #FFFFFF; padding: 8px 14px; font-size: 14px; white-space: nowrap;" onclick="copiarPix()">Copiar código</button>
-          <code id="pix-preview" style="flex: 1; font-family: monospace; font-size: 12px; color: #6B7A99; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: #FFFFFF; border: 1px solid #D6DFEF; border-radius: 6px; padding: 6px 8px;"></code>
-        </div>
-        <input id="pix-copia-cola" type="hidden">
-        <div style="width: 160px; height: 160px; background: #FFFFFF; border-radius: 10px; padding: 6px; display: flex; align-items: center; justify-content: center;">
-          <img id="qr-img" alt="QR Code Pix" style="width: 100%; height: 100%; object-fit: contain;">
-        </div>
-        <span id="pix-status" style="font-size: 12px; color: #6B7A99; text-align: center;">Guarde o comprovante para a retirada da pulseira.</span>
-      </div>
-      <div id="pagamento-confirmado" style="display: none; flex-direction: column; align-items: center; gap: 12px; background: #EAF6EA; border-radius: 12px; padding: 20px; text-align: center;">
-        <span style="width: 56px; height: 56px; border-radius: 50%; background: #FFFFFF; color: #1E8A46; font-size: 28px; display: flex; align-items: center; justify-content: center;">✓</span>
-        <strong style="color: #1F6E1F; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; text-transform: uppercase;">Pagamento confirmado!</strong>
-        <span style="color: #1F6E1F; font-size: 15px;">Obrigado pelo apoio à causa. Nos vemos na largada!</span>
-      </div>
-      <button class="btn" style="background: #16357F; color: #FFFFFF;" onclick="fecharForm()">Fechar</button>
-    </div>
-  </div>
 </div>
-
-<div id="modal-confirmar" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); z-index: 200; align-items: center; justify-content: center; padding: 20px;">
-  <div style="background: #FFFFFF; border-radius: 12px; padding: 24px; max-width: 420px; width: 100%; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);">
-    <h4 id="mc-titulo" style="margin: 0; color: #16357F; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; text-transform: uppercase;"></h4>
-    <p id="mc-msg" style="margin: 0; font-size: 14px; color: #33415E; line-height: 1.45;"></p>
-    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
-      <button class="btn-ghost" style="text-decoration: none; padding: 8px 14px; color: #33415E;" onclick="mcResolve(false)">Voltar</button>
-      <button id="mc-ok" class="btn" style="padding: 10px 20px; font-size: 15px;" onclick="mcResolve(true)">Confirmar</button>
-    </div>
-  </div>
-</div>
-
-<script>
-const PRECO_CAMISA = 40;
-const MODALIDADES = [
-  { rotulo: "Corrida 5 km", api: "corrida-5km" },
-  { rotulo: "Caminhada 5 km", api: "caminhada-5km" },
-  { rotulo: "Corrida Kids · 250 m", api: "kids-250m" }
-];
-const TAMANHOS = ["P", "M", "G", "GG", "XG", "INFANTIL"];
-const DOACOES = [5, 10, 20, 50];
-
-const CRONOGRAMA = [
-  ["07h00", "Retirada de pulseiras", "Abertura da retirada das pulseiras de identificação e recepção dos participantes, mediante entrega de 1 kg de alimento não perecível."],
-  ["07h30", "Ações de saúde", "Aferição de pressão arterial e cálculo de IMC."],
-  ["07h45", "Abertura oficial", "Fala institucional do Lions Clube e da Prefeitura Municipal."],
-  ["07h50", "Aquecimento coletivo", "Aquecimento orientado por profissional de Educação Física."],
-  ["08h00", "Largada — Corrida Kids", "Circuito de 250 m, interno à pista atlética."],
-  ["08h30", "Largada — Corrida e Caminhada 5 km", "Largada conjunta em dois pelotões: 1º corredores, 2º caminhantes."],
-  ["09h30", "Chegada e medalhas", "Chegada dos participantes e entrega das medalhas de participação."],
-  ["10h00", "Pós-evento", "Ações de saúde, integração com parceiros e convivência."],
-  ["10h45", "Sorteio de brindes", "Sorteio entre os participantes presentes."],
-  ["11h00", "Encerramento", "Agradecimentos e encerramento oficial."]
-];
-const REGRAS = [
-  ["01", "Inscrição gratuita e solidária", "Sem taxa de inscrição. No lugar dela: doação de 1 kg de alimento não perecível no dia do evento e depósito voluntário a uma entidade assistencial."],
-  ["02", "Sem caráter competitivo", "Evento participativo e comunitário, sem premiação competitiva. Todos os concluintes previamente inscritos recebem medalha de participação."],
-  ["03", "Pulseira de identificação", "Não há kits. A pulseira é retirada no dia, a partir das 07h00, e dá direito à medalha ao final do evento."],
-  ["04", "Termo de responsabilidade", "Aceite obrigatório de termo de responsabilidade e declaração de saúde no ato da inscrição, com seguro de acidentes pessoais para todos os inscritos."],
-  ["05", "Camiseta opcional", "A camiseta oficial é opcional, independente da inscrição, e apoia a sustentabilidade do evento."],
-  ["06", "Inscrições no local", "Poderão ocorrer conforme disponibilidade, porém sem garantia de medalha — inscritos antecipados têm prioridade."]
-];
-
-document.getElementById("lista-cronograma").innerHTML = CRONOGRAMA.map(([h, t, d]) => `
-  <div style="display:flex;gap:20px;align-items:baseline;padding:16px 0;border-bottom:1px solid #E3E9F4;">
-    <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;color:#F5A800;min-width:76px;">${h}</span>
-    <div style="display:flex;flex-direction:column;gap:2px;">
-      <strong style="color:#16357F;font-size:17px;">${t}</strong>
-      <span style="font-size:15px;">${d}</span>
-    </div>
-  </div>`).join("");
-
-document.getElementById("lista-regras").innerHTML = REGRAS.map(([n, t, d]) => `
-  <div class="card" style="display:flex;flex-direction:column;gap:10px;">
-    <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:#3FA9F5;">${n}</span>
-    <strong style="color:#16357F;font-size:17px;">${t}</strong>
-    <span style="font-size:15px;">${d}</span>
-  </div>`).join("");
-
-const estado = { modalidade: MODALIDADES[0], tamanho: "M", camisa: false, doacao: null };
-
-function renderChips() {
-  document.getElementById("chips-modalidade").innerHTML = MODALIDADES.map((m, i) =>
-    `<button type="button" class="chip ${estado.modalidade.api === m.api ? "on" : ""}" onclick="pickModalidade(${i})">${m.rotulo}</button>`).join("");
-  document.getElementById("chips-tamanho").innerHTML = TAMANHOS.map(t =>
-    `<button type="button" class="sq ${estado.tamanho === t ? "on" : ""}" onclick="pickTamanho('${t}')">${t}</button>`).join("");
-  document.getElementById("chips-doacao").innerHTML = DOACOES.map(v =>
-    `<button type="button" class="sq ${estado.doacao === v ? "on" : ""}" style="padding:12px 6px;font-weight:700;font-size:16px;" onclick="pickDoacao(${v})">R$ ${v}</button>`).join("");
-}
-function pickModalidade(i) { estado.modalidade = MODALIDADES[i]; renderChips(); }
-function pickTamanho(t) { estado.tamanho = t; renderChips(); }
-function pickDoacao(v) { estado.doacao = v; document.getElementById("f-outro").value = ""; renderChips(); }
-
-(function initNascimentoMax() {
-  const hoje = new Date();
-  const min = new Date(hoje.getFullYear() - 100, hoje.getMonth(), hoje.getDate());
-  const max = new Date(hoje.getFullYear() - 5, hoje.getMonth(), hoje.getDate());
-  const el = document.getElementById("f-nascimento");
-  el.min = min.toISOString().slice(0, 10);
-  el.max = max.toISOString().slice(0, 10);
-})();
-renderChips();
-
-window.__camisaEncerrada = false;
-window.__inscricoesEncerradas = false;
-(async function carregarConfig() {
-  try {
-    const r = await fetch("/api/config");
-    const d = await r.json();
-    window.__camisaEncerrada = !!d.camisa_encerrada;
-    window.__inscricoesEncerradas = !!d.inscricoes_encerradas;
-    if (window.__camisaEncerrada) aplicarCamisaEncerrada();
-    if (window.__inscricoesEncerradas) aplicarInscricoesEncerradas();
-  } catch { /* se falhar, segue com estado padrão */ }
-})();
-
-function aplicarInscricoesEncerradas() {
-  const banner = document.getElementById("banner-encerradas");
-  if (banner) banner.style.display = "block";
-  document.querySelectorAll('button[onclick="abrirFormOuConsulta()"]').forEach((b) => {
-    const t = b.textContent.trim().toLowerCase();
-    if (t.includes("inscrição") || t.includes("inscreva") || t.includes("inscricao")) {
-      b.textContent = "Consultar inscrição";
-    }
-  });
-}
-
-function abrirFormOuConsulta() {
-  if (window.__inscricoesEncerradas) return abrirConsulta();
-  return abrirForm();
-}
-
-function abrirConsulta() {
-  resetForm();
-  ["passo1","passo2","passo3","passo4","passo-duplicado"].forEach((id) => {
-    const el = document.getElementById(id); if (el) el.style.display = "none";
-  });
-  const p = document.getElementById("passo1-consulta");
-  if (p) p.style.display = "flex";
-  mostraErro("erro-consulta", "");
-  document.getElementById("modal").style.display = "flex";
-}
-
-async function consultarInscricaoPorCpf() {
-  const cpfRaw = document.getElementById("f-cpf-consulta").value;
-  const cpf = (cpfRaw || "").replace(/\D/g, "");
-  if (cpf.length !== 11 || !validaCpfFront(cpf)) {
-    return mostraErro("erro-consulta", "Informe um CPF válido (11 dígitos).");
-  }
-  mostraErro("erro-consulta", "");
-  try {
-    const r = await fetch("/api/inscricao/verificar-cpf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cpf }),
-    });
-    const d = await r.json();
-    if (d.ok && d.existe) {
-      document.getElementById("f-cpf").value = cpfRaw;
-      mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente, { pode_renovar: d.pode_renovar, valor_residual: d.valor_residual, itens: d.itens, totais: d.totais });
-      return;
-    }
-    mostraErro("erro-consulta", "Não encontramos inscrição para este CPF. As inscrições foram encerradas em 05/11.");
-  } catch (e) {
-    mostraErro("erro-consulta", "Erro ao consultar. Tente novamente em instantes.");
-  }
-}
-
-function aplicarCamisaEncerrada() {
-  const aviso = document.getElementById("aviso-camisa-encerrada");
-  if (aviso) aviso.style.display = "block";
-  const dupCta = document.getElementById("dup-cta-camisa");
-  const dupBtn = document.getElementById("dup-btn-camisa");
-  if (dupCta) dupCta.textContent = "Período de camisa encerrado";
-  if (dupBtn) {
-    dupBtn.textContent = "Fazer doação";
-    dupBtn.setAttribute("onclick", "irParaDoacaoExistente()");
-  }
-  const subCta = dupBtn?.parentElement?.querySelector("span + span");
-  if (subCta) subCta.textContent = "Contribua com uma doação pela causa.";
-}
-
-// Deep link do e-mail: /#retomar?cpf=XXXXXXXXXXX
-// Abre o modal, preenche CPF e dispara a verificação — se houver pagamento
-// pendente, mostra QR inline; se expirado, renova automaticamente.
-(function processarHashRetomar() {
-  const h = location.hash || "";
-  const m = h.match(/#retomar\?cpf=([\d.\-]+)/i);
-  if (!m) return;
-  const cpf = m[1].replace(/\D/g, "");
-  if (cpf.length !== 11) return;
-  // deixa a UI carregar antes de disparar
-  setTimeout(() => {
-    if (window.__inscricoesEncerradas) {
-      abrirConsulta();
-      const el = document.getElementById("f-cpf-consulta");
-      if (el) { el.value = cpf; mascaraCpf(el); consultarInscricaoPorCpf(); }
-    } else {
-      abrirForm();
-      const el = document.getElementById("f-cpf");
-      if (!el) return;
-      el.value = cpf;
-      mascaraCpf(el);      // aciona verificarCpfAuto → mostrarDuplicado
-    }
-    history.replaceState(null, "", location.pathname); // limpa hash da URL
-  }, 100);
-})();
-
-function irPara(n) {
-  ["passo1", "passo2", "passo3", "passo4"].forEach((id, i) => {
-    document.getElementById(id).style.display = i === n - 1 ? "flex" : "none";
-  });
-  document.getElementById("passo-duplicado").style.display = "none";
-}
-function mostrarDuplicado(insc, pagamentoPendente, extras) {
-  extras = extras || {};
-  ["passo1", "passo2", "passo3", "passo4"].forEach((id) => {
-    document.getElementById(id).style.display = "none";
-  });
-  document.getElementById("dup-nome").textContent = (insc.nome || "").split(" ")[0] || "Este CPF";
-  const temCamisa = !!insc.tem_camiseta;
-  renderResumoAtleta(extras.itens, extras.totais);
-  if (window.__camisaEncerrada) {
-    aplicarCamisaEncerrada();
-  } else {
-    document.getElementById("dup-cta-camisa").textContent = temCamisa
-      ? "Quer pedir outra camisa? Escolha o tamanho e pague por Pix:"
-      : "Ainda adquiriu a camisa? Peça agora:";
-    document.getElementById("dup-btn-camisa").textContent = temCamisa ? "Comprar outra camisa" : "Comprar camisa";
-  }
-
-  estado.pagamentoPendente = pagamentoPendente || null;
-  const bloco = document.getElementById("dup-pendente");
-  if (pagamentoPendente && pagamentoPendente.pixCopiaECola && window.qrcode) {
-    document.getElementById("dup-pend-valor").textContent = fmt(Number(pagamentoPendente.valor));
-    document.getElementById("dup-pend-cc").value = pagamentoPendente.pixCopiaECola;
-    document.getElementById("dup-pend-preview").textContent = pagamentoPendente.pixCopiaECola.slice(0, 24) + "…";
-    const qr = window.qrcode(0, "M");
-    qr.addData(pagamentoPendente.pixCopiaECola, "Byte");
-    qr.make();
-    document.getElementById("dup-pend-qr").src = qr.createDataURL(6, 8);
-    const status = document.getElementById("dup-pend-status");
-    if (status) { status.textContent = "Aguardando confirmação do pagamento…"; status.style.color = "#6B7A99"; }
-    bloco.style.display = "flex";
-    iniciarPollingPendente(pagamentoPendente.txid);
-  } else {
-    bloco.style.display = "none";
-  }
-
-  const expirado = document.getElementById("dup-expirado");
-  expirado.style.display = "none";
-
-  document.getElementById("passo-duplicado").style.display = "flex";
-  estado.dupInscricaoId = insc.id;
-
-  // Sem cobrança pendente mas com valor devido: gera Pix novo automaticamente.
-  // Se falhar, exibe o card manual com o botão "Gerar novo Pix" como fallback.
-  if (!pagamentoPendente && extras.pode_renovar && Number(extras.valor_residual) > 0) {
-    document.getElementById("dup-exp-valor").textContent = fmt(Number(extras.valor_residual));
-    renovarPagamento({ auto: true, valorFallback: Number(extras.valor_residual) });
-  }
-}
-
-let __mcResolve = null;
-function confirmar(titulo, msg, okText, tipo) {
-  document.getElementById("mc-titulo").textContent = titulo;
-  document.getElementById("mc-msg").textContent = msg;
-  const btn = document.getElementById("mc-ok");
-  btn.textContent = okText || "Confirmar";
-  if (tipo === "danger") { btn.style.background = "#C22B2B"; btn.style.color = "#FFFFFF"; }
-  else { btn.style.background = "#F5A800"; btn.style.color = "#16357F"; }
-  document.getElementById("modal-confirmar").style.display = "flex";
-  return new Promise((res) => { __mcResolve = res; });
-}
-function mcResolve(v) {
-  document.getElementById("modal-confirmar").style.display = "none";
-  if (__mcResolve) { __mcResolve(v); __mcResolve = null; }
-}
-
-async function cancelarPedidoPendente() {
-  if (!estado.dupInscricaoId) return;
-  const ok = await confirmar(
-    "Cancelar pedido de camisa/doação?",
-    "Isto cancela apenas o pedido de camisa e/ou doação em aberto. Sua inscrição na corrida continua ativa. O Pix atual será invalidado e não poderá mais ser pago. Caso queira cancelar a inscrição na corrida, envie e-mail para lionsclubebgcidadedovinho@gmail.com.",
-    "Sim, cancelar",
-    "danger"
-  );
-  if (!ok) return;
-  const cpf = val("f-cpf").replace(/\D/g, "");
-  try {
-    const r = await fetch(`/api/inscricao/${estado.dupInscricaoId}/cancelar-pendente`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cpf }),
-    });
-    const d = await r.json();
-    if (!d.ok) { await confirmar("Não foi possível cancelar", d.mensagem || "Tente novamente.", "OK"); return; }
-    clearInterval(pollingTimer);
-    document.getElementById("dup-pendente").style.display = "none";
-    document.getElementById("dup-expirado").style.display = "none";
-    document.getElementById("dup-resumo").style.display = "none";
-    await confirmar("Pedido cancelado", "Camisa e/ou doação removidas. Sua inscrição na corrida continua confirmada — nos vemos na largada!", "OK");
-  } catch {
-    await confirmar("Falha de conexão", "Verifique sua internet e tente novamente.", "OK");
-  }
-}
-
-async function renovarPagamento(opts) {
-  opts = opts || {};
-  const cpf = val("f-cpf").replace(/\D/g, "");
-  if (!cpf) return;
-  try {
-    const r = await fetch(`/api/inscricao/${estado.dupInscricaoId}/renovar`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cpf }),
-    });
-    const d = await r.json();
-    if (!d.ok || !d.pagamento) {
-      // Auto: mostra o card manual como fallback (usuário pode tentar de novo).
-      if (opts.auto) {
-        document.getElementById("dup-expirado").style.display = "flex";
-      } else {
-        await confirmar("Não foi possível gerar o Pix", d.mensagem || "Tente novamente em instantes.", "OK");
-      }
-      return;
-    }
-    document.getElementById("dup-expirado").style.display = "none";
-    mostrarPixPendenteInline(d.pagamento);
-  } catch {
-    if (opts.auto) document.getElementById("dup-expirado").style.display = "flex";
-    else await confirmar("Falha de conexão", "Verifique sua internet e tente novamente.", "OK");
-  }
-}
-
-function mostrarPixPendenteInline(pag) {
-  const bloco = document.getElementById("dup-pendente");
-  document.getElementById("dup-pend-valor").textContent = fmt(Number(pag.valor));
-  document.getElementById("dup-pend-cc").value = pag.pixCopiaECola;
-  document.getElementById("dup-pend-preview").textContent = pag.pixCopiaECola.slice(0, 24) + "…";
-  const qr = window.qrcode(0, "M");
-  qr.addData(pag.pixCopiaECola, "Byte");
-  qr.make();
-  document.getElementById("dup-pend-qr").src = qr.createDataURL(6, 8);
-  const status = document.getElementById("dup-pend-status");
-  if (status) { status.textContent = "Aguardando confirmação do pagamento…"; status.style.color = "#6B7A99"; }
-  bloco.style.display = "flex";
-  iniciarPollingPendente(pag.txid);
-}
-
-function copiarPixPendente() {
-  const cc = document.getElementById("dup-pend-cc");
-  if (!cc || !cc.value) return;
-  navigator.clipboard.writeText(cc.value).then(() => {
-    const btn = document.getElementById("dup-btn-copiar");
-    if (!btn) return;
-    const orig = btn.textContent;
-    btn.textContent = "Copiado!";
-    setTimeout(() => { btn.textContent = orig; }, 2000);
-  });
-}
-
-function iniciarPollingPendente(txid) {
-  if (!txid) return;
-  clearInterval(pollingTimer);
-  const fim = Date.now() + 30 * 60 * 1000;
-  pollingTimer = setInterval(async () => {
-    if (Date.now() > fim) { clearInterval(pollingTimer); return; }
-    try {
-      const r = await fetch("/api/pagamento/" + encodeURIComponent(txid));
-      const d = await r.json();
-      if (d.ok && d.pagamento && d.pagamento.status === "CONCLUIDA") {
-        clearInterval(pollingTimer);
-        const bloco = document.getElementById("dup-pendente");
-        if (bloco) bloco.innerHTML = '<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;"><span style="width: 56px; height: 56px; border-radius: 50%; background: #FFFFFF; color: #1E8A46; font-size: 28px; display: flex; align-items: center; justify-content: center;">✓</span><strong style="color: #1F6E1F; font-family: \'Barlow Condensed\', sans-serif; font-size: 22px; text-transform: uppercase;">Pagamento confirmado!</strong><span style="color: #1F6E1F; font-size: 15px;">Obrigado pelo apoio à causa. Nos vemos na largada!</span></div>';
-        bloco.style.background = "#EAF6EA";
-        bloco.style.borderColor = "#1E8A46";
-      }
-    } catch {}
-  }, 5000);
-}
-async function irParaCamisaExistente() {
-  if (window.__camisaEncerrada) return irParaDoacaoExistente();
-  estado.somenteCamisa = true;
-  estado.somenteDoacao = false;
-  irPara(2);
-}
-async function irParaDoacaoExistente() {
-  estado.somenteDoacao = true;
-  estado.somenteCamisa = false;
-  irPara(3);
-}
-function abrirForm() {
-  estado.somenteCamisa = false;
-  estado.somenteDoacao = false;
-  estado.dupInscricaoId = null;
-  estado.modalidade = MODALIDADES[0];
-  estado.tamanho = "M";
-  estado.camisa = false;
-  estado.doacao = null;
-  __verifyingCpf = null;
-  resetForm();
-  renderChips();
-  document.getElementById("modal").style.display = "flex";
-  irPara(1);
-}
-
-function resetForm() {
-  ["f-nome","f-cpf","f-email","f-fone","f-nascimento","f-sexo","f-equipe","f-emergencia","f-outro"]
-    .forEach((id) => { const el = document.getElementById(id); if (el) el.value = ""; });
-  const cid = document.getElementById("f-cidade"); if (cid) cid.value = "Bento Gonçalves";
-  const termo = document.getElementById("f-termo"); if (termo) termo.checked = false;
-  ["erro1","erro3"].forEach((id) => mostraErro(id, ""));
-  const bloco = document.getElementById("bloco-pix"); if (bloco) bloco.style.display = "none";
-  const confirmado = document.getElementById("pagamento-confirmado"); if (confirmado) confirmado.style.display = "none";
-  clearInterval(pollingTimer);
-  window.__pagamento = null;
-}
-function fecharForm() { document.getElementById("modal").style.display = "none"; }
-
-function val(id) { return document.getElementById(id).value.trim(); }
-
-function copiarEmail(btn) {
-  const email = "lionsclubebgcidadedovinho@gmail.com";
-  navigator.clipboard.writeText(email).then(() => {
-    const orig = btn.textContent;
-    btn.textContent = "✓";
-    setTimeout(() => { btn.textContent = orig; }, 1500);
-  });
-}
-
-function mascaraCpf(el) {
-  const d = el.value.replace(/\D/g, "").slice(0, 11);
-  let out = d;
-  if (d.length > 9) out = `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`;
-  else if (d.length > 6) out = `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6)}`;
-  else if (d.length > 3) out = `${d.slice(0,3)}.${d.slice(3)}`;
-  el.value = out;
-  if (d.length === 11) verificarCpfAuto(d);
-}
-
-let __verifyingCpf = null;
-async function verificarCpfAuto(cpf) {
-  if (__verifyingCpf === cpf) return;
-  __verifyingCpf = cpf;
-  try {
-    const r = await fetch("/api/inscricao/verificar-cpf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cpf }),
-    });
-    const d = await r.json();
-    if (d.ok && d.existe) mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente, { pode_renovar: d.pode_renovar, valor_residual: d.valor_residual, itens: d.itens, totais: d.totais });
-  } catch { /* silencioso */ }
-}
-function mostraErro(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg; el.style.display = msg ? "block" : "none";
-}
-
-function validaEmailFront(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s); }
-function validaCpfFront(cpf) {
-  if (!cpf || cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
-  const calc = (n) => {
-    let s = 0;
-    for (let i = 0; i < n - 1; i++) s += Number(cpf[i]) * (n - i);
-    const r = (s * 10) % 11;
-    return r === 10 ? 0 : r;
-  };
-  return calc(10) === Number(cpf[9]) && calc(11) === Number(cpf[10]);
-}
-
-async function submitDados() {
-  const cpf = val("f-cpf").replace(/\D/g, "");
-  if (!val("f-nome")) return mostraErro("erro1", "Informe seu nome.");
-  if (cpf.length !== 11) return mostraErro("erro1", "Informe um CPF válido (11 dígitos).");
-  if (!validaCpfFront(cpf)) return mostraErro("erro1", "CPF inválido.");
-  const email = val("f-email");
-  if (!email) return mostraErro("erro1", "Informe seu e-mail.");
-  if (!validaEmailFront(email)) return mostraErro("erro1", "E-mail inválido.");
-  if (!val("f-fone")) return mostraErro("erro1", "Informe seu WhatsApp.");
-  if (!val("f-nascimento")) return mostraErro("erro1", "Informe sua data de nascimento.");
-  if (!document.getElementById("f-termo").checked) return mostraErro("erro1", "É preciso aceitar o termo de responsabilidade para continuar.");
-  mostraErro("erro1", "");
-  try {
-    const r = await fetch("/api/inscricao/verificar-cpf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cpf }),
-    });
-    const d = await r.json();
-    if (d.ok && d.existe) { mostrarDuplicado(d.inscricao || {}, d.pagamento_pendente, { pode_renovar: d.pode_renovar, valor_residual: d.valor_residual, itens: d.itens, totais: d.totais }); return; }
-  } catch { /* segue offline se falhar */ }
-  if (window.__camisaEncerrada) { estado.camisa = false; irPara(3); return; }
-  irPara(2);
-}
-
-function camisa(quer) {
-  if (window.__camisaEncerrada) { estado.camisa = false; irPara(3); return; }
-  estado.camisa = quer;
-  if (estado.somenteCamisa) {
-    if (!quer) { fecharForm(); return; }
-    concluirSomenteCamisa();
-    return;
-  }
-  irPara(3);
-}
-
-function fmt(v) { return "R$ " + v.toFixed(2).replace(".", ","); }
-
-async function concluir(pular) {
-  if (estado.somenteCamisa) return concluirSomenteCamisa();
-  if (estado.somenteDoacao) return concluirSomenteDoacao(pular);
-  if (pular) { estado.doacao = null; document.getElementById("f-outro").value = ""; }
-  const outro = parseFloat(document.getElementById("f-outro").value);
-  const doacao = !pular && Number.isFinite(outro) && outro > 0 ? outro : (!pular ? estado.doacao : null);
-  const total = (estado.camisa ? PRECO_CAMISA : 0) + (doacao || 0);
-
-  const payload = {
-    nome: val("f-nome"),
-    email: val("f-email"),
-    telefone: val("f-fone"),
-    data_nascimento: val("f-nascimento"),
-    sexo: val("f-sexo"),
-    cidade: val("f-cidade"),
-    modalidade: estado.modalidade.api,
-    contato_emergencia: val("f-emergencia"),
-    aceite_termo: true,
-    equipe: val("f-equipe") || undefined,
-    quer_camiseta: estado.camisa,
-    tamanho_camiseta: estado.camisa ? estado.tamanho : undefined,
-    cpf: val("f-cpf"),
-    doacao_valor: doacao || undefined
-  };
-
-  const btn = document.getElementById("btn-concluir");
-  btn.disabled = true; btn.textContent = "Enviando…";
-  let numInscricao;
-  try {
-    const resp = await fetch("/api/inscricao", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    const data = await resp.json();
-    if (resp.status === 409 && data.cpf_duplicado) {
-      btn.disabled = false; btn.textContent = "Concluir inscrição";
-      mostraErro("erro3", "");
-      mostrarDuplicado(data.inscricao || {}, data.pagamento_pendente, { pode_renovar: data.pode_renovar, valor_residual: data.valor_residual, itens: data.itens, totais: data.totais });
-      return;
-    }
-    if (!data.ok) {
-      mostraErro("erro3", data.mensagem || "Não foi possível registrar a inscrição.");
-      btn.disabled = false; btn.textContent = "Concluir inscrição";
-      return;
-    }
-    numInscricao = String(data.id);
-    window.__pagamento = data.pagamento || null;
-  } catch (e) {
-    mostraErro("erro3", "Falha de conexão. Verifique sua internet e tente novamente.");
-    btn.disabled = false; btn.textContent = "Concluir inscrição";
-    return;
-  }
-  btn.disabled = false; btn.textContent = "Concluir inscrição";
-  mostraErro("erro3", "");
-
-  document.getElementById("r-nome").textContent = val("f-nome").split(" ")[0];
-  document.getElementById("r-num").textContent = numInscricao;
-  document.getElementById("r-modalidade").textContent = labelModalidade(estado.modalidade.api);
-  renderPendencias([
-    estado.camisa ? { rotulo: "Camisa (" + estado.tamanho + ")", valor: PRECO_CAMISA } : null,
-    doacao ? { rotulo: "Doação solidária", valor: doacao } : null,
-  ]);
-  document.getElementById("r-total").textContent = total > 0 ? fmt(total) : "R$ 0,00 · inscrição gratuita";
-
-  const blocoPix = document.getElementById("bloco-pix");
-  const pag = window.__pagamento;
-  if (total > 0 && pag && pag.pixCopiaECola && window.qrcode) {
-    const qr = window.qrcode(0, "M");
-    qr.addData(pag.pixCopiaECola, "Byte");
-    qr.make();
-    document.getElementById("qr-img").src = qr.createDataURL(6, 8);
-    document.getElementById("r-total-pix").textContent = fmt(total);
-    const cc = document.getElementById("pix-copia-cola");
-    if (cc) cc.value = pag.pixCopiaECola;
-    const preview = document.getElementById("pix-preview");
-    if (preview) preview.textContent = pag.pixCopiaECola.slice(0, 24) + "…";
-    blocoPix.style.display = "flex";
-    iniciarPollingPagamento(pag.txid);
-  } else {
-    blocoPix.style.display = "none";
-  }
-  irPara(4);
-}
-
-async function concluirSomenteDoacao(pular) {
-  if (pular) { fecharForm(); return; }
-  const outro = parseFloat(document.getElementById("f-outro").value);
-  const doacao = Number.isFinite(outro) && outro > 0 ? outro : estado.doacao;
-  if (!doacao || doacao <= 0) return mostraErro("erro3", "Escolha um valor ou informe outro.");
-  const btn = document.getElementById("btn-concluir");
-  btn.disabled = true; btn.textContent = "Enviando…";
-  mostraErro("erro3", "");
-  try {
-    const resp = await fetch(`/api/inscricao/${estado.dupInscricaoId}/doacao`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cpf: val("f-cpf"), valor: doacao }),
-    });
-    const data = await resp.json();
-    if (!data.ok) {
-      mostraErro("erro3", data.mensagem || "Não foi possível registrar a doação.");
-      btn.disabled = false; btn.textContent = "Concluir inscrição";
-      return;
-    }
-    window.__pagamento = data.pagamento || null;
-    btn.disabled = false; btn.textContent = "Concluir inscrição";
-    const totalCobranca = Number(data.valor || doacao);
-    document.getElementById("r-nome").textContent = (val("f-nome") || "Você").split(" ")[0];
-    document.getElementById("r-num").textContent = estado.dupInscricaoId;
-    document.getElementById("r-modalidade").textContent = labelModalidade(data.modalidade);
-    renderPendenciasDoBackend(data.pendencias);
-    document.getElementById("r-total").textContent = fmt(totalCobranca);
-    montaBlocoPix(totalCobranca);
-    irPara(4);
-  } catch {
-    mostraErro("erro3", "Falha de conexão. Tente novamente.");
-    btn.disabled = false; btn.textContent = "Concluir inscrição";
-  }
-}
-
-function renderResumoAtleta(itens, totais) {
-  const el = document.getElementById("dup-resumo");
-  if (!el) return;
-  const cams = (itens && itens.camisas) || [];
-  const dons = (itens && itens.doacoes) || [];
-  if (!cams.length && !dons.length) { el.style.display = "none"; el.innerHTML = ""; return; }
-
-  const pendentes = { cams: cams.filter(c => c.status !== "PAGO"), dons: dons.filter(d => d.status !== "PAGO") };
-  const pagos = { cams: cams.filter(c => c.status === "PAGO"), dons: dons.filter(d => d.status === "PAGO") };
-  const temPendente = pendentes.cams.length || pendentes.dons.length;
-  const alvo = temPendente ? pendentes : pagos;
-
-  const linha = (rotulo, valor) =>
-    `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-       <span>${rotulo}</span>
-       <strong style="color:${temPendente ? "#B57100" : "#1F6E1F"};">${fmt(Number(valor))}</strong>
-     </div>`;
-  const html = [
-    `<div style="font-size:12px;font-weight:700;color:${temPendente ? "#B57100" : "#1F6E1F"};text-transform:uppercase;letter-spacing:0.04em;">${temPendente ? "Pendente" : "Já pago"}</div>`,
-    ...alvo.cams.map(c => linha(`Camisa (${c.tamanho || "?"})`, c.valor)),
-    ...alvo.dons.map(d => linha("Doação solidária", d.valor)),
-  ];
-  if (totais) {
-    const pago = Number(totais.pago || 0);
-    const residual = Number(totais.residual || 0);
-    html.push(`<div style="border-top:1px solid #E3E9F4;margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;font-size:13px;color:#6B7A99;">
-      ${temPendente
-        ? `<span>Total pendente</span><strong style="color:#B57100;">${fmt(residual)}</strong>`
-        : `<span>Total pago</span><strong style="color:#1F6E1F;">${fmt(pago)} 🎉</strong>`}
-    </div>`);
-  }
-  el.innerHTML = html.join("");
-  el.style.display = "flex";
-}
-
-function labelModalidade(m) {
-  return ({"corrida-5km":"Corrida 5 km","caminhada-5km":"Caminhada 5 km","kids-250m":"Corrida Kids · 250 m"})[m] || (m || "-");
-}
-
-function renderPendencias(itens) {
-  const validos = (itens || []).filter(Boolean);
-  const box = document.getElementById("r-pendencias");
-  const lista = document.getElementById("r-pend-lista");
-  if (!validos.length) { box.style.display = "none"; lista.innerHTML = ""; return; }
-  box.style.display = "flex";
-  lista.innerHTML = validos.map(i =>
-    `<div style="display: flex; justify-content: space-between; font-size: 14px;">
-       <span>${i.rotulo}</span>
-       <strong style="color: #B57100;">${fmt(Number(i.valor))}</strong>
-     </div>`
-  ).join("");
-}
-
-function renderPendenciasDoBackend(p) {
-  if (!p) { renderPendencias([]); return; }
-  const itens = [];
-  const camisas = p.camisas || [];
-  if (camisas.length) {
-    const tamanhos = camisas.map(c => c.tamanho || "?").join(", ");
-    const total = camisas.reduce((s, c) => s + Number(c.valor || 0), 0);
-    itens.push({ rotulo: `Camisa${camisas.length > 1 ? "s" : ""} (${tamanhos})`, valor: total });
-  }
-  if (Number(p.total_doacoes || 0) > 0) {
-    const qtd = (p.doacoes || []).length;
-    itens.push({ rotulo: `Doaç${qtd > 1 ? "ões" : "ão"} solidária${qtd > 1 ? "s" : ""}`, valor: p.total_doacoes });
-  }
-  renderPendencias(itens);
-}
-
-function montaBlocoPix(total) {
-  const blocoPix = document.getElementById("bloco-pix");
-  const pag = window.__pagamento;
-  if (pag && pag.pixCopiaECola && window.qrcode) {
-    const qr = window.qrcode(0, "M");
-    qr.addData(pag.pixCopiaECola, "Byte");
-    qr.make();
-    document.getElementById("qr-img").src = qr.createDataURL(6, 8);
-    document.getElementById("r-total-pix").textContent = fmt(total);
-    const cc = document.getElementById("pix-copia-cola");
-    if (cc) cc.value = pag.pixCopiaECola;
-    const preview = document.getElementById("pix-preview");
-    if (preview) preview.textContent = pag.pixCopiaECola.slice(0, 24) + "…";
-    blocoPix.style.display = "flex";
-    iniciarPollingPagamento(pag.txid);
-  } else {
-    blocoPix.style.display = "none";
-  }
-}
-
-async function concluirSomenteCamisa() {
-  const btn = document.getElementById("btn-concluir");
-  btn.disabled = true; btn.textContent = "Enviando…";
-  mostraErro("erro3", "");
-  const inscId = estado.dupInscricaoId;
-  try {
-    const resp = await fetch(`/api/inscricao/${inscId}/camisa`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cpf: val("f-cpf"), tamanho_camiseta: estado.tamanho }),
-    });
-    const data = await resp.json();
-    if (!data.ok) {
-      mostraErro("erro3", data.mensagem || "Não foi possível registrar a camiseta.");
-      btn.disabled = false; btn.textContent = "Concluir inscrição";
-      return;
-    }
-    window.__pagamento = data.pagamento || null;
-    btn.disabled = false; btn.textContent = "Concluir inscrição";
-
-    const totalCobranca = Number(data.valor || PRECO_CAMISA);
-    document.getElementById("r-nome").textContent = (val("f-nome") || "Você").split(" ")[0];
-    document.getElementById("r-num").textContent = inscId;
-    document.getElementById("r-modalidade").textContent = labelModalidade(data.modalidade);
-    renderPendenciasDoBackend(data.pendencias);
-    document.getElementById("r-total").textContent = fmt(totalCobranca);
-
-    const blocoPix = document.getElementById("bloco-pix");
-    const pag = window.__pagamento;
-    if (pag && pag.pixCopiaECola && window.qrcode) {
-      const qr = window.qrcode(0, "M");
-      qr.addData(pag.pixCopiaECola, "Byte");
-      qr.make();
-      document.getElementById("qr-img").src = qr.createDataURL(6, 8);
-      document.getElementById("r-total-pix").textContent = fmt(totalCobranca);
-      const cc = document.getElementById("pix-copia-cola");
-      if (cc) cc.value = pag.pixCopiaECola;
-      const preview = document.getElementById("pix-preview");
-      if (preview) preview.textContent = pag.pixCopiaECola.slice(0, 24) + "…";
-      blocoPix.style.display = "flex";
-      iniciarPollingPagamento(pag.txid);
-    } else {
-      blocoPix.style.display = "none";
-    }
-    irPara(4);
-  } catch {
-    mostraErro("erro3", "Falha de conexão. Tente novamente.");
-    btn.disabled = false; btn.textContent = "Concluir inscrição";
-  }
-}
-
-function copiarPix() {
-  const cc = document.getElementById("pix-copia-cola");
-  if (!cc || !cc.value) return;
-  navigator.clipboard.writeText(cc.value).then(() => {
-    const btn = document.getElementById("btn-copiar");
-    if (!btn) return;
-    const orig = btn.textContent;
-    btn.textContent = "Copiado!";
-    setTimeout(() => { btn.textContent = orig; }, 2000);
-  });
-}
-
-let pollingTimer = null;
-function iniciarPollingPagamento(txid) {
-  if (!txid) return;
-  clearInterval(pollingTimer);
-  const fim = Date.now() + 30 * 60 * 1000;
-  pollingTimer = setInterval(async () => {
-    if (Date.now() > fim) { clearInterval(pollingTimer); return; }
-    try {
-      const r = await fetch("/api/pagamento/" + encodeURIComponent(txid));
-      const d = await r.json();
-      if (d.ok && d.pagamento && d.pagamento.status === "CONCLUIDA") {
-        clearInterval(pollingTimer);
-        const bloco = document.getElementById("bloco-pix");
-        if (bloco) bloco.style.display = "none";
-        const confirmado = document.getElementById("pagamento-confirmado");
-        if (confirmado) confirmado.style.display = "flex";
-      }
-    } catch {}
-  }, 5000);
-}
-</script>
 </body>
 </html>
