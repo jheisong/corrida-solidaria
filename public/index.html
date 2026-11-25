@@ -29,6 +29,7 @@
 .corredor{animation-name:corre;animation-timing-function:cubic-bezier(.45,.05,.55,.95);animation-iteration-count:infinite}
 @keyframes pulsa{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 .pulse{animation:pulsa 2.4s ease-in-out infinite}
+.video-fundo{transform:scale(1.05)}
 .celular{transform:rotate(var(--r));transition:transform .4s cubic-bezier(.2,.7,.2,1)}.celular:hover{transform:rotate(0) scale(1.02)}
 .foto img{transition:transform .6s cubic-bezier(.2,.7,.2,1)}.foto:hover img{transform:scale(1.06)}
 .logo-card{transition:transform .25s,box-shadow .25s,opacity .7s}.logo-card:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(22,53,127,.12)}
@@ -46,6 +47,7 @@ h1, h2, h3, h4 { font-family: 'Barlow Condensed', sans-serif; text-transform: up
   .grid2 { grid-template-columns: 1fr !important; }
   .nav-link { display: none !important; }
   .galeria { column-count: 2 !important; }
+  .video-fundo { display: none; }
   h1 { font-size: 52px !important; }
   #ate-2027 h2 { font-size: 56px !important; }
 }
@@ -141,22 +143,24 @@ h1, h2, h3, h4 { font-family: 'Barlow Condensed', sans-serif; text-transform: up
 </div>
 </section>
 
-<section id="video" style="padding: 88px 24px; background: #16357F; color: #FFFFFF; position: relative; overflow: hidden">
-<div class="grid2" style="max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 56px; align-items: center">
+<section id="video" style="position: relative; overflow: hidden; padding: 80px 24px; background: #0B1E4D; color: #FFFFFF">
+<video class="video-fundo" src="img/video.mp4" muted autoplay loop playsinline preload="auto" aria-hidden="true" tabindex="-1" style="position: absolute; inset: -40px; width: calc(100% + 80px); height: calc(100% + 80px); object-fit: cover; filter: blur(26px) brightness(0.4) saturate(1.2); pointer-events: none"></video>
+<div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(22, 53, 127, 0.45)"></div>
+<div class="grid2" style="max-width: 1080px; margin: 0 auto; position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 56px; align-items: center">
 <div class="reveal" style="display: flex; flex-direction: column; gap: 18px">
 <span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; color: #F5A800; font-size: 17px">Assista</span>
-<h2 style="color: #FFFFFF; font-size: 56px; line-height: 0.95">O nosso dia<br><span style="color: #3FA9F5">em 1 minuto</span></h2>
-<p style="margin: 0; font-size: 18px; color: #C9D6F0; line-height: 1.5; max-width: 44ch">Do aquecimento coletivo à chegada com medalha: reviva os melhores momentos do Treino Solidário, com o mascote, a Corrida Kids, as frutas e muita gente correndo por uma boa causa.</p>
+<h2 style="color: #FFFFFF; font-size: 64px; line-height: 0.95">O nosso dia<br><span style="color: #3FA9F5">em 1 minuto</span></h2>
+<p style="margin: 0; font-size: 18px; color: #DCE6F7; line-height: 1.5; max-width: 44ch">Do aquecimento coletivo à chegada com medalha: reviva os melhores momentos do Treino Solidário, com o mascote, a Corrida Kids, as frutas e muita gente correndo por uma boa causa.</p>
 <div style="display: flex; flex-wrap: wrap; gap: 10px">
-<span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px">Aquecimento</span>
-<span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px">Largada</span>
-<span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px">Chegada</span>
-<span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px">Medalhas</span>
+<span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px; background: rgba(11, 30, 77, 0.4)">Aquecimento</span>
+<span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px; background: rgba(11, 30, 77, 0.4)">Largada</span>
+<span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px; background: rgba(11, 30, 77, 0.4)">Chegada</span>
+<span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px; background: rgba(11, 30, 77, 0.4)">Medalhas</span>
 </div>
 </div>
 <div class="reveal" style="display: flex; justify-content: center; transition-delay: 0.15s">
-<div class="celular" style="--r: 3deg; width: 100%; max-width: 460px; padding: 14px; background: #0B1E4D; border-radius: 40px; box-shadow: 0 0 0 3px #3FA9F5, 0 24px 60px rgba(0, 0, 0, 0.45)">
-<video src="img/video.mp4" poster="img/video-poster.jpg" controls playsinline preload="metadata" aria-label="Vídeo com os melhores momentos do Treino Solidário" style="display: block; width: 100%; aspect-ratio: 9 / 16; border-radius: 30px; background: #000000; object-fit: cover"></video>
+<div class="celular" style="--r: 3deg; padding: 12px; background: #0B1E4D; border-radius: 36px; box-shadow: 0 0 0 3px #3FA9F5, 0 24px 60px rgba(0, 0, 0, 0.5)">
+<video src="img/video.mp4" poster="img/video-poster.jpg" controls playsinline preload="metadata" aria-label="Vídeo com os melhores momentos do Treino Solidário" style="display: block; height: min(70vh, 620px); width: auto; max-width: 100%; aspect-ratio: 9 / 16; border-radius: 26px; background: #000000; object-fit: cover"></video>
 </div>
 </div>
 </div>
@@ -282,6 +286,7 @@ h1, h2, h3, h4 { font-family: 'Barlow Condensed', sans-serif; text-transform: up
 <script>
 (function () {
   var reduz = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduz) { var vf = document.querySelector('.video-fundo'); if (vf) { vf.removeAttribute('autoplay'); vf.pause(); } }
   // Revelar ao rolar
   var els = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window) {
