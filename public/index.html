@@ -29,6 +29,7 @@
 .corredor{animation-name:corre;animation-timing-function:cubic-bezier(.45,.05,.55,.95);animation-iteration-count:infinite}
 @keyframes pulsa{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 .pulse{animation:pulsa 2.4s ease-in-out infinite}
+.celular{transform:rotate(var(--r));transition:transform .4s cubic-bezier(.2,.7,.2,1)}.celular:hover{transform:rotate(0) scale(1.02)}
 .foto img{transition:transform .6s cubic-bezier(.2,.7,.2,1)}.foto:hover img{transform:scale(1.06)}
 .logo-card{transition:transform .25s,box-shadow .25s,opacity .7s}.logo-card:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(22,53,127,.12)}
 html.js .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
@@ -58,6 +59,7 @@ h1, h2, h3, h4 { font-family: 'Barlow Condensed', sans-serif; text-transform: up
 <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; color: #16357F; text-transform: uppercase">Treino Solidário</span>
 </a>
 <div style="display: flex; align-items: center; gap: 20px; font-weight: 600; font-size: 15px">
+<a class="nav-link" href="#video" style="color: #33415E">Vídeo</a>
 <a class="nav-link" href="#fotos" style="color: #33415E">Fotos</a>
 <a class="nav-link" href="#patrocinadores" style="color: #33415E">Patrocinadores</a>
 <a href="#ate-2027" style="display: block; text-align: center; background: #F5A800; color: #16357F; border: none; border-radius: 10px; padding: 14px 28px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; padding: 10px 20px; font-size: 17px">Até 2027</a>
@@ -118,7 +120,7 @@ h1, h2, h3, h4 { font-family: 'Barlow Condensed', sans-serif; text-transform: up
 </div>
 </div>
 
-<section style="padding: 72px 24px 8px; background: #FFFFFF">
+<section style="padding: 72px 24px 80px; background: #FFFFFF">
 <div style="max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px">
 <div class="reveal" style="transition-delay: 0.0s; display: flex; flex-direction: column; gap: 6px; padding: 24px; background: #FFFFFF; border-radius: 16px; border: 1.5px solid #E3E9F4">
 <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 56px; line-height: 1; color: #16357F"><span class="count" data-to="5.09" data-dec="2">5,09</span><span style="font-size: 28px; color: #3FA9F5; margin-left: 4px">km</span></span>
@@ -135,6 +137,27 @@ h1, h2, h3, h4 { font-family: 'Barlow Condensed', sans-serif; text-transform: up
 <div class="reveal" style="transition-delay: 0.3s; display: flex; flex-direction: column; gap: 6px; padding: 24px; background: #FFFFFF; border-radius: 16px; border: 1.5px solid #E3E9F4">
 <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 56px; line-height: 1; color: #16357F"><span class="count" data-to="15" data-dec="0">15</span><span style="font-size: 28px; color: #3FA9F5; margin-left: 4px"></span></span>
 <span style="font-size: 15px; color: #6B7A99">patrocinadores que abraçaram a causa</span>
+</div>
+</div>
+</section>
+
+<section id="video" style="padding: 88px 24px; background: #16357F; color: #FFFFFF; position: relative; overflow: hidden">
+<div class="grid2" style="max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px; align-items: center">
+<div class="reveal" style="display: flex; flex-direction: column; gap: 18px">
+<span style="color: #3FA9F5; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: 0.14em; color: #F5A800; font-size: 17px">Assista</span>
+<h2 style="color: #FFFFFF; font-size: 56px; line-height: 0.95">O nosso dia<br><span style="color: #3FA9F5">em 1 minuto</span></h2>
+<p style="margin: 0; font-size: 18px; color: #C9D6F0; line-height: 1.5; max-width: 44ch">Do aquecimento coletivo à chegada com medalha: reviva os melhores momentos do Treino Solidário, com o mascote, a Corrida Kids, as frutas e muita gente correndo por uma boa causa.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px">Aquecimento</span>
+<span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px">Largada</span>
+<span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px">Chegada</span>
+<span style="border: 1.5px solid #3FA9F5; border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 15px">Medalhas</span>
+</div>
+</div>
+<div class="reveal" style="display: flex; justify-content: center; transition-delay: 0.15s">
+<div class="celular" style="--r: 3deg; width: 100%; max-width: 340px; padding: 12px; background: #0B1E4D; border-radius: 40px; box-shadow: 0 0 0 3px #3FA9F5, 0 24px 60px rgba(0, 0, 0, 0.45)">
+<video src="img/video.mp4" poster="img/video-poster.jpg" controls playsinline preload="metadata" aria-label="Vídeo com os melhores momentos do Treino Solidário" style="display: block; width: 100%; aspect-ratio: 9 / 16; border-radius: 30px; background: #000000; object-fit: cover"></video>
+</div>
 </div>
 </div>
 </section>
